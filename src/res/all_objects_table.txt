@@ -1,0 +1,3 @@
+player_id:0,chapter_id:0,map_id:0,object_pos_hint:{'x': 0.6770833333333334, 'y': 0.45185185185185184},object_size_hint:(0.03125, 0.05555555555555555),source:res/images/items/卡片L.jpg
+player_id:0,chapter_id:0,map_id:0,object_pos_hint:{'x': 0.5197916666666667, 'y': 0.7462962962962962},object_size_hint:(0.18229166666666666, 0.32407407407407407),source:res/images/items/卡片L.png
+player_id:0,chapter_id:0,map_id:0,object_pos_hint:{'x': 0.3854166666666667, 'y': 0.3138888888888889},object_size_hint:(0.046875, 0.08333333333333333),source:res/images/items/成績單.png
