@@ -62,10 +62,20 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 	def link_main_screen(self):
 		self.main_screen = self.manager.get_screen('story')
+
+		#for testing
+		j = 0
+		c = 0
 		for i in range(4):
-			for j in range(i+4):
-				self.players[i].get_item(j)
-				self.players[i].GG = True
+			while c <= 4:
+				for str_id in self.object_table.keys():
+					item = self.object_table[str_id]
+					if item['source'] is not None:				
+						self.players[i].get_item(int(str_id))
+						c += 1
+
+			self.players[i].GG = True
+
 		self.main_screen.start_story(self)		
 		# Clock.schedule_interval(global_mouse, 0.6)	
 		#self.players[i]
@@ -298,24 +308,27 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 				if 'item' in self.object_types:
 					#定義: 可以收進"道具欄"並可"使用"
 					screen.on_press_item(self)
-				if 'puzzle' in self.object_types:
-					#定義: 物件需要輸入正確密碼，以打開該物件；例如[密碼鎖]
-					screen.on_press_puzzle(self) 
-					screen.hp_per_round += 1
-				if 'lock' in self.object_types:
-					#定義: 將正確道具拖曳至此物件，以打開該物件；例如[鑰匙]
-					screen.on_press_lock(self) 
-				if 'clue' in self.object_types:
-					#定義: 作為［解碼］所需要的關鍵資訊
-					screen.on_press_clue(self) 
-				if 'trigger' in self.object_types:
-					#定義: 點擊即觸發進入劇情
-					screen.on_press_trigger(self) 
-				if 'switching' in self.object_types:
-					#定義: 點擊切換場景用
-					screen.on_press_switching(self) 	
-				if 'nothing' in self.object_types:
-					screen.on_press_nothing(self) 	
+				else:
+					if 'puzzle' in self.object_types:
+						#定義: 物件需要輸入正確密碼，以打開該物件；例如[密碼鎖]
+						screen.on_press_puzzle(self) 
+					if 'lock' in self.object_types:
+						#定義: 將正確道具拖曳至此物件，以打開該物件；例如[鑰匙]
+						screen.on_press_lock(self) 
+					if 'synthesis' in self.object_types:
+						#定義: 將正確道具拖曳至此物件，以打開該物件；例如[鑰匙]
+						screen.on_press_synthesis(self)
+					if 'clue' in self.object_types:
+						#定義: 作為［解碼］所需要的關鍵資訊
+						screen.on_press_clue(self) 
+					if 'trigger' in self.object_types:
+						#定義: 點擊即觸發進入劇情
+						screen.on_press_trigger(self) 
+					if 'switching' in self.object_types:
+						#定義: 點擊切換場景用
+						screen.on_press_switching(self) 	
+					if 'nothing' in self.object_types:
+						screen.on_press_nothing(self) 	
 				
 				screen.hp_per_round -= 1
 			else:

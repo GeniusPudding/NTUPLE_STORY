@@ -47,6 +47,9 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 		d_len = min(.15*global_w,.2*global_h)#FreeDraggableItem#,
 		#self.dragging = ItemInBag(screen=self,source=source,size=(d_len,d_len),pos=(.8*global_w,.4*global_h)
 		#self.item_image =  [ImageButton(callback=partial(self.use_item,object_id), object_id=object_id,pos=item_cur_pos[i],size=self.item_size ,source=GM.object_table[str(object_id)]['source'],size_hint=(None,None)) for i,object_id in enumerate(item_list)] 
+		
+		for object_id in item_list[1:]:
+			print('source:',GM.object_table[str(object_id)]['source'])
 		self.item_image =  [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list[1:])] 
 
 		#first
@@ -132,18 +135,22 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 				screen.remove_widget(item)
 				screen.add_widget(item)	
 
-	def use_item(self,*args):
-		print("use item args:",args)
-		self.focusing_frame_id = args[0]
-		if self.parent.current_mode == 1:
-			print("Trigger the plot!")#TODO: 實作道具使用功能
-			#self.parent.current_mode = 3
-		elif self.parent.current_mode == 2:
-			print("Use to the puzzle!")
-			#TODO:touch down時道具欄關閉產生draggable物件, touch move物件跟著游標位置移動, 
-			#touch up時如果拖曳到正確位置則可使用(放下)並刪除道具欄內的原物，否則自動回到道具欄
+	def use_item(self,screen,object_id,*args):#the entry of using items in itemframe, behave samely as click on the focusing item
+		print("use item args:",args)#self.parent.current_mode == 1 here
+		item = GM.object_table[str(object_id)]	
+		types = item['function_types']
+		if len(types) == 1:#'item' only, 
+			print("此道具似乎無法單獨使用!")
 
+		else :#type:trigger, lock, puzzle, synthesis 原則上剩一種
+			if 'trigger' in types:
+				print('觸發劇情!進入劇情模式!')
+				screen.current_mode = 3
+				return
+			behavior_type = types.remove('item')[0]
+			screen.enter_puzzle_mode(object_id, behavior_type)			
 
+		
 	def on_touch_down(self, touch):
 		#print('itemframe on_touch_down')
 		# print(touch)
@@ -324,7 +331,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 
 
-	def auto_switch_mode(self, instance, mode):
+	def auto_switch_mode(self, instance, mode):#Entry of all stroy screen modes
 		print('[*]Switch mode:', mode)
 		if mode == 0:
 			self.dialog_view = 1#auto_dialog_view	
@@ -333,8 +340,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 1:
 			self.dialog_view = 0
 
-		elif mode == 2:
-			pass#TODO
+		elif mode == 2:#for banning some game functions in mode 1(exploring mode)
+			self.item_view = 1
+			#TODO
+			#配置一個小返回按鈕於角落，按下'b'回到mode 1
 
 		elif mode == 3:
 			self.dialog_view = 1
@@ -371,7 +380,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print(f'chapter_maps:{self.chapter_maps},NPCs_allocation:{self.NPCs_allocation},objects_allocation:{self.objects_allocation},current_dialog:{self.auto_dialog}')
 
 	def auto_new_chapter(self, instance, boolean):#called when outer calls "self.complete_chapter = True"  
-		print('[*]complete_chapter:', boolean)
+		print('[*]complete_chapter:', boolean)#after the plot's dialog ended
 		GM.change_chapter()
 		#TODO: link to the plot of the chapter's ending
 		
@@ -446,8 +455,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#dynamic draggable generate
 			#types = GM.object_table[str(focusing_object_id)]['function_types']
 			source = GM.object_table[str(focusing_object_id)]['source']
-			# print('global_x:',global_x,'global_y:',global_y)
-			# print('id(global_x),id(global_y):',id(global_x),id(global_y))
 			d_len = min(.15*global_w,.2*global_h)#FreeDraggableItem#,
 			self.dragging = ItemInBag(screen=self,source=source,size=(d_len,d_len),pos=(.75*global_w,.4*global_h),size_hint=(None,None))
 			self.add_widget(self.dragging)
@@ -473,7 +480,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				if self.current_mode == 3:
 					self.exploring_dialog(press_key_id)
 
-
+			elif press_key_id == 98:#b:
+				if self.current_mode == 2:
+					#self.remove_widget(self.prompt_label) 
+					#TODO:將mode 2 的暫存狀態回復
+					self.current_mode = 1
 
 			elif press_key_id == 105:#i:
 				self.item_view ^= 1
@@ -491,10 +502,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 				elif self.current_mode == 1:
 					if self.item_view == 1:
-						self.itemframe.use_item(self.focusing_object_id)
+						self.itemframe.use_item(self,self.focusing_object_id)
 
 				elif self.current_mode == 3:
 					if self.manual_node.type == 'tail': 
+						self.remove_widget(self.prompt_label) 
 						self.complete_chapter = True
 
 
@@ -674,58 +686,99 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			node = self.manual_node = self.manual_node.get_last()
 			self.lastline_time = line_display_scheduler(self,speaker_name[node.speaker],node.text_line,False,special_char_time,next_line_time,common_char_time)
 
-	#load next line of dialogs
-	# def next_dialog(self,*args):#res/dialogs/{}_{}.txt #,instance,value
-	# 	#TODO: next/back dialog functions
-	# 	print("Enter function: next_dialog")
-	# 	print("self.dialogs_idx:",self.dialogs_idx)
+	def enter_puzzle_mode(self, object_id, behavior_type):#在道具欄使用道具進入的puzzle_mode跟地圖上點擊有何不同
+
+		if behavior_type == 'puzzle':
+			self.puzzle_handler(object_id)
+		elif behavior_type == 'lock': 
+			self.lock_handler(object_id)
+		elif behavior_type == 'synthesis': 
+			self.synthesis_handler(object_id)
+
 		
-	# 	#self.tmp_dialog = self.dialogs[self.dialogs_idx] #self.f.readline()
-	# 	if  self.dialogs_idx<self.dialog_count-1:  #len(self.dialogs)-1:  #len(self.tmp_dialog)>0:
-	# 		self.dialogs_idx += 1
-	# 		self.load_dialog()		
+	def puzzle_handler(self, object_id):
+		pass	
+	def lock_handler(self, object_id):
+		pass	
+	def synthesis_handler(self, object_id):
+		pass	
 
-	# 	else:
-	# 		print('End of dialog, end of round')
-	# 		self.end_round = True
-	# 		#self.add_widget(self.next_round_button)
+	#TODO: implement object functions here, btn must be an instance of MapObject()
+	def on_press_item(self, btn):
+		object_id = btn.object_id
+		GM.players[self.current_player_id].get_item(object_id)
+		print("self.reload_item_list:",self.reload_item_list)
+		self.remove_widget(btn) 
+		self.dialog_view = 1
+		spent_time = line_display_scheduler(self,'','撿到不錯的東西了呦\n',False,special_char_time,next_line_time,common_char_time)
+		#Clock.schedule_once(self.delay_hide_dialogframe,2)
+		self.delay_hide_dialogframe(2+spent_time)
+	def on_press_puzzle(self, btn):
+		#查解碼表
+		puzzle_bg = btn.puzzle_bg(btn.source )
+		bg = Rectangle(source=puzzle_bg, pos=(0,0), size=(self.w,self.h),group='puzzle_bg')
+		#bg = Rectangle(source=self.chapter_maps[current_map], pos=(0,self.h*self.dialogframe_height), size=(self.w,self.h*(1-self.dialogframe_height)),group='bg')
+		self.bg_widget.load_bg(bg)
 
-	# def last_dialog(self,*args):
-	# 	print("self.dialogs_idx:",self.dialogs_idx)
-	# 	if self.dialogs_idx > 0:
-	# 		self.dialogs_idx -= 1
-	# 		self.load_dialog()
-	# 	else:
-	# 		self.dialogs_idx = -1
-	# 		self.remove_widget(self.lb)
-	# 		for lb in self.choices_list:
-	# 			self.remove_widget(lb)
+	def on_press_lock(self,btn):
 
-	# def load_dialog(self):
-	# 	self.remove_widget(self.lb)
-	# 	for lb in self.choices_list:
-	# 		self.remove_widget(lb)
-	# 	#self.canvas.remove_group('choices')
-	# 	self.tmp_dialog = self.dialogs[self.dialogs_idx]
-	# 	print("self.tmp_dialog:",self.tmp_dialog)
-	# 	#if has choices
-	# 	if self.tmp_dialog[0] == 'single':
-	# 		s = (self.w*self.dialogframe_width,self.h*self.dialogframe_height)
-	# 		self.lb=Label(background_color =(1,1,1,0) ,text_size=s,text=self.tmp_dialog[1], pos=(0,0), size=s,size_hint=(None, None),halign='left',valign='center',font_size= 36,font_name= 'res/HuaKangTiFan-CuTi-1.otf')  	
-	# 		self.add_widget(self.lb)
-	# 	elif self.tmp_dialog[0] == 'choices':
+		pass
+
+	def on_press_synthesis(self,btn):
+		pass
+
+	def on_press_trigger(self,btn):
+		self.current_mode = 3
+
+	def on_press_clue(self, btn):
+		#self.clue_Label = Label()
+		self.dialog_view = 1
+		#self.add_widget(clue_Label) 
+		text_line = GM.object_table[str(btn.object_id)]['description'][:20]
+		spent_time = line_display_scheduler(self,'',text_line,False,special_char_time,next_line_time,common_char_time)
+		#Clock.schedule_once(self.delay_hide_dialogframe,3.5)
+		self.delay_hide_dialogframe(3.5+spent_time)
+
+	def on_press_switching(self,btn):#TODO:統一格式
+		new_scene_name = GM.object_table[str(btn.object_id)]['description'].split('\'')[1]
+		for i,img in enumerate(self.chapter_maps):
+			if new_scene_name in img:
+				self.current_map = i
+	def on_press_nothing(self, btn):
+		self.dialog_view = 1
+		#self.add_widget(self.nothingLabel) 
+		spent_time = line_display_scheduler(self,'','好像有東西在這裡...但看不出用途...\n',False,special_char_time,next_line_time,common_char_time)
+		#Clock.schedule_once(self.delay_hide_dialogframe,2)
+		self.delay_hide_dialogframe(2+spent_time)
+
+	def delay_hide_dialogframe(self, delay_time):#delay_time unit:seconds
+		#self.remove_widget(self.nothingLabel)
+		#self.remove_widget(self.clue_Label)
+		#remove other dialogs
+		def dialog_view_to_zero(screen,dt):
+			screen.dialog_view = 0
+		Clock.schedule_once(partial(clear_dialogframe_text,self,self.displaying_character_labels),delay_time)
+		Clock.schedule_once(partial(dialog_view_to_zero,self),delay_time+0.1)
+
+	def to_phone_screen(self,*args):
+		if self.current_mode == 1:
+			self.manager.current = 'phone'
+
+	#for testing: 	
+	def to_game_screen(self,*args):
+		if self.current_mode == 1:
+			subgames_id = 0#decided by story
+			self.manager.current = 'subgames_manager'
+			if not self.manager.get_screen('subgames_manager').initialized:
+				self.manager.get_screen('subgames_manager').init_all_subgames()
+			self.manager.get_screen('subgames_manager').start_subgame_id(subgames_id)
 			
-	# 		for i in range(len(self.tmp_dialog[1])):
-	# 			lb=Button(on_press = self.next_dialog,text=self.tmp_dialog[1][i],color=(1,1,1,1),background_color=(1,1,1,.35), pos=(self.w*0.25,self.h*(0.3+i*0.15)), size=(self.w*.5,self.h*.1),size_hint=(None, None),halign='left',valign='center',font_size= 36,font_name= 'res/HuaKangTiFan-CuTi-1.otf')  	
-	# 			self.add_widget(lb)
-	# 			self.choices_list.append(lb)
-	# 			#self.canvas.add(Rectangle(source='res/images/choices.png',pos=(self.w*0.25,self.h*(0.3+i*0.15)),size=(self.w*.5,self.h*.1),group='choices'))
 
 	#for testing: drag objects to map location and save
 	def testing_objects_path_init(self):
 		self.testing_objects = []
 		self.testing_objects_id = -1
-		dir_path = 'res/images/items/'
+		dir_path = 'res/images/unlocated_items/' 
 		files = os.listdir(dir_path)
 
 		for f in files:
@@ -781,70 +834,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		pass
 
 
-	def to_game_screen(self,*args):
-		if self.current_mode == 1:
-			subgames_id = 0#decided by story
-			self.manager.current = 'subgames_manager'
-			if not self.manager.get_screen('subgames_manager').initialized:
-				self.manager.get_screen('subgames_manager').init_all_subgames()
-			self.manager.get_screen('subgames_manager').start_subgame_id(subgames_id)
-			
-	def to_phone_screen(self,*args):
-		if self.current_mode == 1:
-			self.manager.current = 'phone'
-
-
-	#TODO: implement object functions here, btn must be an instance of MapObject()
-	def on_press_item(self, btn):
-		object_id = btn.object_id
-		GM.players[self.current_player_id].get_item(object_id)
-		print("self.reload_item_list:",self.reload_item_list)
-		self.remove_widget(btn) 
-		self.dialog_view = 1
-		spent_time = line_display_scheduler(self,'','撿到不錯的東西了呦\n',False,special_char_time,next_line_time,common_char_time)
-		#Clock.schedule_once(self.delay_hide_dialogframe,2)
-		self.delay_hide_dialogframe(2+spent_time)
-	def on_press_puzzle(self, btn):
-		#查解碼表
-		puzzle_bg = btn.puzzle_bg(btn.source )
-		bg = Rectangle(source=puzzle_bg, pos=(0,0), size=(self.w,self.h),group='puzzle_bg')
-		#bg = Rectangle(source=self.chapter_maps[current_map], pos=(0,self.h*self.dialogframe_height), size=(self.w,self.h*(1-self.dialogframe_height)),group='bg')
-		self.bg_widget.load_bg(bg)
-		self.current_mode = 2
-	def on_press_lock(self,btn):
-
-		pass
-	def on_press_trigger(self,btn):
-		pass
-	def on_press_clue(self, btn):
-		#self.clue_Label = Label()
-		self.dialog_view = 1
-		#self.add_widget(clue_Label) 
-		text_line = GM.object_table[str(btn.object_id)]['description'][:20]
-		spent_time = line_display_scheduler(self,'',text_line,False,special_char_time,next_line_time,common_char_time)
-		#Clock.schedule_once(self.delay_hide_dialogframe,3.5)
-		self.delay_hide_dialogframe(3.5+spent_time)
-
-	def on_press_switching(self,btn):#TODO:統一格式
-		new_scene_name = GM.object_table[str(btn.object_id)]['description'].split('\'')[1]
-		self.bg
-
-	def on_press_nothing(self, btn):
-		self.dialog_view = 1
-		#self.add_widget(self.nothingLabel) 
-		spent_time = line_display_scheduler(self,'','好像有東西在這裡...但看不出用途...\n',False,special_char_time,next_line_time,common_char_time)
-		#Clock.schedule_once(self.delay_hide_dialogframe,2)
-		self.delay_hide_dialogframe(2+spent_time)
-
-	def delay_hide_dialogframe(self, delay_time):#delay_time unit:seconds
-		#self.remove_widget(self.nothingLabel)
-		#self.remove_widget(self.clue_Label)
-		#remove other dialogs
-		def dialog_view_to_zero(screen,dt):
-			screen.dialog_view = 0
-		Clock.schedule_once(partial(clear_dialogframe_text,self,self.displaying_character_labels),delay_time)
-		Clock.schedule_once(partial(dialog_view_to_zero,self),delay_time+0.1)
-
 
 	#TODO
 	def load_game(self):
@@ -881,6 +870,7 @@ class ItemInBag(FreeDraggableItem):#Image
 			self.screen.dragging = FreeDraggableItem(source=source,screen=self.screen,magnet=True,size=(d_len,d_len),pos=(.8*global_w,.4*global_h),size_hint=(None,None))
 			self.screen.add_widget(self.screen.dragging)
 			self.screen.dragging.on_touch_down(touch) 
+
 	# def on_touch_move(self, touch):
 	# 	print("ItemInBag on_touch_move pos:",touch.pos)
 	# 	super(ItemInBag, self).on_touch_move(touch)

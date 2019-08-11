@@ -103,7 +103,7 @@ class FreeDraggableItem(Widget):#Image
 		global freedragging 
 		freedragging = 0
 		self.dragger = 0
-		if isinstance(self.screen,Screen) and self.magnet:
+		if isinstance(self.screen,Screen) and not self.magnet:
 			#TODO: 判定解碼是否成功
 			if self.screen.current_mode == 2 and self.screen.puzzle_pass:#
 				print("解碼成功!")
