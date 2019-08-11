@@ -44,6 +44,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.players_name = {0:'室友',1:'男友',2:'哥哥',3:'故人'}
 		self.Chapters = self.init_chapters()
 		self.object_table = self.load_object_table()
+		self.unlock_table = self.load_unlock_table()
 		self.NPC_table = self.load_NPC_table()
 		#self.testing_set_chapters_contents(self.object_table, self.NPC_table)
 		
@@ -57,18 +58,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 	# 	if reload_item_list and self.manager.get_screen('story').itemframe is not None:
 	# 		self.manager.get_screen('story').itemframe.item_list = self.players[self.current_player_id].item_list	
 	# 		self.reload_item_list = False
-
-
-	# #for testing
-	# def testing_set_chapters_contents(self,object_table,NPC_table):
-	# 	for (object_id,object_content) in object_table.items():
-	# 		p_id = object_content['player']#int(object_content['player'])
-	# 		c_id = object_content['chapter']#int(object_content['chapter'])
-	# 		self.Chapters[p_id][c_id].add_chapter_objects(object_id)
-	# 	for (npc_id,npc_content) in NPC_table.items():
-	# 		p_id = npc_content['player']#int(npc_content['player'])
-	# 		c_id = npc_content['chapter']#int(npc_content['chapter'])
-	# 		self.Chapters[p_id][c_id].add_chapter_NPCs(npc_id)
 
 
 	def link_main_screen(self):
@@ -152,6 +141,14 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			#print('load json object table:',table)
 		
 		return table
+
+	def	load_unlock_table(self):
+		#TODO:
+		# with open('res/objects/final_unlock_table.json','r') as f:
+		# 	table = json.load(f)
+		table = {}
+		return table 
+
 	def load_NPC_table(self):
 		table = {0:{'name':'艾爾莎','source':'res/images/testing/Erza.png','map_name':'','pos_hint':'','size_hint':'','player':1,'chapter':0,'function_types':'','description':'妖精的尾巴'}}##key:NPC_id,value:(name,source,location,pos,player,chapter,function_types,description)		return table		
 		return table
@@ -197,9 +194,9 @@ class Player(object):#player_id=player_id
 
 class Chapter(object):
 	def __init__(self, player_id, chapter_id):
-		self.object_path = f'res/chapters/{player_id}_{chapter_id}/object/' #including a json and object images
-		self.map_path = f'res/chapters/{player_id}_{chapter_id}/map/'  #including map images
-		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialog/' #including two txt files
+		self.object_path = f'res/chapters/{player_id}_{chapter_id}/objects/' #including a json and object images
+		self.map_path = f'res/chapters/{player_id}_{chapter_id}/maps/'  #including map images
+		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
 		self.player_chapter = (player_id,chapter_id)#(player,chapter)
 		self.chapter_NPCs = [] 
 		self.chapter_maps = self.add_chapter_maps(player_id, chapter_id)
@@ -256,13 +253,14 @@ N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
 	def add_chapter_maps(self,player_id, chapter_id):
 
 		chapter_maps = []
-		# for f in os.listdir(self.map_path):
-		# 	if '.jpg' in f or '.png' in f:
-		# 		chapter_maps.append(f)
+		for f in os.listdir(self.map_path):
+			if '.jpg' in f or '.png' in f:
+				print(f'player_id:{player_id}, chapter_id:{chapter_id}, f:{f}')
+				chapter_maps.append(os.path.join(self.map_path,f))
 		#for testing
-		chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_1.jpg')
-		chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_2.jpg')
-		chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_3.jpg')
+		# chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_1.jpg')
+		# chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_2.jpg')
+		# chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_3.jpg')
 		return chapter_maps
 	def add_chapter_NPCs(self,NPC_id):
 		#TODO: load and init all MapObject() here
