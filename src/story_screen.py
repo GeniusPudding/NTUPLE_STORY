@@ -9,6 +9,8 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 	focusing_frame_id = NumericProperty(-1)
 	item_list = ListProperty([])
 	offset = ListProperty([0,0])
+	switchable = BooleanProperty(True)
+	playing_anim_num = NumericProperty()
 	def __init__(self,**kwargs):#, arg#parent_w,parent_h,
 		super(ItemFrame, self).__init__(**kwargs)
 		#self.parent = parent#parent,
@@ -27,37 +29,41 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 		self.bind(focusing_frame_id=self.auto_focus)
 
 		# print("self.x,self.y:",self.x,self.y)
+		self.front_pos = (.75,.4)
+		self.back_pos = (.85,.45)#for animations
 
 		self.count = 0
 		self.item_size = (.04*global_w,.06*global_h)
 		self.info_size_x, self.info_size_y = .12*global_w,.18*global_h
 		#self.item_list.append(7)
 
-	def auto_gen_items(self,instance,item_list):#focusing_frame_id must be 0 when first open the frame
+	def auto_gen_items(self,instance,item_list):#focusing_frame_id must be 0 when first open the frame after modified item_list
 		print('[*]item frame gen items:',item_list)
 		self.count = len(item_list)
 		print("item_list:",item_list)
 		self.offset = [.1/(self.count-1)*global_w,.05/(self.count-1)*global_h]
 		#x,y = self.pos_hint['x'],self.pos_hint['y'] 
-		for i in range(1,self.count):
+		for i in range(self.count):
 			print('test append pos')
-			item_cur_pos.append([(.75 + i*(.1/(self.count-1)))*global_w,(.4+i*(.05/(self.count-1)))*global_h])
+			item_cur_pos.append([(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1])])
 			# item_cur_pos.append(((x+.0075+.0475*(i%3))*global_w,(y+.02+.08*(i//3))*global_h))
 		print('GM.object_table:',GM.object_table)
-		d_len = min(.15*global_w,.2*global_h)#FreeDraggableItem#,
-		#self.dragging = ItemInBag(screen=self,source=source,size=(d_len,d_len),pos=(.8*global_w,.4*global_h)
-		#self.item_image =  [ImageButton(callback=partial(self.use_item,object_id), object_id=object_id,pos=item_cur_pos[i],size=self.item_size ,source=GM.object_table[str(object_id)]['source'],size_hint=(None,None)) for i,object_id in enumerate(item_list)] 
-		
-		for object_id in item_list[1:]:
+		d_len = min(.15*global_w,.2*global_h)
+	
+		for object_id in item_list:
 			print('source:',GM.object_table[str(object_id)]['source'])
-		self.item_image =  [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list[1:])] 
+		self.item_images =  [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 
+		#item_images與item_list共用focusing_frame_id, 另開一個循環id用來展示選取動畫
+		self.cyclic = {}
+		for i in range(self.count):
+			self.cyclic[i] = i
 
 		#first
 
-		#return item_image	
+		#return item_images	
 
 	#dynamic generate part:	
-	def auto_focus(self, instance, focusing_frame_id):
+	def auto_focus(self, instance, focusing_frame_id):#handle the info and object id
 		print('auto focus frame id:',focusing_frame_id)
 		screen = self.parent
 		object_id = self.item_list[focusing_frame_id]
@@ -75,17 +81,17 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 			#clear_dialogframe_text(screen,screen.displaying_character_labels)
 			screen.focusing_object_id = -1
 
-	def generate_select_block(self,focusing_frame_id):
-		self.canvas.remove_group('block')
-		i = focusing_frame_id
-		wid = 5
-		print("auto_generate_select_block, self.size:",self.size)
-		lb_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)), global_h*(self.pos_hint['y'] +.02+.08*(i//3))) 
-		rb_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)+.04), global_h*(self.pos_hint['y'] +.02+.08*(i//3))) 
-		rt_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)+.04), global_h*(self.pos_hint['y'] +.02+.08*(i//3)+.06))  
-		lt_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)), global_h*(self.pos_hint['y'] +.02+.08*(i//3)+.06))
-		self.canvas.add(Color(0,1,1,1))
-		self.canvas.add(Line(points=[lb_pos[0], lb_pos[1], rb_pos[0], rb_pos[1], rt_pos[0], rt_pos[1], lt_pos[0], lt_pos[1]],cap='none',joint='bevel',close=True, width=wid,group='block'))
+	# def generate_select_block(self,focusing_frame_id):
+	# 	self.canvas.remove_group('block')
+	# 	i = focusing_frame_id
+	# 	wid = 5
+	# 	print("auto_generate_select_block, self.size:",self.size)
+	# 	lb_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)), global_h*(self.pos_hint['y'] +.02+.08*(i//3))) 
+	# 	rb_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)+.04), global_h*(self.pos_hint['y'] +.02+.08*(i//3))) 
+	# 	rt_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)+.04), global_h*(self.pos_hint['y'] +.02+.08*(i//3)+.06))  
+	# 	lt_pos = (global_w*(self.pos_hint['x']+.0075 + .0475*(i%3)), global_h*(self.pos_hint['y'] +.02+.08*(i//3)+.06))
+	# 	self.canvas.add(Color(0,1,1,1))
+	# 	self.canvas.add(Line(points=[lb_pos[0], lb_pos[1], rb_pos[0], rb_pos[1], rt_pos[0], rt_pos[1], lt_pos[0], lt_pos[1]],cap='none',joint='bevel',close=True, width=wid,group='block'))
 
 
 	def display_item_name(self,object_id,screen):
@@ -99,74 +105,118 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 		spent_time = line_display_scheduler(screen,'',text_line,False,.2,.5,.15)
 		Clock.schedule_once(partial(clear_dialogframe_text,screen,screen.displaying_character_labels),.05+spent_time)
 
-	def switching_frame_focus(self,screen,press_key_id):
+	def switching_frame_focus(self,screen,press_key_id):#handle the cyclic animation
+		self.switchable = False
+		self.playing_anim_num = self.count + 1#determined by the number of partitions in curve_animation
+		n = self.count
 		d_len = min(.15*global_w,.2*global_h)
 		if press_key_id==276:
 			print ("key action left")
 			if self.focusing_frame_id <= 0:
-				self.focusing_frame_id = self.count - 1
+				self.focusing_frame_id = n - 1
 			else:
 				self.focusing_frame_id -= 1		
 
-			for im in self.item_image:
-				im.start_switching_animate(im.pos,self.offset,'left')
-
+			#store last pos:	
+			final_pos = self.item_images[self.cyclic[0]].pos
+			init_pos = self.item_images[self.cyclic[n-1]].pos
+			print('final_pos:',final_pos,'init_pos:',init_pos)
+			self.curve_animation(screen,self.item_images[self.cyclic[n-1]],init_pos,final_pos)
+			#for im in self.item_images[1:]:
+			for i in range(n-1):
+				im = self.item_images[self.cyclic[i]]
+				print('Before Animated im.pos:',im.pos)
+				im.start_switching_animate(im.pos,self.offset,'positive')
+				print('After Animated im.pos:',im.pos)
+			for i in range(n):
+				self.cyclic[i] -= 1
+				self.cyclic[i] %= n
 			
 		elif press_key_id==275:#TODO:complete the animation here
 			print ("key action right")
-			if self.focusing_frame_id >= self.count - 1:
+			if self.focusing_frame_id >= n - 1:
 				self.focusing_frame_id = 0
 			else:
 				self.focusing_frame_id += 1
 
-			last_pos = 	self.item_image[-1].pos
-			print('last_pos:',last_pos)
-			for im in self.item_image:
-				print('im.pos:',im.pos)
-				im.start_switching_animate(im.pos,self.offset,'right')
-			#after animation:
-			#image to draggble
-			image_to_draggble = self.item_image[0]
-			self.item_image.remove(image_to_draggble)
-			draggble_to_image = screen.dragging
-			screen.remove_widget(screen.dragging)
-			screen.dragging = ItemInBag(screen=screen,source=image_to_draggble.source,size=(d_len,d_len),pos=image_to_draggble.pos,size_hint=(None,None))
-			#replace
-			screen.remove_widget(image_to_draggble)
-			screen.add_widget(screen.dragging)	
-			self.item_image.append(CircleImage(pos=last_pos,size_hint=(None,None),size=(d_len,d_len) ,source=draggble_to_image.source))
+			#store last pos:	
+			final_pos = self.item_images[self.cyclic[n-1]].pos
+			init_pos = self.item_images[self.cyclic[0]].pos
+			print('final_pos:',final_pos,'init_pos:',init_pos)
+			self.curve_animation(screen,self.item_images[self.cyclic[0]],init_pos,final_pos)
+			#for im in self.item_images[1:]:
+			for i in range(1,n):
+				im = self.item_images[self.cyclic[i]]
+				print('Before Animated im.pos:',im.pos)
+				im.start_switching_animate(im.pos,self.offset,'negative')
+				print('After Animated im.pos:',im.pos)
+			for i in range(n):
+				self.cyclic[i] += 1
+				self.cyclic[i] %= n
 			#redraw for stacked order
-			for item in reversed(self.item_image):
-				screen.remove_widget(item)
-				screen.add_widget(item)	
+			# for item in reversed(self.item_images):
+			# 	screen.remove_widget(item)
+			# 	screen.add_widget(item)	
 
-	def use_item(self,screen,object_id,*args):#the entry of using items in itemframe, behave samely as click on the focusing item
+		print('self.cyclic:',self.cyclic,'self.playing_anim_num:',self.playing_anim_num)
+		self.switchable = True
+
+
+	def curve_animation(self,screen,animatable_im,init_pos,final_pos):#TODO: 逼近半圓曲線
+		ix,iy = init_pos
+		fx,fy = final_pos
+		(mx,my) = middle_pos = ((ix+fx)/2 + abs((iy-fy)/2), (iy+fy)/2 - abs((ix-fx)/2))
+		print('middle_pos:',middle_pos)
+		offset_1 = (mx-ix,my-iy)
+		offset_2 = (fx-mx,fy-my)
+		if fy > iy:
+			animatable_im.start_switching_animate(animatable_im.pos,offset_1,'positive',duration=.6)
+			animatable_im.start_switching_animate(animatable_im.pos,offset_2,'positive',duration=.4)
+		else:
+			animatable_im.start_switching_animate(animatable_im.pos,offset_1,'positive',duration=.4)	
+			animatable_im.start_switching_animate(animatable_im.pos,offset_2,'positive',duration=.6)
+
+	def use_item(self,screen,object_id,touch=None,*args):#the entry of using items in itemframe, behave samely as click on the focusing item
 		print("use item args:",args)#self.parent.current_mode == 1 here
 		item = GM.object_table[str(object_id)]	
 		types = item['function_types']
+		# if touch is None:#TODO: controlable MotionEvent
+		# 	touch = MotionEvent(device=None,id='mouse2',profile=['pos'],is_touch=True)#,)
+
 		if len(types) == 1:#'item' only, 
-			print("此道具似乎無法單獨使用!")
+			
+			if touch is None:
+				print("拿起一般道具!")
+				screen.add_widget(screen.dragging)
+				screen.remove_widget(self.item_images[self.focusing_frame_id])
+				screen.dragging.on_touch_down(touch)
+			else:
+				print("普通道具，無法單獨使用!")#TODO:display
 
 		else :#type:trigger, lock, puzzle, synthesis 原則上剩一種
-			if 'trigger' in types:
-				print('觸發劇情!進入劇情模式!')
-				screen.current_mode = 3
-				return
-			behavior_type = types.remove('item')[0]
-			screen.enter_puzzle_mode(object_id, behavior_type)			
+			if screen.current_mode == 1:
+				if 'trigger' in types:
+					print('觸發劇情!進入劇情模式!')#TODO:display
+					screen.current_mode = 3
+					return
+				behavior_type = types.remove('item')[0]
+				screen.enter_puzzle_mode(object_id, behavior_type)		
 
+			elif screen.current_mode == 2:
+				if touch is None:
+					print("拿起道具!")
+					screen.add_widget(screen.dragging)
+					screen.remove_widget(self.item_images[self.focusing_frame_id])
+					screen.dragging.on_touch_down(touch)
 		
 	def on_touch_down(self, touch):
-		#print('itemframe on_touch_down')
-		# print(touch)
-		# print(touch.pos,touch.spos)	
-		print(f'itemframe on_touch_down touch.pos:{touch.pos}')
-		# if self.focusing_frame_id > 0:
-		# 	self.remove_widget(self.infoFrame)
-		# 	#self.remove_widget(self.infoTitle)
-		# 	self.remove_widget(self.infoContent)	
-		# 	self.focusing_frame_id = 0
-		# print(f"self.parent:{self.parent}")	
+		#for testing
+		print('itemframe touch.profile:',touch.profile,'touch.id:',touch.id,'touch.pos:',touch.pos)
+		if self.parent is not None and self.focusing_frame_id >= 0 and self.item_images[self.focusing_frame_id].collide_point(*touch.pos):
+			object_id = self.item_list[self.focusing_frame_id]
+			screen = self.parent
+			self.use_item(screen,object_id,touch)
+
 
 	# def iteminfo_handler(self,dt):
 	# 	global item_cur_pos, global_x, global_y
@@ -342,7 +392,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 2:#for banning some game functions in mode 1(exploring mode)
 			self.item_view = 1
 			#TODO
-			#配置一個小返回按鈕於角落，按下'b'回到mode 1
+			#配置一個小返回按鈕提示於角落，按下'b'回到mode 1
 
 		elif mode == 3:
 			self.dialog_view = 1
@@ -459,30 +509,26 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			print('reload self.itemframe.item_list:',self.itemframe.item_list)	
 			self.reload_item_list = False
 
-	def auto_focus_item(self, instance, focusing_object_id):
+	def auto_focus_item(self, instance, focusing_object_id):#whenever open itemframe or switching , generate dragging object
 		print('auto focus object id:',focusing_object_id)
-		self.remove_widget(self.dragging)
 		self.canvas.remove_group('itemicon') 
 		if focusing_object_id >=0 :
-			#dynamic icon
+			#dynamic icon generate:
 			s_pos = (.805*global_w,.758*global_h)
 			s_size = (.19*global_w,.085*global_h)
 			i_len = min(.0475*global_w,.08*global_h)
 			self.canvas.add(Ellipse(pos=(s_pos[0]+(s_size[0]-i_len)/2,s_pos[1]+(s_size[1]-i_len)/2),size=(i_len,i_len),source=GM.object_table[str(focusing_object_id)]['source'],group='itemicon'))
-			#dynamic draggable generate
-			#types = GM.object_table[str(focusing_object_id)]['function_types']
+			
+			#dynamic draggable generate:
 			source = GM.object_table[str(focusing_object_id)]['source']
 			d_len = min(.15*global_w,.2*global_h)#FreeDraggableItem#,
-			self.dragging = ItemInBag(screen=self,source=source,size=(d_len,d_len),pos=(.75*global_w,.4*global_h),size_hint=(None,None))
-			self.add_widget(self.dragging)
+			self.dragging = FreeDraggableItem(screen=self,source=source,magnet=True,size=(d_len,d_len),pos=(.75*global_w,.4*global_h),size_hint=(None,None))
 
-		#else:
-			#self.remove_widget(self.dragging) 
 				
 
 	def key_action(self, *args):#TODO:盡量統一按鍵、做好遊戲按鍵提示介面
 		if self.manager.current == 'story':	
-			print('story key: ',args)
+			#print('story key: ',args)
 			press_key_id = args[1]#args[1]:ASCII?
 			press_key = args[3]
 			if press_key_id in [276,275]:#<-,->
@@ -490,7 +536,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					if self.item_view == 0:
 						self.exploring_maps(press_key_id)
 					elif self.item_view == 1:
-						self.item_box_canvas('show',direction=press_key_id) 
+						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0:
+							self.item_box_canvas('show',direction=press_key_id) 
 
 
 				if self.current_mode == 3:
@@ -519,7 +566,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 				elif self.current_mode == 1:
 					if self.item_view == 1:
-						self.itemframe.use_item(self,self.focusing_object_id)
+						self.itemframe.use_item(self,self.focusing_object_id,None)
 
 				elif self.current_mode == 3:
 					if self.manual_node.type == 'tail': 
@@ -547,18 +594,19 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.testing_save_object_pos()
 				else:
 					self.testing_set_objects_pos()
-			elif  press_key_id == 114:#r:
-				if self.current_mode == 1:	
-					if self.item_view == 0: 
-						self.next_round()
-					elif self.item_view == 1:
-						self.dragging.anim.start(self.dragging)
+			# elif  press_key_id == 114:#r:
+			# 	if self.current_mode == 1:	
+			# 		if self.item_view == 0: 
+			# 			self.next_round()
+					# elif self.item_view == 1:
+					# 	self.dragging.anim.start(self.dragging)
 			elif  press_key_id == 109:#m:
 				if self.current_mode == 1:
 					self.complete_chapter = True
 			elif  press_key_id == 110:#n:
 				if self.current_mode == 1:
-					self.next_round()
+					if self.item_view == 0: 
+						self.next_round()
 
 			elif press_key_id in [274,273]:
 				if self.cur_unsafed:
@@ -566,10 +614,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				if self.current_mode == 1: 
 					if self.item_view == 1:
 						if press_key_id == 273:
-							#self.dragging.pos[1] += 10
 							self.dragging.canvas.add(Rotate(axis = (0, 0, 1),angle = 10))
 						else:
-							#self.dragging.pos[1] -= 10
 							self.dragging.canvas.add(Rotate(axis = (0, 0, 1),angle = -10))
 			return True
 	def key_release(self, *args):
@@ -600,7 +646,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#TODO: 改進效率
 		#RGB (0,182,237)
 		#self.itemframe = ItemFrame(pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
-		#self.item_image = self.itemframe.auto_gen_items(GM.players[self.current_player_id].item_list)		
+		#self.item_images = self.itemframe.auto_gen_items(GM.players[self.current_player_id].item_list)		
 		#self.itemframe.item_list = GM.players[self.current_player_id].item_list	
 		self.item_tag = ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
 		self.add_widget(self.item_tag)
@@ -610,8 +656,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 
 		self.remove_widget(self.item_tag)
-		self.add_widget(self.itemframe)
-		for item in reversed(self.itemframe.item_image):
+		if self.itemframe not in self.children: #for exceptions
+			self.add_widget(self.itemframe)
+		else:
+			print('[*]Exceptions: self.itemframe is already added')
+		for item in reversed(self.itemframe.item_images):
 			self.add_widget(item)
 		self.dialog_view = 1
 		self.item_box_canvas('show')
@@ -629,7 +678,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#Clock.unschedule(self.clock_event_iteminfo)
 		self.remove_widget(self.itemframe)
 		self.remove_widget(self.item_tag)
-		for item in self.itemframe.item_image:
+		for item in self.itemframe.item_images:
 			self.remove_widget(item)
 
 			
@@ -703,7 +752,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.lastline_time = line_display_scheduler(self,speaker_name[node.speaker],node.text_line,False,special_char_time,next_line_time,common_char_time)
 
 	def enter_puzzle_mode(self, object_id, behavior_type):#在道具欄使用道具進入的puzzle_mode跟地圖上點擊有何不同
-
+		self.current_mode = 2
 		if behavior_type == 'puzzle':
 			self.puzzle_handler(object_id)
 		elif behavior_type == 'lock': 
@@ -886,37 +935,24 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def exit_game():
 		exit()
 
-class ItemInBag(FreeDraggableItem):#ImageButton 
-	#d_len = min(.15*global_w,.2*global_h),size=(d_len,d_len)
-	def __init__(self,screen,**kargs):
-		super(ItemInBag, self).__init__( **kargs)
-		self.screen = screen
-		# print("super(ItemInBag, self):",super(ItemInBag, self))
-		# print("super():",super())
-		# print("super()==super(ItemInBag, self):",super()==super(ItemInBag, self))
+# class ItemInBag(FreeDraggableItem):#or just use a ImageButton 
+# 	#d_len = min(.15*global_w,.2*global_h),size=(d_len,d_len)
+# 	def __init__(self,screen,**kargs):
+# 		super(ItemInBag, self).__init__( **kargs)
+# 		self.screen = screen
+# 		# print("super(ItemInBag, self):",super(ItemInBag, self))
+# 		# print("super():",super())
+# 		# print("super()==super(ItemInBag, self):",super()==super(ItemInBag, self))
 
-	def on_touch_down(self, touch):
-		if self.collide_point(*touch.pos):
-			super(ItemInBag, self).on_touch_down(touch)
-			print('id(ItemInBag):',id(self), 'touch.pos:',touch.pos)
-			source = GM.object_table[str(self.screen.focusing_object_id)]['source']
-			d_len = min(.15*global_w,.2*global_h)
-			self.screen.item_view = 0
-			#screen=self.screen,
-			self.screen.dragging = FreeDraggableItem(source=source,screen=self.screen,magnet=True,size=(d_len,d_len),pos=(.8*global_w,.4*global_h),size_hint=(None,None))
-			self.screen.add_widget(self.screen.dragging)
-			self.screen.dragging.on_touch_down(touch) 
+# 	def on_touch_down(self, touch):
+# 		if self.collide_point(*touch.pos):
+# 			super(ItemInBag, self).on_touch_down(touch)
+# 			print('id(ItemInBag):',id(self), 'touch.pos:',touch.pos)
+# 			source = GM.object_table[str(self.screen.focusing_object_id)]['source']
+# 			d_len = min(.15*global_w,.2*global_h)
+# 			self.screen.item_view = 0
+# 			#screen=self.screen,
+# 			self.screen.dragging = FreeDraggableItem(source=source,screen=self.screen,magnet=True,size=(d_len,d_len),pos=(.8*global_w,.4*global_h),size_hint=(None,None))
+# 			self.screen.add_widget(self.screen.dragging)
+# 			self.screen.dragging.on_touch_down(touch) 
 
-	# def on_touch_move(self, touch):
-	# 	print("ItemInBag on_touch_move pos:",touch.pos)
-	# 	super(ItemInBag, self).on_touch_move(touch)
-
-	# def on_touch_up(self, touch):
-	# 	print("ItemInBag on_touch_up pos:",touch.pos)
-	# 	print('isinstance(self,ItemInBag):',isinstance(self,ItemInBag))
-	# 	if self.screen.current_mode == 2 and self.screen.puzzle_pass:#放開的時候於解碼物件偵測是否成功
-	# 		super(ItemInBag, self).on_touch_up(touch)
-	# 	else:
-	# 		self.screen.remove_widget(self.screen.dragging)
-	# 		self.screen.item_view = 1
-	# 		#self.pos = self.stopped_pos	

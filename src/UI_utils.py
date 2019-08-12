@@ -43,18 +43,27 @@ class CircleImage(Widget):#Image
 		self.bind(pos=redraw_widget, size=redraw_widget)
 		self.source = source
 
-	def start_switching_animate(self,pos,offset,direction):
+	def start_switching_animate(self,pos,offset,direction,duration=.3):
 		(px,py) = pos
 		(ox,oy) = offset
-		print(f'pos:{pos},offset:{offset}')
-		if direction == 'left':
-			anim = Animation(x=px+ox, y=py+oy, duration=1)
+		print(f'pos:{pos},offset:{offset},direction:{direction}')
+		if direction == 'positive':
+			anim = Animation(pos=(px+ox,py+oy), duration=duration)#(x=px+ox, y=py+oy, duration=1)
+			anim.bind(on_complete=self.partial_complete_signal)
 			anim.start(self)
-		elif direction == 'right':
-			anim = Animation(x=px-ox, y=py-oy, duration=1)
+			self.pos = (px+ox,py+oy) 
+		elif direction == 'negative':
+			anim = Animation(pos=(px-ox,py-oy), duration=duration )#(x=px-ox, y=py-oy, duration=1)
+			anim.bind(on_complete=self.partial_complete_signal)
 			anim.start(self)
+			self.pos = (px-ox,py-oy)
 		print("anim:",anim)
-		
+	def partial_complete_signal(self,instance, widget):
+		#print('on_complete')
+		if isinstance(self.parent,Screen):
+			self.parent.itemframe.playing_anim_num -= 1
+			#print('self.parent.itemframe.playing_anim_num:',self.parent.itemframe.playing_anim_num)
+
 
 def redraw_widget(Widget,*args):
     Widget.bg_rect.size = Widget.size
@@ -73,7 +82,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		self.y_radius = self.size[1]/2
 		self.dragger = 0
 		self.stopped_pos_hint = {'x':self.pos[0]/global_w,'y':self.pos[1]/global_h}
-		self.stopped_pos = self.pos
+		self.origin_pos = self.stopped_pos = self.pos
 		self.screen = screen
 		self.magnet = magnet
 		self.anim = Animation(x=10, y=100, duration=2)
@@ -83,9 +92,6 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 	# 	self.anim = Animation(angle = 360, duration=2) 
 	# 	self.anim += Animation(angle = 360, duration=2)
 	# 	
-	# def on_angle(self, item, angle):
-	# 	if angle == 360:
-	# 		item.angle = 0
 	def on_touch_down(self, touch):
 		print(f"Free item on_touch_down touch.pos:{touch.pos}")
 		global freedragging
@@ -93,7 +99,8 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 			self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)			 
 			freedragging = 1
 			self.dragger = 1
-
+			if isinstance(self.screen,Screen): 
+				self.screen.item_view = 0 
 	def on_touch_move(self, touch):
 
 		if (not self.if_over_boundary(touch.pos)) and self.dragger == 1:#(not self.if_collide_others(touch.pos)) and 		
@@ -104,19 +111,35 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		global freedragging 
 		freedragging = 0
 		self.dragger = 0
-		if isinstance(self.screen,Screen) and not self.magnet:
+		self.stopped_pos_hint = {'x':touch.spos[0],'y':touch.spos[1]}
+		self.stopped_pos = touch.pos
+		if isinstance(self.screen,Screen) and self.magnet:
 			#TODO: 判定解碼是否成功
-			if self.screen.current_mode == 2 and self.screen.puzzle_pass:#
+			screen = self.screen
+			if screen.current_mode == 2 and screen.puzzle_pass:#
 				print("解碼成功!")
-				self.screen.hp_per_round -= 1
+				screen.hp_per_round -= 1
 			else:
-				self.screen.item_view = 1 
+				self.pos = self.origin_pos
+				screen.remove_widget(screen.dragging)
+				screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item)
+				
 
-		else:
-			self.stopped_pos_hint = {'x':touch.spos[0],'y':touch.spos[1]}
-			self.stopped_pos = touch.pos
-			if self.screen is not None:
-				self.screen.remove_widget(self.screen.dragging)
+				
+	def start_switching_animate(self,pos,offset,direction,duration=.3):
+		(px,py) = pos
+		(ox,oy) = offset
+		print(f'pos:{pos},offset:{offset}')
+		if direction == 'positive':
+			anim = Animation(pos=(px+ox,py+oy), duration=duration )#(x=px+ox, y=py+oy, duration=1)
+			anim.start(self)
+			self.pos = (px+ox,py+oy) 
+		elif direction == 'negative':
+			anim = Animation(pos=(px-ox,py-oy), duration=duration )#(x=px-ox, y=py-oy, duration=1)
+			anim.start(self)
+			self.pos = (px-ox,py-oy)
+		print("anim:",anim)
+
 	def if_over_boundary(self, touch_pos):
 
 		if (self.x_radius<=touch_pos[0]) and \

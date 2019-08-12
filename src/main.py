@@ -49,6 +49,6 @@ if __name__ == '__main__':
 
     with open ('kv/ntu_piece.kv', 'r', encoding='utf-8') as f:
         Builder.load_string(f.read())
-    #Window.fullscreen = 'auto'#True#nothing happens in win10?  
+    Window.fullscreen = 'auto'#True
     NTUPLE_Story().run()#+collect_submodules('kivy.weakmethod')+collect_submodules('pandas')+
 

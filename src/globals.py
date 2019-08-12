@@ -26,7 +26,7 @@ from kivy.uix.behaviors import ButtonBehavior,DragBehavior
 from kivy.uix.image import Image
 from  kivy.core.image import Image as coreImage
 from kivy.animation import Animation
-
+from kivy.input.motionevent import MotionEvent
 import platform
 import sys, datetime
 from sys import exit 
