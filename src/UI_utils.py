@@ -43,7 +43,7 @@ class CircleImage(Widget):#Image
 		self.bind(pos=redraw_widget, size=redraw_widget)
 		self.source = source
 
-	def setup_switching_animate(self,pos,offset,direction):
+	def start_switching_animate(self,pos,offset,direction):
 		(px,py) = pos
 		(ox,oy) = offset
 		print(f'pos:{pos},offset:{offset}')

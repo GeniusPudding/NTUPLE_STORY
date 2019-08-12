@@ -109,7 +109,7 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 				self.focusing_frame_id -= 1		
 
 			for im in self.item_image:
-				im.setup_switching_animate(im.pos,self.offset,'left')
+				im.start_switching_animate(im.pos,self.offset,'left')
 
 			
 		elif press_key_id==275:#TODO:complete the animation here
@@ -123,7 +123,7 @@ class ItemFrame(FloatLayout):#TODO: maybe try to add items widget here
 			print('last_pos:',last_pos)
 			for im in self.item_image:
 				print('im.pos:',im.pos)
-				im.setup_switching_animate(im.pos,self.offset,'right')
+				im.start_switching_animate(im.pos,self.offset,'right')
 			#after animation:
 			#image to draggble
 			image_to_draggble = self.item_image[0]
@@ -221,7 +221,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	end_round = BooleanProperty(False)
 	complete_chapter = BooleanProperty(False)
 	bg_widget = ObjectProperty(Widget())
-	itemframe = ObjectProperty()
+	itemframe = ObjectProperty(Widget())
 	dialog_view = NumericProperty(0)#0:background view(exploring maps), 1:dialog view
 	item_view = NumericProperty(0)#0:background view(exploring maps), 1:item view
 	chapter_info = ObjectProperty()#rebind=True
@@ -308,12 +308,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.hp_per_round = 5#trigger event
 
 		#generate personal item list
-		#self.generate_item_menu()
+		#self.generate_item_tag()
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
+		self.current_map = -1
 		self.current_map = 0#trigger the map loading function
-		bg = Rectangle(source=self.chapter_maps[self.current_map], pos=(0,0), size=(self.w,self.h),group='bg')
-		self.bg_widget.load_bg(bg)
+		print("self.chapter_maps[self.current_map]:",self.chapter_maps[self.current_map])
 
 		#for testing, load subgame button 
 		self.add_widget(self.subgame_button)
@@ -378,11 +378,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.manual_dialog = self.chapter_info.plot
 		self.chapter_title = Label(text=self.chapter_info.chapter_title,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		self.seal_on = not self.chapter_info.started
-		self.generate_item_menu()
-		print('chapter_info:', chapter_info,'self.itemframe:',self.itemframe)
-		print('Before self.reload_item_list:',self.reload_item_list )
+		self.remove_widget(self.itemframe)
+		self.itemframe = ItemFrame(pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
 		self.reload_item_list = True
-		print('After self.reload_item_list:',self.reload_item_list )
+		self.generate_item_tag()
+		print('chapter_info:', chapter_info,'self.itemframe:',self.itemframe)
+		
 		print(f'chapter_maps:{self.chapter_maps},NPCs_allocation:{self.NPCs_allocation},objects_allocation:{self.objects_allocation},current_dialog:{self.auto_dialog}')
 
 	def auto_new_chapter(self, instance, complete_chapter):#called when outer calls "self.complete_chapter = True"  
@@ -434,25 +435,27 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.next_round()                           
 
 	def auto_switch_maps(self,instance, current_map):
-		print('[*]current map:', current_map)
-		print("self.chapter_maps:",self.chapter_maps)
-		#self.canvas.before.remove_group('bg')
-		print("self.chapter_maps:",self.chapter_maps)
-		bg = Rectangle(source=self.chapter_maps[current_map], pos=(0,0), size=(self.w,self.h),group='bg')
-		#bg = Rectangle(source=self.chapter_maps[current_map], pos=(0,self.h*self.dialogframe_height), size=(self.w,self.h*(1-self.dialogframe_height)),group='bg')
-		self.bg_widget.load_bg(bg)
+		if current_map >= 0:
+			print('[*]current map:', current_map)
+			print("self.chapter_maps:",self.chapter_maps)
+			#self.canvas.before.remove_group('bg')
+			print("self.chapter_maps[current_map]:",self.chapter_maps[current_map])
+			bg = Rectangle(source=self.chapter_maps[current_map], pos=(0,0), size=(self.w,self.h),group='bg')
+			self.bg_widget.load_bg(bg)
 
-		for mapobject in self.objects_allocation:
-			if mapobject.map_name in self.chapter_maps[current_map]:
-				self.add_widget(mapobject)
-			else:
-				self.remove_widget(mapobject)
-		#如果有NPC也照做
+			for mapobject in self.objects_allocation:
+				if mapobject.map_name in self.chapter_maps[current_map]:
+					self.add_widget(mapobject)
+				else:
+					self.remove_widget(mapobject)
+			#如果有NPC也照做
+
 
 	def auto_reload_item_list(self,instance, reload_item_list):
 		if reload_item_list:
 			print('[*] auto update instance:',reload_item_list)
 			self.itemframe.item_list = GM.players[self.current_player_id].item_list
+			#self.itemframe.focusing_frame_id = 0
 			print('reload self.itemframe.item_list:',self.itemframe.item_list)	
 			self.reload_item_list = False
 
@@ -592,19 +595,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				else:
 					self.current_map += 1
 
-	def generate_item_menu(self):
-		print("Enter function: generate_item_menu")
+	def generate_item_tag(self):
+		print("Enter function: generate_item_tag")
 		#TODO: 改進效率
 		#RGB (0,182,237)
-		self.itemframe = ItemFrame(pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
-		print('GM:',GM,'GM.players:',GM.players,'self.current_player_id:',self.current_player_id,'GM.players[self.current_player_id]:',GM.players[self.current_player_id])
+		#self.itemframe = ItemFrame(pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
 		#self.item_image = self.itemframe.auto_gen_items(GM.players[self.current_player_id].item_list)		
-		self.itemframe.item_list = GM.players[self.current_player_id].item_list	
-
-		#self.synthesizer = SynthesisFrame(source='res/images/testing/synthesisframe.png',pos_hint={'x':.843,'y':.33},size_hint=(.16,.5),rules = self.rules)	#,parent_w=self.w,parent_h=self.h
+		#self.itemframe.item_list = GM.players[self.current_player_id].item_list	
 		self.item_tag = ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
-		#(pos_hint={'x':.92,'y':.67},size_hint=(.1,.16),source='res/images/itemtag.png',callback=self.display_itemframe)
-
 		self.add_widget(self.item_tag)
 
 	def display_itemframe(self,*args):
@@ -638,7 +636,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#TODO: 確認是否需要全部重載，標籤收合
 
 		print('self.itemframe:',self.itemframe,'self.item_tag:',self.item_tag)
-		self.generate_item_menu()
+		self.generate_item_tag()
 		print('self.itemframe:',self.itemframe,'self.item_tag:',self.item_tag)
 
 	def item_box_canvas(self,action,*args,direction=None):
