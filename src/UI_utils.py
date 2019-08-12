@@ -61,7 +61,7 @@ def redraw_widget(Widget,*args):
     Widget.bg_rect.pos = Widget.pos	
 
 freedragging = 0
-class FreeDraggableItem(Widget):#Image
+class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for dragging item
 	angle = NumericProperty(0)
 	def __init__(self,source,screen=None,magnet=False, **kargs):
 		super(FreeDraggableItem, self).__init__( **kargs)
@@ -115,7 +115,8 @@ class FreeDraggableItem(Widget):#Image
 		else:
 			self.stopped_pos_hint = {'x':touch.spos[0],'y':touch.spos[1]}
 			self.stopped_pos = touch.pos
-			self.screen.remove_widget(self.screen.dragging)
+			if self.screen is not None:
+				self.screen.remove_widget(self.screen.dragging)
 	def if_over_boundary(self, touch_pos):
 
 		if (self.x_radius<=touch_pos[0]) and \

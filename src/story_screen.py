@@ -312,7 +312,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
 		self.current_map = 0#trigger the map loading function
-
+		bg = Rectangle(source=self.chapter_maps[self.current_map], pos=(0,0), size=(self.w,self.h),group='bg')
+		self.bg_widget.load_bg(bg)
 
 		#for testing, load subgame button 
 		self.add_widget(self.subgame_button)
@@ -794,16 +795,35 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	#for testing: drag objects to map location and save
 	def testing_objects_path_init(self):
+		import shutil
 		self.testing_objects = []
 		self.testing_objects_id = -1
-		dir_path = 'res/images/unlocated_items/' 
-		files = os.listdir(dir_path)
+		dir_path = 'res/images/unlocated_mapobjects/' 
+		paint_path = 'res/images/handpainting/'
 
+		for origin in os.listdir(dir_path):
+			os.remove(os.path.join(dir_path,origin))
+		#
+		allocated_data = {}
+		if os.path.isfile('res/allocate_all_objects_table.json'):
+			f = open('res/allocate_all_objects_table.json','r')
+			allocated_data = json.load(f)
+			print('exist allocated_data before testing:',allocated_data)
+			f.close()
+
+		#load unlocated mapobjects
+		for key,item in GM.object_table.items():
+			for img_name in os.listdir(paint_path):
+				if item['on_map'] and item['name'] in img_name and item['name'] not in allocated_data.keys():
+					shutil.copy(os.path.join(paint_path,img_name),dir_path)
+					
+		#generate testing objects			
+		files = os.listdir(dir_path)
 		for f in files:
 			if '.jpg' in f or '.png' in f:
 				fulldir_path = os.path.join(dir_path,f)
 				if os.path.isfile(fulldir_path):
-					self.testing_objects.append(fulldir_path)	
+	 				self.testing_objects.append(fulldir_path)	
 		print('testing objects:',self.testing_objects)		
 		self.cur_unsafed = False	
 	#for testing: drag objects to map location and save, same for NPC or other undetermined widgets
@@ -828,12 +848,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			f.close()
 		pos_hint = self.cur_testing_dragitem.stopped_pos_hint
 		size_hint = (self.cur_testing_dragitem.size[0]/global_w,self.cur_testing_dragitem.size[1]/global_h)
-		source = self.testing_objects[self.testing_objects_id]
+		source = self.testing_objects[self.testing_objects_id].replace('unlocated_mapobjects','handpainting')
 		#write: player_id,chapter_id,mapid,object_pos_hint, source	
 		item_name = source.split('/')[-1].split('.')[0]
-		print('item_name:',item_name)
 
 		data[item_name] = {'pos_hint':pos_hint,'size_hint':size_hint,'source':source}
+		print(f'Save data[{item_name}]: {data[item_name]}!')
 		with open('res/allocate_all_objects_table.json','w') as f:	
 			json.dump(data, f)
 		self.remove_widget(self.cur_testing_dragitem)
