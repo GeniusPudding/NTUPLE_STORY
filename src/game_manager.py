@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from globals import *
 from subgames import *
 from dialog_utils import *
