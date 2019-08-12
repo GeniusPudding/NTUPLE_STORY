@@ -6,9 +6,11 @@ from game_manager import *
 
 speaker_name = {'A':'李語蝶(室友)','B':'司馬熏(男友)','C':'孟亦寒(哥哥)','D':'亓官楓(故友)','X':'女主角','M':'媽媽','F':'爸爸','N':'','L':'L','P':'P'}
 #TODO: 顯示玩家角色真名
-special_char_time = .6
-common_char_time = .25
-next_line_time = 1.5
+special_char_time = .3
+common_char_time = .15
+next_line_time = .7
+#TODO:將對話中的英文代稱改成人名帶入
+
 #Auto-dialog tools part:
 def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-bind function
 	print('[*] Start auto play dialog')
@@ -126,6 +128,11 @@ def line_to_labels(line):
 def semi_manual_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
 	print('[*] Start manual play dialog')	
 	first_line_node = semi_manual_dialog_preprocess(dialog)
+
+	if first_line_node.switch_map is not None:
+		bg = Rectangle(source=first_line_node.switch_map, pos=(0,0), size=(self.w,self.h),group='plot_bg')
+		Screen.bg_widget.load_bg(bg)
+
 	line_display_scheduler(Screen,speaker_name[first_line_node.speaker],first_line_node.text_line,False,special_char_time,next_line_time,common_char_time)
 	#screen_auto_display_node(first_line_node)
 	return  first_line_node
@@ -135,14 +142,15 @@ def semi_manual_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
 	#event = Clock.schedule_once(partial(line_display_scheduler,Screen,speaker_name[name],line,False,special_char_time,next_line_time,common_char_time), .5)
 	#Screen.dialog_events.append(event)
 
-class dialog_listnode(object):
-	def __init__(self,speaker,text_line,node_type,cur_map):
+class DialogListnode(object):
+	def __init__(self,speaker,text_line,node_type,switch_map_path=None):
 		self.speaker = speaker
 		self.text_line = text_line
 		self.type = node_type#"inner","head","tail"
 		self.last = None
 		self.next = None
-		self.switch_map = cur_map
+		self.switch_map = switch_map_path#需要支援返回對話時切換回上一張場景嗎
+		#TODO: 在對話撥放的同時切換map
 	def set_last(self,listnode):
 		self.last = listnode
 	def set_next(self,listnode):
@@ -155,17 +163,20 @@ class dialog_listnode(object):
 def semi_manual_dialog_preprocess(dialog):
 	new_auto_dialog = dialog_segmentation(dialog,20)
 
-	last_node = head_node = dialog_listnode(new_auto_dialog[0][0],new_auto_dialog[0][1],'head')
+	last_node = head_node = DialogListnode(new_auto_dialog[0][0],new_auto_dialog[0][1],'head')
 	for name,line in new_auto_dialog[1:-1]:
-		node = dialog_listnode(name,line,'inner')
+		node = DialogListnode(name,line,'inner')
 		last_node.set_next(node)
 		node.set_last(last_node)
 		last_node = node
-	node = dialog_listnode(new_auto_dialog[-1][0],new_auto_dialog[-1][1],'tail')
+	node = DialogListnode(new_auto_dialog[-1][0],new_auto_dialog[-1][1],'tail')
 	last_node.set_next(node)
 	node.set_last(last_node)
 	#testing
 	node = head_node
+
+	#TODO:加入針對每個node是否切換場景圖的function
+
 	while node.get_next() is not None:
 		print(node.text_line)
 		node = node.get_next()

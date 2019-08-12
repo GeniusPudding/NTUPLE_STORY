@@ -346,6 +346,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 3:
 			self.dialog_view = 1
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
+			auto_prompt(self,'->',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='For next sentence...\n')
+
 			
 
 
@@ -488,6 +490,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 
 				if self.current_mode == 3:
+					self.remove_widget(self.prompt_label)	
 					self.exploring_dialog(press_key_id)
 
 			elif press_key_id == 98:#b:
@@ -694,9 +697,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def last_dialog(self,*args):		
 		if self.manual_node.type != 'head':
-			clear_dialogframe_text(self,self.displaying_character_labels)
 			for event in self.dialog_events:
 				event.cancel()
+			clear_dialogframe_text(self,self.displaying_character_labels)
 			node = self.manual_node = self.manual_node.get_last()
 			self.lastline_time = line_display_scheduler(self,speaker_name[node.speaker],node.text_line,False,special_char_time,next_line_time,common_char_time)
 

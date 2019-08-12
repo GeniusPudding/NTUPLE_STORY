@@ -4,10 +4,11 @@
 ###################################################
 from game_manager import *
 
+#TODO: 按鍵提示語寫法可以更加彈性
 def auto_prompt(Screen,press_key,pos_hint,instance, prompt,extra_info=''):#a Screen-bind function
 	if prompt:
 		print(f'[*] Auto prompt to press {press_key}!')
-		Screen.prompt_label = Label(text=extra_info+f'press \'{press_key}\' to continue...',color=(1,1,1,.5),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
+		Screen.prompt_label = Label(text=extra_info+f'press \'{press_key}\' to continue...',color=(.5,.5,.1,.8),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.prompt_label)			
 		#MUST set remove_widget in Screen's key_action function
 
