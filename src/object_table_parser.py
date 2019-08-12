@@ -34,7 +34,7 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 				continue
 
 			try:
-				content = {'pos_hint':None,'size_hint':None,'source':None}
+				content = {'pos_hint':None,'size_hint':None,'source':None}#最後應該只有'nothing'的'source'是None
 
 				for img in os.listdir('res/images/handpainting/') :
 					if ('.png' in img or '.jpg' in img) and object_name in img:

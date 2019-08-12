@@ -9,7 +9,7 @@ def auto_prompt(Screen,press_key,pos_hint,instance, prompt,extra_info=''):#a Scr
 		print(f'[*] Auto prompt to press {press_key}!')
 		Screen.prompt_label = Label(text=extra_info+f'press \'{press_key}\' to continue...',color=(1,1,1,.5),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.prompt_label)			
-		#set remove_widget in Screen's key_action function
+		#MUST set remove_widget in Screen's key_action function
 
 
 def auto_display_speaker(Screen, instance, speaker):#a Screen-bind function
@@ -114,6 +114,7 @@ class FreeDraggableItem(Widget):#Image
 		else:
 			self.stopped_pos_hint = {'x':touch.spos[0],'y':touch.spos[1]}
 			self.stopped_pos = touch.pos
+			self.screen.remove_widget(self.screen.dragging)
 	def if_over_boundary(self, touch_pos):
 
 		if (self.x_radius<=touch_pos[0]) and \

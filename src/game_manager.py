@@ -67,13 +67,15 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		j = 0
 		c = 0
 		for i in range(4):
-			while c <= 4:
-				for str_id in self.object_table.keys():
-					item = self.object_table[str_id]
-					if item['source'] is not None:				
-						self.players[i].get_item(int(str_id))
-						c += 1
-
+			
+			for str_id in self.object_table.keys():
+				item = self.object_table[str_id]
+				if item['source'] is not None:				
+					self.players[i].item_list.append(int(str_id))#for testing
+					c += 1
+					if c>=4:
+						break
+			c = 0			
 			self.players[i].GG = True
 
 		self.main_screen.start_story(self)		
@@ -81,9 +83,10 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		#self.players[i]
 		
 	def change_turn(self):
+		print('turns:',turns)
 		if len(turns) == 0:
 			self.to_ending(self.current_player_id)
-		print('turns:',turns)
+		
 		self.current_player_id = turns[self.current_player_id]
 		return self.current_player_id, self.current_chapter[self.current_player_id] #(self.current_player_id, self.current_chapter[self.current_player_id])	
 
@@ -283,14 +286,16 @@ N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
 
 
 class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的ImageButton 
-	def __init__(self,object_id,object_types,screen,touch_range , **kargs):
+	def __init__(self,object_id,object_content,screen,touch_range , **kargs):
 		#Window.bind(on_key_down=self.key_action)
 		#self.source = 'res/images/testing/synthesisframe.png'
 		self.callback = partial(self.probe_object_on_map,self,screen)#()
 		self.object_id = object_id
 		super(MapObject, self).__init__(self.callback,self.object_id,**kargs )
 		#kargs['object_id']
-		self.object_types = object_types
+		self.object_types = object_content['function_types']
+		self.map_name = object_content['map_name']
+		self.source = object_content['source']
 		#screen = screen
 		if touch_range == 'default':
 			self.touch_range = self.size_hint
@@ -303,7 +308,7 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		print(f'self:{self},args:{args}')
 		screen = args[1]
 		print('equal:',self==args[0])
-		if isinstance(self,MapObject):
+		if isinstance(self,MapObject) and screen.current_mode == 1:
 			if screen.hp_per_round > 0:
 				if 'item' in self.object_types:
 					#定義: 可以收進"道具欄"並可"使用"

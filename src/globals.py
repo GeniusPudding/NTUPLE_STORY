@@ -40,7 +40,7 @@ import random
 import time
 
 #global constant here
-final_chapter = 0#for release: 3
+final_chapter = 3#for release: 3
 OS = platform.system()
 if OS=="Darwin":
 	import pygame
