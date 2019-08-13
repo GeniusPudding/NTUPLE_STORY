@@ -1,26 +1,39 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import json
-import sys 
-import os
+
 path = 'res/g.[開鎖]表 - 工作表1.csv'
-
 final_data_dict = {}
-
-
 
 df = pd.read_csv(path)  
 print(df)
 print(df.keys())
 
-for i, object_name in enumerate(df['物件一覽表']):
+for i, object_name in enumerate(df['開鎖之物件']):
 
-	if isinstance(object_name,float):
-		continue
-		
+	final_data_dict[object_name] = {}
+	if isinstance(df['輸入道具'][i],float):
+		final_data_dict[object_name]['input_item'] = None
+	else:
+		final_data_dict[object_name]['input_item'] = df['輸入道具'][i]
+
+	if isinstance(df['輸出道具'][i],float):
+		final_data_dict[object_name]['output_item'] = None
+	else:
+		final_data_dict[object_name]['output_item'] = df['輸出道具'][i]
+
+	if isinstance(df['解鎖新場景'][i],float):
+		final_data_dict[object_name]['new_scene'] = None
+	else:
+		final_data_dict[object_name]['new_scene'] = df['解鎖新場景'][i]
+
+	if isinstance(df['是否觸發'][i],float):
+		final_data_dict[object_name]['trigger'] = None
+	else:
+		final_data_dict[object_name]['trigger'] = True
 		
 
 
 print(f'final data_dict:{final_data_dict}')
-with open('res/objects/final_unlock_table.json','w') as f:
+with open('res/objects/unlock_table.json','w') as f:
 	json.dump(final_data_dict, f)	

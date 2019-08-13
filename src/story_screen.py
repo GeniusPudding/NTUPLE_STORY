@@ -334,6 +334,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.testing_objects_path_init()
 
 		#for testing
+		test_MapObjects = [2]*
 		self.add_widget(MapObject(screen=self, object_id=88,object_content=GM.object_table[str(88)],touch_range='default',size_hint=(.2,.2),pos_hint={'x':.3,'y':.3}))
 
 		#auto save
@@ -720,12 +721,13 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def enter_puzzle_mode(self, object_id, behavior_type):#在道具欄使用道具進入的puzzle_mode跟地圖上點擊有何不同
 		self.current_mode = 2
+		item = GM[str(object_id)]
 		if behavior_type == 'puzzle':
-			self.puzzle_handler(object_id)
+			self.puzzle_handler(item)
 		elif behavior_type == 'lock': 
-			self.lock_handler(object_id)
+			self.lock_handler(item)
 		elif behavior_type == 'synthesis': 
-			self.synthesis_handler(object_id)
+			self.synthesis_handler(item)
 
 		
 	def puzzle_handler(self, object_id):
