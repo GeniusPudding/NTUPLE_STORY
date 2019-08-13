@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+###################################################
+# Generate the all-objects table of the game      #
+# 	before executing main.py                      #
+###################################################
 import pandas as pd
 import json
 import sys 
@@ -98,5 +102,7 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 
 
 print(f'final data_dict:{final_data_dict}')
+# for c in final_data_dict.values():
+# 	print(len(c['description']))
 with open('res/objects/final_objects_table.json','w') as f:
 	json.dump(final_data_dict, f)	

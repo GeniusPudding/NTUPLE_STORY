@@ -30,34 +30,54 @@ class BG_widget(Widget):
 
 	def load_bg(self,bg):
 		self.parent.canvas.before.add(bg)
-		#self.canvas.before.add(self.bg) #what different?
-	def on_touch_down(self, touch): 
+
+	def on_touch_down(self, touch): #For the flexibility to implement some user interaction functions on the whole screen
 		print('bg on_touch_down')
 		print(touch)
 		print(touch.pos,touch.spos)
 class CircleImage(Widget):#Image
 	def __init__(self,source, **kargs):
 		super(CircleImage, self).__init__( **kargs)
+		self.canvas.clear()
 		with self.canvas:
-		    self.bg_rect = Ellipse(pos=self.pos,size=self.size,source=source,group='self')
+			Color(1,1,1,1)
+			self.bg_rect = Ellipse(pos=self.pos,size=self.size,source=source,group='self')
 		self.bind(pos=redraw_widget, size=redraw_widget)
 		self.source = source
 
-	def start_switching_animate(self,pos,offset,direction,duration=.3):
+	def start_switching_animate(self,pos,offset,direction,duration=.3):#offset and duration also can be a list, and must have same length 
 		(px,py) = pos
-		(ox,oy) = offset
-		print(f'pos:{pos},offset:{offset},direction:{direction}')
-		if direction == 'positive':
-			anim = Animation(pos=(px+ox,py+oy), duration=duration)#(x=px+ox, y=py+oy, duration=1)
-			anim.bind(on_complete=self.partial_complete_signal)
-			anim.start(self)
-			self.pos = (px+ox,py+oy) 
-		elif direction == 'negative':
-			anim = Animation(pos=(px-ox,py-oy), duration=duration )#(x=px-ox, y=py-oy, duration=1)
-			anim.bind(on_complete=self.partial_complete_signal)
-			anim.start(self)
-			self.pos = (px-ox,py-oy)
-		print("anim:",anim)
+		#print(f'Before anim... pos:{pos},offset:{offset},direction:{direction}')
+		if not isinstance(offset, list):#only a tuple
+			(ox,oy) = offset
+			
+			if direction == 'positive':
+				anim = Animation(pos=(px+ox,py+oy), duration=duration)#(x=px+ox, y=py+oy, duration=1)
+				anim.bind(on_complete=self.partial_complete_signal)
+				anim.start(self)
+				self.pos = (px+ox,py+oy) 
+			elif direction == 'negative':
+				anim = Animation(pos=(px-ox,py-oy), duration=duration )#(x=px-ox, y=py-oy, duration=1)
+				anim.bind(on_complete=self.partial_complete_signal)
+				anim.start(self)
+				self.pos = (px-ox,py-oy)
+		else:#Not support directions yet
+			if not isinstance(duration, list) or (len(offset)!=len(duration)):
+				raise ValueError('Argument \"duration\" must be a list with the same length of \"offset\"')
+			else:
+				(ox,oy) = offset[0]
+				anim = Animation(pos=(px+ox,py+oy), duration=duration[0])
+				px += ox
+				py += oy 
+				for i,of in enumerate(offset[1:]):
+					(ox,oy) = of
+					anim += Animation(pos=(px+ox,py+oy), duration=duration[i])
+					px += ox
+					py += oy 
+				anim.bind(on_complete=self.partial_complete_signal)
+				anim.start(self)
+				self.pos = (px,py)
+		print(f"After anim... pos:{self.pos}")
 	def partial_complete_signal(self,instance, widget):
 		#print('on_complete')
 		if isinstance(self.parent,Screen):
@@ -68,15 +88,19 @@ class CircleImage(Widget):#Image
 def redraw_widget(Widget,*args):
     Widget.bg_rect.size = Widget.size
     Widget.bg_rect.pos = Widget.pos	
+def global_free(Widget, free):
+	global freedragging
+	freedragging = free
 
-freedragging = 0
+freedragging = 1
 class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for dragging item
-	angle = NumericProperty(0)
+	free = NumericProperty(1)
 	def __init__(self,source,screen=None,magnet=False, **kargs):
 		super(FreeDraggableItem, self).__init__( **kargs)
 		with self.canvas:
 		    self.bg_rect = Ellipse(pos=self.pos,size=self.size,source=source,group='self')
 		self.bind(pos=redraw_widget, size=redraw_widget)
+		self.bind(free=global_free)
 		#self.canvas.add(Ellipse(pos=self.pos,size=self.size,source=source,group='self'))
 		self.x_radius = self.size[0]/2
 		self.y_radius = self.size[1]/2
@@ -88,19 +112,19 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		self.anim = Animation(x=10, y=100, duration=2)
 		self.anim.repeat = True
 		self.source = source
-		#self.anim.start(se)
-	# 	self.anim = Animation(angle = 360, duration=2) 
-	# 	self.anim += Animation(angle = 360, duration=2)
-	# 	
+
 	def on_touch_down(self, touch):
 		print(f"Free item on_touch_down touch.pos:{touch.pos}")
-		global freedragging
+		#global freedragging
+		
 		if self.collide_point(*touch.pos):
-			self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)			 
-			freedragging = 1
+			self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)	
+			print(f'on_touch_down freedragging:{freedragging},id(freedragging):{id(freedragging)}')		 
+			self.free = 0
 			self.dragger = 1
+			print(f'on_touch_down freedragging:{freedragging},id(freedragging):{id(freedragging)}')
 			if isinstance(self.screen,Screen): 
-				self.screen.item_view = 0 
+				self.screen.item_view = 0 #here make focusing_frame_id = -1
 	def on_touch_move(self, touch):
 
 		if (not self.if_over_boundary(touch.pos)) and self.dragger == 1:#(not self.if_collide_others(touch.pos)) and 		
@@ -108,9 +132,11 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 
 	def on_touch_up(self, touch): #release a dragging item here
 		print(f'Free item on_touch_up touch.pos:{touch.pos}"')
-		global freedragging 
-		freedragging = 0
+		#global freedragging 
+		print(f'on_touch_up freedragging:{freedragging},id(freedragging):{id(freedragging)}')
+		self.free = 1
 		self.dragger = 0
+		print(f'on_touch_up freedragging:{freedragging},id(freedragging):{id(freedragging)}')
 		self.stopped_pos_hint = {'x':touch.spos[0],'y':touch.spos[1]}
 		self.stopped_pos = touch.pos
 		if isinstance(self.screen,Screen) and self.magnet:
@@ -121,9 +147,8 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 				screen.hp_per_round -= 1
 			else:
 				self.pos = self.origin_pos
-				screen.remove_widget(screen.dragging)
-				screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item)
-				
+				screen.remove_widget(screen.dragging)	
+				screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
 
 				
 	def start_switching_animate(self,pos,offset,direction,duration=.3):

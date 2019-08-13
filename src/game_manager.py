@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+###################################################
+# Manage all of the game status here              #
+# "Screen" must be an intance og kivy Screen      #
+###################################################
+
+
 from globals import *
 from subgames import *
 from dialog_utils import *
@@ -138,18 +144,8 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			for r in range(4):
 				Chapters[p].append(Chapter(player_id=p, chapter_id=r))
 		return Chapters
-	def load_object_table(self): #TODO: load game info from previously built json file
-		#for testing
-		table = {0:{'name':'編織星空的碎片','source':'res/images/testing/items/1.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		1:{'name':'太古粉塵','source':'res/images/testing/items/2.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		2:{'name':'闇魔力之源','source':'res/images/testing/items/3.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		3:{'name':'異世界契約','source':'res/images/testing/items/4.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		4:{'name':'蔚藍海樓石','source':'res/images/testing/items/5.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		5:{'name':'大秘寶','source':'res/images/testing/items/6.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		6:{'name':'被封印的咒術書','source':'res/images/testing/items/7.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		7:{'name':'龍之淚','source':'res/images/testing/items/8.png','map_name':'','pos_hint':'','size_hint':'','player':'','chapter':'','function_types':'','description':'好像跟破碎的記憶有關，但...\n','on_map':False},\
-		}
-
+	def load_object_table(self):
+		#'id':{'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description','on_map'}
 		with open('res/objects/final_objects_table.json','r') as f:
 			table = json.load(f)
 			#print('load json object table:',table)
@@ -258,7 +254,7 @@ N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
 		return ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
 
 	def load_chapter_objects(self):
-		#TODO: load and init all MapObject() here
+		#TODO: load and init all MapObject here
 		with open(self.object_path+'object.json','r') as f:
 			data_dict = json.load(f)
 		# MapObject
@@ -277,7 +273,7 @@ N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
 		# chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_3.jpg')
 		return chapter_maps
 	def add_chapter_NPCs(self,NPC_id):
-		#TODO: load and init all MapObject() here
+		#TODO: load and init all MapObject here
 		self.chapter_NPCs.append(NPC_id)
 		#return chapter_NPCs
 
@@ -309,7 +305,7 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		print(f'self:{self},args:{args}')
 		screen = args[1]
 		print('equal:',self==args[0])
-		if isinstance(self,MapObject) and screen.current_mode == 1:
+		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0:
 			if screen.hp_per_round > 0:
 				if 'item' in self.object_types:
 					#定義: 可以收進"道具欄"並可"使用"
@@ -350,13 +346,6 @@ def puzzle_jugde(screen,GM,puzzle_object_id):
 
 	screen.puzzle_pass = True
 
-# print("MapObject")
-# print(MapObject(object_type='item',item_id=1))
-# print(MapObject(object_type='item',item_id=1).source)
-# MapObject(object_type='puzzle')
-# MapObject(object_type='synthesis')
-# MapObject(object_type='trigger')
-# MapObject(object_type='clue')
 
 #GM = GameManagerScreen()
 #pygame.init()

@@ -1,3 +1,7 @@
+###################################################
+# Executable entry of the game program            #
+###################################################
+
 from game_manager import *
 from title_screen import TitleScreen
 from intro_screen import IntroScreen
@@ -47,7 +51,7 @@ if __name__ == '__main__':
     # TODO: Other needed configs
 
 
-    with open ('kv/ntu_piece.kv', 'r', encoding='utf-8') as f:
+    with open ('kv/NTUPLE_Story.kv', 'r', encoding='utf-8') as f:
         Builder.load_string(f.read())
     Window.fullscreen = 'auto'#True
     NTUPLE_Story().run()#+collect_submodules('kivy.weakmethod')+collect_submodules('pandas')+

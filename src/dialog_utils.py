@@ -74,12 +74,12 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(Screen,name,line,last_autoline,ts,tn,tc,*args):
+def line_display_scheduler(Screen,name,line,last_autoline,ts,tn,tc,chars_of_row = 10,rows = 2,*args):#or chars_of_row = 15,rows = 3
 	#print(f'Line display name:{name},line:{line}')
 	
 	Screen.current_speaker_name = name#speaker_name[name] #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
-	Screen.displaying_character_labels = line_to_labels(line) #bijection to line characters 
+	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
 	accu_time = 0
 	char_time = 0
 	for i,char in enumerate(line):
@@ -109,15 +109,17 @@ def clear_dialogframe_text(Screen,displaying_character_labels,*args):#must betwe
 	for label in displaying_character_labels:
 		Screen.remove_widget(label)
 
-def line_to_labels(line):
+def line_to_labels(line,chars_of_row,rows):
 	labels = []
 	page_char_count = 0
-	char_size_hint = (.07,.08)
+	(tx,ty) = total_use = (.79,.17)
+	(dx,dy) = char_distance = (.01,.01)
+	(cx,cy) = char_size_hint = ((tx+dx)/chars_of_row - dx,(ty+dy)/rows - dy)#default (.07,.08)
 	for char in line:
 		if char != '\n':
-			col = page_char_count % 10
-			row = 1 - page_char_count // 10
-			labels.append(Label(text=char,pos_hint={'x':.03+.08*col,'y':.015+.09*row},color=(1,1,1,1),font_size=48,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
+			col = page_char_count % chars_of_row#page_char_count % 10
+			row = rows - 1 - page_char_count // chars_of_row#1 - page_char_count // 10
+			labels.append(Label(text=char,pos_hint={'x':.03+(cx+dx)*col,'y':.015+(cy+dy)*row},color=(1,1,1,1),font_size=48,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
 			page_char_count += 1
 		else:#won't be displayed
 			labels.append(Label(text=char,pos_hint={'x':0,'y':0},color=(1,1,1,1),font_size=36,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))

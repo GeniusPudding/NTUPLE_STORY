@@ -1,3 +1,6 @@
+###################################################
+# Prologue appeared before the main screen        #
+###################################################
 from game_manager import *
 
 class PrologueScreen(Screen):

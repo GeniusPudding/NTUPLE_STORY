@@ -1,19 +1,10 @@
+###################################################
+# Phone screen for extra functions                #
+# Experimental IPhone XR touch screen features    #
+###################################################
+
 from game_manager import *
 from installed_apps import *
-
-
-# class AppIcon(ImageButton):#ImageButton
-# 	def __init__(self,app_screen, **kwargs):
-# 		super(AppIcon, self).__init__(**kwargs)	
-# 		self.app_widget = app_screen #an instance of AppScreen
-# 		# self.canvas.add(Color(0,0,0,1))
-# 		# self.canvas.add(Rectangle(pos=self.pos, size=self.size))
-# 	# def on_press(self):
-# 	# 	print('AppIcon on press')
-# 	# 	self.add_widget(self.app_widget)
-# 	# def on_touch_down(self, touch):
-# 	# 	print('AppIcon on touch down: ',touch.pos)
-
 
 class AppPauseView(Image):#or use a Floatlayout?
 	def __init__(self,app_icon, app_name, app_pause_view, **kwargs):
