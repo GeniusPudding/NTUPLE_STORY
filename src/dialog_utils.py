@@ -9,7 +9,7 @@ special_char_time = .3
 common_char_time = .15
 next_line_time = .7
 #TODO:將對話中的英文代稱改成人名帶入
-#TODO: 自動撥放加速功能
+#TODO: 自動撥放一鍵加速功能
 #Auto-dialog tools part:
 def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-bind function
 	print('[*] Start auto play dialog')
@@ -73,8 +73,8 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='N',*args):#or chars_of_row = 15,rows = 3
-	#print(f'Line display name:{name},line:{line}')
+def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='N',close_dialogframe=False,*args):#or chars_of_row = 15,rows = 3
+	#TODO:auto close_dialogframe function after the chars displayed
 	
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')

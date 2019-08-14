@@ -130,7 +130,8 @@ for i in range(135):
 	if 'puzzle' in  final_data_dict[i]['function_types']:
 		print(final_data_dict[i])
 print('m:',m)
-print(f'final data_dict[118]:{final_data_dict[118]}')
+print(f'final data_dict[6]:{final_data_dict[6]}')
+print(f'final data_dict[124]:{final_data_dict[124]}')
 print(f'final data_dict[125]:{final_data_dict[125]}')
 print(f'final data_dict[127]:{final_data_dict[127]}')
 

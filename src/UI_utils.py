@@ -128,7 +128,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 				self.screen.item_view = 0 #here make focusing_frame_id = -1
 	def on_touch_move(self, touch):
 
-		if (not self.if_over_boundary(touch.pos)) and self.dragger == 1:#(not self.if_collide_others(touch.pos)) and 		
+		if (not self.if_over_boundary(touch.pos)) and self.dragger == 1:		
 			self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)
 
 	def on_touch_up(self, touch): #release a dragging item here
@@ -143,7 +143,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		if isinstance(self.screen,Screen) and self.magnet:
 			screen = self.screen
 			if screen.current_mode == 1:
-				self.pos = self.origin_pos
+				self.stopped_pos = self.pos = self.origin_pos
 				screen.remove_widget(screen.dragging)	
 				screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
 
@@ -171,31 +171,106 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 			return False
 		return True
 
-def build_CodedLock(screen):
-	pass
+def E2_distance(pos1,pos2):
+	return math.sqrt(math.pow(pos1[0]-pos2[0],2)+math.pow(pos1[1]-pos2[1],2))	
 
-def puzzle_move_view(screen, direction):
-
-	#control part:
-	if direction == 'l':
+num_up = {1:2,2:3,3:4,4:5,5:6,6:7,7:8,8:9,9:0,0:1}
+num_down = {2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,0:9,1:0}
+select_left = {2:1,3:2,0:3,1:0}
+select_right = {1:2,2:3,3:0,0:1}
+def build_CodedLock(screen,item):
+	screen.canvas.add(Rectangle(pos=screen.pos,size=screen.size,source=item['source'],group='puzzle'))
+	screen.cur_code = [1,3,1,4]
+	screen.code_id = 0
+	code_pos_hint = [{'x':.35+i*.075,'y':.3} for i in range(4)] 	
+	screen.code_labels = [Label(color=(.4,.4,.4,.6),text = str(screen.cur_code[i]), size_hint = (.075,.1),pos_hint=code_pos_hint[i],font_size=144 ) for i in range(4)]   
+	for i in range(4):
+		screen.add_widget(screen.code_labels[i])
+	select_code_block_canvas(screen, 0)
+	screen.item_view = 0
+def puzzle_move_view(screen, press_key_id):
+	if press_key_id == 276:
 		screen.code_id = select_left[screen.code_id]
-	elif direction == 'r':
+	elif press_key_id == 275:
 		screen.code_id = select_right[screen.code_id]
 	print('move screen.code_id:',screen.code_id)
+	select_code_block_canvas(screen, screen.code_id)
+
+def select_code_block_canvas(screen, code_id):
+	screen.canvas.remove_group('block')
+	wid = 10
+	lb_pos = (global_w*(.35 + code_id*.075), global_h*.3) 
+	rb_pos = (global_w*(.35 + (code_id+1)*.075), global_h*.3) 
+	rt_pos = (global_w*(.35 + (code_id+1)*.075), global_h*.4) 
+	lt_pos = (global_w*(.35 + code_id*.075), global_h*.4) 
+	print('lb_pos,rb_pos,rt_pos,lt_pos:',lb_pos,rb_pos,rt_pos,lt_pos)
+	screen.canvas.add(Color(.1,.1,.1,.5))
+	screen.canvas.add(Line(points=[lb_pos[0], lb_pos[1], rb_pos[0], rb_pos[1], rt_pos[0], rt_pos[1], lt_pos[0], lt_pos[1]],cap=None,joint='round',close=True, width=wid,group='block'))
 		
-def puzzle_select_number(screen, direction):
+def puzzle_select_number(screen, press_key_id):
 
-	#control part:
-	if direction == 'u':
-		screen.cur_view[screen.code_id] = num_up[screen.cur_view[screen.code_id]]
-	elif direction == 'd':
-		screen.cur_view[screen.code_id] = num_down[screen.cur_view[screen.code_id]]
-	print(f'select self.cur_view[{screen.code_id}]:{screen.cur_view[screen.code_id]}')
+	if press_key_id == 273:
+		screen.cur_code[screen.code_id] = num_up[screen.cur_code[screen.code_id]]
+	elif press_key_id == 274:
+		screen.cur_code[screen.code_id] = num_down[screen.cur_code[screen.code_id]]
+	screen.code_labels[screen.code_id].text = str(screen.cur_code[screen.code_id])
+	print(f'select screen.cur_code[{screen.code_id}]:{screen.cur_code[screen.code_id]}')
+
+	if screen.cur_code == [5,4,8,7]:
+		screen.puzzling = False
+		clear_CodedLock(screen)
+		screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!')
+		#TODO:new scene
+		#name = 
+		# screen.GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
+		# screen.current_map = len(screen.chapter_maps) - 1 
+
+def clear_CodedLock(screen):
+	try:
+		for i in range(4):
+			screen.remove_widget(screen.code_labels[i])
+		screen.canvas.remove_group('block')
+	except:
+		print('No opened Coded Lock')	
 
 
+def synthesis_canvas(screen):
+	base_y = .6*global_h
+	space_x = .04*global_w
+	block_x = .01*global_w
+	block_y = .02*global_h
+	(bx,by) = block_size = (.12*global_w,.2*global_h)
+	block_color = (0,0,0,1)
+	box_size = (block_size[0]-2*block_x, block_size[1]-2*block_y)
+	box_color = (1,1,1,1)
+	operator_color = (.3,1,.2,1)
+	operator_x = .1*global_w
 
-
-
+	#material
+	screen.canvas.add(Color(rgba=block_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(space_x,base_y),size=block_size,group='synthesis'))
+	screen.canvas.add(Color(rgba=box_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(space_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
+	#'+'
+	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(2*space_x+bx,base_y+.07*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(2*space_x+bx+.035*global_w,base_y+block_y),size=(.03*global_w,box_size[1]),group='synthesis'))
+	#input
+	screen.canvas.add(Color(rgba=block_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(3*space_x+bx+operator_x,base_y),size=block_size,group='synthesis'))
+	screen.canvas.add(Color(rgba=box_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(3*space_x+bx+operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
+	#'='
+	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.11*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.03*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+	#output
+	screen.canvas.add(Color(rgba=block_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x,base_y),size=block_size,group='synthesis'))
+	screen.canvas.add(Color(rgba=box_color,group='synthesis'))
+	screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
 
 class DraggableItem(Image):#Deprecated
 	def __init__(self, frame_pos, frame_size, draggable_item_id, **kargs):#other_pos
@@ -232,9 +307,6 @@ class DraggableItem(Image):#Deprecated
 		global dragging, item_cur_pos 
 		if (not self.if_collide_others(touch.pos)) and (not self.if_over_boundary(touch.pos)) and self.dragger == 1:#(dragging == 0 or self.dragger == 1):	#self.scaled_collide_point(touch.pos,2) and 		
 			item_cur_pos[self.draggable_item_id] = self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)
-			#print("modified global item_cur_pos:",item_cur_pos) 
-		# elif self.dragger == 0:
-		# 	self.set_origin_pos()
 
 	def on_touch_up(self, touch): #release a dragging item here
 		# print('item on_touch_up')

@@ -30,7 +30,7 @@ class SubgameManager(Screen):
 		self.manager.current = self.subgames[subgames_id].name
 		
 
-	def leave_subgames(self,btn):
+	def leave_subgames(self,*args):
 		# self.manager.get_screen('story').generate_dropdown()
 		self.subgames[self.cur_subgames_id].end()
 		self.manager.current = 'story'

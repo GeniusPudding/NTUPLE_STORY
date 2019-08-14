@@ -42,6 +42,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.Chapters = self.init_chapters()
 		self.object_table = self.load_object_table()
 		self.unlock_table = self.load_unlock_table()
+		self.synthesis_table = self.load_synthesis_table()
 		self.name_to_id_table = self.load_name_to_id_table() #有些不同id的名稱會重複，重複時查總表
 		self.NPC_table = self.load_NPC_table()
 
@@ -136,20 +137,27 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		with open('res/objects/unlock_table.json','r') as f:
 			table = json.load(f)
 		return table 
+
+	def load_synthesis_table(self):
+		with open('res/objects/synthesis_table.json','r') as f:
+			table = json.load(f)
+		return table 	
+
 	def load_name_to_id_table(self):
 		with open('res/objects/name_to_id_table.json','r') as f:
 			table = json.load(f)
-		return table 		
+		return table 	
+
 	def load_NPC_table(self):
 		table = {0:{'name':'艾爾莎','source':'res/images/testing/Erza.png','map_name':'','pos_hint':'','size_hint':'','player':1,'chapter':0,'function_types':'','description':'妖精的尾巴'}}##key:NPC_id,value:(name,source,location,pos,player,chapter,function_types,description)		return table		
 		return table
 	#TODO: the function of auto save/load game status
+
 	def load_game(self):
 		f = open('res/game_archive.json','r')
 		record_json = json.load(f)
 		#current_player, 
 		
-
 	def save_game(self):
 		f = open('res/game_archive.json','w')
 		#TODO
@@ -282,7 +290,7 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		#self.source = 'res/images/testing/synthesisframe.png'
 		self.callback = partial(self.probe_object_on_map,self,screen)#()
 		self.object_id = object_id
-		super(MapObject, self).__init__(self.callback,self.object_id,**kargs )
+		super(MapObject, self).__init__(self.callback,self.object_id,allow_stretch=True,keep_ratio=False,**kargs)
 		self.object_content = object_content
 		self.object_types = object_content['function_types']
 		self.map_name = object_content['map_name']
