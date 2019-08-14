@@ -541,6 +541,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 				elif self.current_mode == 2:
 					print('Give up the puzzle, back to exploring mode')
+					self.canvas.remove_group('puzzle')
 					self.current_mode = 1
 
 				elif self.current_mode == 3:
@@ -731,6 +732,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def enter_puzzle_mode(self, object_id, behavior_type):#在道具欄使用道具進入的puzzle_mode跟地圖上點擊進入相同
 		self.current_mode = 2
+		self.canvas.add(Color(rgba=(.2,.2,.2,.2),group='puzzle'))
+		self.canvas.add(Rectangle(pos=self.pos,size=self.size,group='puzzle'))
 		item = GM.object_table[str(object_id)]
 		if behavior_type == 'puzzle':
 			self.puzzle_handler(item)
