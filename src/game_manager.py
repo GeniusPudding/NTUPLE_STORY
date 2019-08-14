@@ -3,22 +3,11 @@
 # Manage all of the game status here              #
 # "Screen" must be an intance og kivy Screen      #
 ###################################################
-
-
 from globals import *
 from subgames import *
 from dialog_utils import *
 from UI_utils import *
-#import pandas as pd
-
-
-
 #from manager.update_manager import *
-
-#TODO: 區分GM和主畫面之所屬功能
-
-
-
 
 class ImageButton(ButtonBehavior, Image): #Behavior
 	def __init__(self, callback,object_id=-1, **kargs):
@@ -33,6 +22,7 @@ turns = {1:2,2:3,3:0,0:1}
 class GameManagerScreen(Screen):#main control class of the whole game
 	#TODO: 自動存檔功能及記錄檔 防止意外關閉遊戲
 	#TODO: Exceptions
+	#TODO: 用計時器跟體力控制做出不同難度模式，預設為easy，不限時
 	p0 = ObjectProperty()
 	p1 = ObjectProperty()
 	p2 = ObjectProperty()
@@ -77,8 +67,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			self.players[i].GG = True
 
 		self.main_screen.start_story(self)		
-		# Clock.schedule_interval(global_mouse, 0.6)	
-		#self.players[i]
+
 		
 	def change_turn(self):
 		print('turns:',turns)

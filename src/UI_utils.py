@@ -15,11 +15,12 @@ def auto_prompt(Screen,press_key,pos_hint,instance, prompt,extra_info=''):#a Scr
 
 def auto_display_speaker(Screen, instance, speaker):#a Screen-bind function
 	print('[*] Display speaker: ',speaker)
+	name = speaker_name[speaker]
 	Screen.remove_widget(Screen.nametag)
 	Screen.canvas.remove_group('speaker')
-	if speaker != '':
+	if name != '':
 		source = 'res/images/players/' + speaker + '.png'
-		Screen.nametag = Label(text=speaker,pos_hint={'x':0,'y':.2},color=(1,1,1,1),font_size=40,size_hint=(.1,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
+		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(1,1,1,1),font_size=40,size_hint=(.1,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.nametag)
 		Screen.canvas.add(Rectangle(source=source,pos=(0,.27*global_h),size=(.15*global_w,.35*global_h),group='speaker'))
 

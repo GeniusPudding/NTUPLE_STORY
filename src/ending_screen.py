@@ -9,3 +9,5 @@ class EndingScreen(Screen):
     	print(f'Show {player_id+1}-th player\'s ending')
     	if last_one:
     		print('End The Story')
+
+    #破關就刪掉存檔檔案
