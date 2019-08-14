@@ -19,11 +19,11 @@ if os.path.isfile('res/allocate_all_objects_table.json'):
 	f.close()
 
 object_count = 0
-function_names = {'道具':'item','解碼':'puzzle','開鎖':'lock','場景切換':'switching','觸發':'trigger','線索':'clue'}
+function_names = {'道具':'item','解碼':'puzzle','開鎖':'lock','切換場景':'switching','觸發':'trigger','線索':'clue'}
 chapter_code = {'一':0,'二':1,'三':2,'四':3}
 player = {'A':0,'B':1,'C':2,'D':3}
 #for testing
-
+max_len_description = 0
 for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 	if '.csv' in f:
 
@@ -83,6 +83,8 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 					content['function_types'] = func_types
 				if not isinstance(df['文字說明'][i], float):
 					content['description'] = df['文字說明'][i]
+					if len(content['description']) > max_len_description:
+						max_len_description = len(content['description'])
 				else:
 					content['description'] = ''
 				#'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description', on_map=True
@@ -113,6 +115,8 @@ print('缺少圖片張數:',c)
 print(less)
 print()
 print(os.listdir('res/images/handpainting/'))
+
+print('max_len_description:',max_len_description)
 with open('res/objects/final_objects_table.json','w') as f:
 	json.dump(final_data_dict, f)	
 

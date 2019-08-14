@@ -288,7 +288,7 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		self.callback = partial(self.probe_object_on_map,self,screen)#()
 		self.object_id = object_id
 		super(MapObject, self).__init__(self.callback,self.object_id,**kargs )
-		#kargs['object_id']
+		self.object_content = object_content
 		self.object_types = object_content['function_types']
 		self.map_name = object_content['map_name']
 		self.source = object_content['source']

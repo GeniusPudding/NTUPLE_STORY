@@ -18,7 +18,7 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 	clock_time_accu = 0
 	for i,(name,line)  in enumerate(auto_dialog):#displaying
 		clock_time_accu += start_line_clock_time[i]
-		event = Clock.schedule_once(partial(line_display_scheduler,Screen,speaker_name[name],line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,10,2), .5+i*.5+clock_time_accu)#.5 is from the screen start
+		event = Clock.schedule_once(partial(line_display_scheduler,Screen,speaker_name[name],line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time), .5+i*.5+clock_time_accu)#.5 is from the screen start
 		Screen.dialog_events.append(event)
 def auto_dialog_preprocess(auto_dialog):
 	#preprocessing:
@@ -74,11 +74,23 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(Screen,name,line,last_autoline,ts,tn,tc,chars_of_row = 10,rows = 2,*args):#or chars_of_row = 15,rows = 3
+def line_display_scheduler(Screen,name,line,last_autoline,ts,tn,tc,*args):#or chars_of_row = 15,rows = 3
 	#print(f'Line display name:{name},line:{line}')
 	
 	Screen.current_speaker_name = name#speaker_name[name] #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
+	if line <= 20:
+		chars_of_row = 10
+		rows = 2
+	elif line <= 45:
+		chars_of_row = 15
+		rows = 3
+	elif line <= 80:
+		chars_of_row = 20
+		rows = 4
+	else:
+		print('Text Line is too long!! Not supported')
+		return
 	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
 	accu_time = 0
 	char_time = 0
@@ -115,13 +127,13 @@ def line_to_labels(line,chars_of_row,rows):
 	(tx,ty) = total_use = (.79,.17)
 	(dx,dy) = char_distance = (.01,.01)
 	(cx,cy) = char_size_hint = ((tx+dx)/chars_of_row - dx,(ty+dy)/rows - dy)#default (.07,.08)
-	print('cx,cy:',cx,cy)
-	print('chars_of_row,rows:',chars_of_row,rows)
+	#print('cx,cy:',cx,cy)
+	#print('chars_of_row,rows:',chars_of_row,rows)
 	for char in line:
 		if char != '\n':
 			col = page_char_count % chars_of_row#page_char_count % 10
 			row = rows - 1 - page_char_count // chars_of_row#1 - page_char_count // 10
-			print(f'pos_hint:{.03+(cx+dx)*col}, {(cy+dy)*row}, col:{col}, row:{row}')
+			#print(f'pos_hint:{.03+(cx+dx)*col}, {(cy+dy)*row}, col:{col}, row:{row}')
 			labels.append(Label(text=char,pos_hint={'x':.03+(cx+dx)*col,'y':(cy+dy)*row},color=(1,1,1,1),font_size=48,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
 			page_char_count += 1
 		else:#won't be displayed

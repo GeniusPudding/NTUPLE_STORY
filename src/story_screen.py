@@ -36,7 +36,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		self.count = 0
 		self.item_size = (.04*global_w,.06*global_h)
 		self.info_size_x, self.info_size_y = .12*global_w,.18*global_h
-
+		self.cyclic = {}
 
 	def auto_gen_items(self,instance,item_list):#focusing_frame_id must be self.cyclic[0] when first open the frame after modified item_list
 		print('[*]item frame gen items:',item_list)
@@ -44,7 +44,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		print("item_list:",item_list)
 		self.offset = (.1/(self.count-1)*global_w,.05/(self.count-1)*global_h)
 		for i in range(self.count):
-			print('test append pos')
+			print('test append pos:',(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1]))
 			item_cur_pos.append([(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1])])
 		print('GM.object_table:',GM.object_table)
 		d_len = min(.15*global_w,.2*global_h)
@@ -54,7 +54,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		self.item_images =  [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 
 		#item_images與item_list共用focusing_frame_id, 另開一個循環id用來展示選取動畫
 		#when item_images modified, manually modified the item_list
-		self.cyclic = {}
+		
 		for i in range(self.count):
 			self.cyclic[i] = i
 
@@ -99,7 +99,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		print('auto_display_item_info object_id:',object_id)
 		text_line = GM.object_table[str(object_id)]['description']
 		print('text_line:',text_line)
-		spent_time = line_display_scheduler(screen,'',text_line,False,.2,.5,.15, chars_of_row = 15,rows = 3)
+		spent_time = line_display_scheduler(screen,'',text_line,False,.2,.5,.15)
 		Clock.schedule_once(partial(clear_dialogframe_text,screen,screen.displaying_character_labels),.05+spent_time)
 
 			
@@ -296,6 +296,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		Window.bind(on_key_up=self.key_release)
 		self.hp_widgets = []
 		self.displaying_character_labels = []
+		self.lock = Image()
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
@@ -320,7 +321,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print("player:{}, chapter:{} ,self.size:{}".format(self.current_player_id, self.current_chapter,self.size))		
 		
 		#round-binding canvas: 
-		self.hp_per_round = 5#trigger event
+		self.hp_per_round = 10#trigger event
 
 		#generate personal item list
 		#self.generate_item_tag()
@@ -338,10 +339,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		#for testing
 		#test_MapObjects = [2]*
-		test1 = MapObject(screen=self, object_id=117,object_content=GM.object_table[str(117)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.5,'y':.3})
-		test2 = MapObject(screen=self, object_id=111,object_content=GM.object_table[str(111)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.3,'y':.3})
-		self.add_widget(test1)
-		self.add_widget(test2)
+		test1 = MapObject(screen=self, object_id=115,object_content=GM.object_table[str(115)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.5,'y':.3})
+		test2 = MapObject(screen=self, object_id=114,object_content=GM.object_table[str(114)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.3,'y':.3})
+		test3 = MapObject(screen=self, object_id=124,object_content=GM.object_table[str(124)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.5,'y':.5})
+		test4 = MapObject(screen=self, object_id=6,object_content=GM.object_table[str(6)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.3,'y':.5})
+
+		self.add_widget(test1)#lock
+		self.add_widget(test2)#nothing 
+		self.add_widget(test3)#lock input item
+		self.add_widget(test4)#switching
 
 		#auto save
 		self.save_game()
@@ -413,12 +419,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 			self.next_round()
 	#TODO: load story's dialog
-	def auto_dialog_view(self, instance, dialog_view):#TODO: merge the frame and tag image
+	def auto_dialog_view(self, instance, dialog_view):
 		print('[*]dialog view:', dialog_view)
 		
 		if dialog_view == 1:
 			print("load dialog view")
-			#self.current_speaker_name = GM.players_name[self.current_player_id]#TODO: decide this by the dialogs
 			self.canvas.add(Rectangle(source='res/images/origin_dialogframe.png',pos=(0,0),size=(self.w*self.dialogframe_width,self.h*(self.dialogframe_height+.07)),group='dialogframe'))
 		elif dialog_view == 0:
 			print("hide dialog view")	
@@ -426,7 +431,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.canvas.remove_group('dialogframe')
 
 	def auto_item_view(self, instance, item_view):#Entry and Exit of all itemframe functions
-		print('[*]item view:', item_view)
+		print('[*]item view:', item_view)#TODO: 檢查會有哪些地方需要MUTEXs or Locks去同步共享資源
 	
 		if item_view == 1:
 			self.display_itemframe()	
@@ -449,7 +454,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			hp = Image(source='res/images/testing/HP.png',pos_hint={'x':.94-.06*i,'y':.85},size_hint=(.04,.1))
 			self.add_widget(hp)
 			self.hp_widgets.append(hp)
-		if hp == 0:
+		if self.hp_per_round <= 0:
+			#clear all things here
+			self.quit_puzzle_mode()
+
 			popup = Popup(title='體力耗盡',title_size='28sp',title_font='res/HuaKangTiFan-CuTi-1.otf',title_color=[.2,.9,.1,.9],content=Label(text='輪到下一位玩家',font_size=64,font_name= 'res/HuaKangTiFan-CuTi-1.otf'),size_hint=(None, None), size=(400, 400))
 			popup.open()
 			self.next_round()                           
@@ -524,7 +532,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			elif press_key_id == 105:#i:
 				self.item_view ^= 1
 
-			elif press_key_id == 13:
+			elif press_key_id == 13:#Enter
 				if self.seal_on and self.manager.current == 'story':
 					print('Get ENTER!')
 					self.seal_on = False
@@ -541,8 +549,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 				elif self.current_mode == 2:
 					print('Give up the puzzle, back to exploring mode')
-					self.canvas.remove_group('puzzle')
-					self.current_mode = 1
+					self.quit_puzzle_mode()
 
 				elif self.current_mode == 3:
 					if self.manual_node.type == 'tail': 
@@ -573,10 +580,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.testing_save_object_pos()
 				else:
 					self.testing_set_objects_pos()
-			# elif  press_key_id == 114:#r:
-			# 	if self.current_mode == 1:	
-			# 		if self.item_view == 0: 
-			# 			self.next_round()
+			elif  press_key_id == 114:#r:
+				if self.current_mode == 1:	
+					if self.item_view == 1: 
+						self.reload_item_list = True
 
 			elif  press_key_id == 109:#m:
 				if self.current_mode == 1:
@@ -620,9 +627,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print("Enter function: generate_item_tag")
 		#TODO: 改進效率
 		#RGB (0,182,237)
-		#self.itemframe = ItemFrame(pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
-		#self.item_images = self.itemframe.auto_gen_items(GM.players[self.current_player_id].item_list)		
-		#self.itemframe.item_list = GM.players[self.current_player_id].item_list	
 		self.item_tag = ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
 		self.add_widget(self.item_tag)
 
@@ -763,18 +767,33 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if self.mouse_in_range({'x':.4,'y':.4},(.2,.2)):
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:
 				print('開鎖成功!')
+				spent_time = line_display_scheduler(self,'','開鎖成功!\n',False,special_char_time,next_line_time,common_char_time)
+			
+				lock_output
+
 			else:
 				print('開鎖失敗!')
+				spent_time = line_display_scheduler(self,'','開鎖失敗!\n',False,special_char_time,next_line_time,common_char_time)
+			Clock.schedule_once(partial(clear_dialogframe_text,self,self.displaying_character_labels),spent_time)
 			self.hp_per_round -= 1
 
 	def mouse_in_range(self,pos_hint,size_hint):
 		print('global_x,global_y:',global_x,global_y)	
 		xh = global_x/global_w
 		yh = global_y/global_h
-		if xh >= pos_hint['x'] and xh <= pos_hint['x']+size_hint[0] and yh >= pos_hint['y']	and yh <= pos_hint['y']+size_hint[1]:
+		if xh >= pos_hint['x'] and xh <= pos_hint['x']+size_hint[0] and \
+		yh >= pos_hint['y']	and yh <= pos_hint['y']+size_hint[1]:
 			return True
 		else:
 			return False
+
+	def quit_puzzle_mode(self):
+		spent_time = line_display_scheduler(self,'','下次再試試看吧...\n',False,special_char_time,next_line_time,common_char_time)
+		Clock.schedule_once(partial(clear_dialogframe_text,self,self.displaying_character_labels),spent_time)
+		self.canvas.remove_group('puzzle')
+		self.current_mode = 1
+		self.item_view = 0
+		self.remove_widget(self.lock)
 
 	#TODO: implement object functions here, btn must be an instance of MapObject()
 	def on_press_item(self, btn):
@@ -784,8 +803,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print("After self.reload_item_list:",self.reload_item_list)
 		self.remove_widget(btn) 
 		self.dialog_view = 1
-		spent_time = line_display_scheduler(self,'','撿到不錯的東西了呦\n',False,special_char_time,next_line_time,common_char_time)
-		self.delay_hide_dialogframe(.8+spent_time)
+		spent_time = line_display_scheduler(self,'','好像撿到有用的道具了呦\n',False,special_char_time,next_line_time,common_char_time)
+		self.delay_hide_dialogframe(spent_time)
 
 	def on_press_puzzle(self, btn):
 		self.enter_puzzle_mode(btn.object_id, 'puzzle')	
@@ -799,31 +818,28 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.current_mode = 3
 
 	def on_press_clue(self, btn):
-		#self.clue_Label = Label()
 		self.dialog_view = 1
-		#self.add_widget(clue_Label) 
-		text_line = GM.object_table[str(btn.object_id)]['description'][:20]
+		text_line = btn.object_content['description']
 		spent_time = line_display_scheduler(self,'',text_line,False,special_char_time,next_line_time,common_char_time)
-		self.delay_hide_dialogframe(3.5+spent_time)
+		self.delay_hide_dialogframe(.5+spent_time)
 
-	def on_press_switching(self,btn):#TODO:統一格式
-		new_scene_name = GM.object_table[str(btn.object_id)]['description'].split('\'')[1]
+	def on_press_switching(self,btn):
+		new_scene_name = btn.object_content['name']
 		for i,img in enumerate(self.chapter_maps):
 			if new_scene_name in img:
 				self.current_map = i
 	def on_press_nothing(self, btn):
 		self.dialog_view = 1
-		#self.add_widget(self.nothingLabel) 
 		spent_time = line_display_scheduler(self,'','好像有東西在這裡...但看不出用途...\n',False,special_char_time,next_line_time,common_char_time)
-		self.delay_hide_dialogframe(2+spent_time)
+		self.delay_hide_dialogframe(spent_time)
 
 	def delay_hide_dialogframe(self, delay_time):#delay_time unit:seconds
 
 		def delay_close_dialog_view(screen,dt):
 			screen.dialog_view = 0
+		Clock.schedule_once(partial(delay_close_dialog_view,self),delay_time)
 		Clock.schedule_once(partial(clear_dialogframe_text,self,self.displaying_character_labels),delay_time)
-		Clock.schedule_once(partial(delay_close_dialog_view,self),delay_time+0.05)
-
+		
 	def to_phone_screen(self,*args):
 		if self.current_mode == 1:
 			self.manager.current = 'phone'
