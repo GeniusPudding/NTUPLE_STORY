@@ -335,11 +335,6 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		return path
  
 
-def puzzle_jugde(screen,GM,puzzle_object_id):
-	#TODO: 載入解碼表
-
-	screen.puzzle_pass = True
-
 
 #GM = GameManagerScreen()
 #pygame.init()

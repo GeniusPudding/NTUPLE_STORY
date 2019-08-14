@@ -271,7 +271,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	reload_item_list = BooleanProperty(False)
 	focusing_object_id = NumericProperty(-1)
 	dragging = ObjectProperty(FreeDraggableItem(source=''))
-	puzzle_pass = BooleanProperty(False)
+	puzzling = BooleanProperty(False)
 	current_scene = StringProperty('')
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
@@ -456,6 +456,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.hp_widgets.append(hp)
 		if self.hp_per_round <= 0:
 			self.quit_puzzle_mode()
+			#TODO:check if there is any status not be cleared
 			popup = Popup(title='體力耗盡',title_size='28sp',title_font='res/HuaKangTiFan-CuTi-1.otf',title_color=[.2,.9,.1,.9],content=Label(text='輪到下一位玩家',font_size=64,font_name= 'res/HuaKangTiFan-CuTi-1.otf'),size_hint=(None, None), size=(400, 400))
 			popup.open()
 			self.next_round()                           
@@ -513,14 +514,21 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					if self.current_mode == 1:
 						self.exploring_maps(press_key_id)
 				elif self.item_view == 1:
-					if self.current_mode in [1,2]:
+					if self.current_mode in [1,2] and not self.puzzling:
 						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0:
 							self.item_box_canvas_controller('show',direction=press_key_id) 
+				elif self.puzzling:		
+					puzzle_move_view(self,press_key_id)
 
-
-				if self.current_mode == 3:
+				elif self.current_mode == 3:
 					self.remove_widget(self.prompt_label)	
 					self.exploring_dialog(press_key_id)
+
+			elif press_key_id in [274,273]:
+				if self.cur_unsafed:
+					self.testing_modify_object_size(press_key_id)
+				if self.puzzling:
+					puzzle_select_number(self,press_key_id)		
 
 			elif press_key_id == 98:#b:
 				if self.current_mode == 2:
@@ -736,6 +744,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			node = self.manual_node = self.manual_node.get_last()
 			self.lastline_time = line_display_scheduler(self,node.text_line,False,special_char_time,next_line_time,common_char_time,name=node.speaker)
 
+	#TODO: 計時器功能
 	def enter_puzzle_mode(self, object_id, behavior_type):#在道具欄使用道具進入的puzzle_mode跟地圖上點擊進入相同
 		self.current_mode = 2
 		self.canvas.add(Color(rgba=(.2,.2,.2,.2),group='puzzle'))
@@ -750,7 +759,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		
 	def puzzle_handler(self, item):#TODO: 目前只有密碼鎖一種
-		pass	
+		self.puzzle_name = item['name']
+		if self.puzzle_name == '木製保險櫃(關)':
+			self.canvas
+		else:
+			print('目前不支援')
+
 	def lock_handler(self, item):#原image消失?背景模糊?對話框顯示物件敘述
 		lock_name = item['name']
 		lock_content = GM.unlock_table[lock_name]
@@ -789,7 +803,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 					name = lock_content['new_scene'].split('\'')[1]
 					GM.Chapters[self.current_player_id][self.current_chapter].unlock_new_map(name)
-					#TODO:
+					self.current_map = len(self.chapter_maps) - 1 #unlock and go to new scene
 				if lock_content['trigger']:
 					print('開鎖成功...觸發劇情!')	
 					spent_time = line_display_scheduler(self,'開鎖成功...觸發劇情!',False,special_char_time,next_line_time,common_char_time)

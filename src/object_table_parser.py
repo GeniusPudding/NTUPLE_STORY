@@ -127,20 +127,22 @@ print(f'final data_dict.keys():{final_data_dict.keys()}')
 for i in range(135):
 	if i not in final_data_dict.keys():
 		print('i:',i)
+	if 'puzzle' in  final_data_dict[i]['function_types']:
+		print(final_data_dict[i])
 print('m:',m)
 print(f'final data_dict[118]:{final_data_dict[118]}')
 print(f'final data_dict[125]:{final_data_dict[125]}')
 print(f'final data_dict[127]:{final_data_dict[127]}')
 
 
-c = 0
-less = []
-for content in final_data_dict.values():
-	if content['source'] == None and 'item' in content['function_types'] :
-		c += 1
-		less.append(content['name'])
-print('缺少圖片張數:',c)
-print(less)
+# c = 0
+# less = []
+# for content in final_data_dict.values():
+# 	if content['source'] == None and 'item' in content['function_types'] :
+# 		c += 1
+# 		less.append(content['name'])
+# print('缺少圖片張數:',c)
+# print(less)
 print()
 print(os.listdir('res/images/handpainting/'))
 

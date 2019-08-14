@@ -171,8 +171,33 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 			return False
 		return True
 
+def build_CodedLock(screen):
+	pass
 
-class DraggableItem(Image):#有可能會改成類似FreeDraggableItem的樣子，使其可以拖出道具欄
+def puzzle_move_view(screen, direction):
+
+	#control part:
+	if direction == 'l':
+		screen.code_id = select_left[screen.code_id]
+	elif direction == 'r':
+		screen.code_id = select_right[screen.code_id]
+	print('move screen.code_id:',screen.code_id)
+		
+def puzzle_select_number(screen, direction):
+
+	#control part:
+	if direction == 'u':
+		screen.cur_view[screen.code_id] = num_up[screen.cur_view[screen.code_id]]
+	elif direction == 'd':
+		screen.cur_view[screen.code_id] = num_down[screen.cur_view[screen.code_id]]
+	print(f'select self.cur_view[{screen.code_id}]:{screen.cur_view[screen.code_id]}')
+
+
+
+
+
+
+class DraggableItem(Image):#Deprecated
 	def __init__(self, frame_pos, frame_size, draggable_item_id, **kargs):#other_pos
 		super(DraggableItem, self).__init__( **kargs)
 		# self.size_hint = (None,None)
@@ -238,13 +263,9 @@ class DraggableItem(Image):#有可能會改成類似FreeDraggableItem的樣子�
 				return True
 		return False
 
-	# def set_origin_pos(self):
-	# 	#TODO: reset this pos when release others
-	# 	global dragging
-	# 	if dragging == 1 and self.dragger == 0:
-	# 		self.pos = self.origin_pos
 
-class SynthesisFrame(Image):#May be deprecated
+
+class SynthesisFrame(Image):#Deprecated
 	parent_w = NumericProperty()
 	parent_h = NumericProperty()
 	def __init__(self,rules,**kargs):#parent_w,parent_h,
