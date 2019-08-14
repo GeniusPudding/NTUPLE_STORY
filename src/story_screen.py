@@ -785,7 +785,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.remove_widget(btn) 
 		self.dialog_view = 1
 		spent_time = line_display_scheduler(self,'','撿到不錯的東西了呦\n',False,special_char_time,next_line_time,common_char_time)
-		self.delay_hide_dialogframe(2+spent_time)
+		self.delay_hide_dialogframe(.8+spent_time)
 
 	def on_press_puzzle(self, btn):
 		self.enter_puzzle_mode(btn.object_id, 'puzzle')	
