@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 import json
-
+###################################################
+# Parse g.[開鎖]表 - 工作表1.csv for generating an#
+# 	unlock table before executing main.py  		  #
+###################################################
 path = 'res/g.[開鎖]表 - 工作表1.csv'
 final_data_dict = {}
 

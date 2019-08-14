@@ -140,7 +140,6 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		self.stopped_pos_hint = {'x':touch.spos[0],'y':touch.spos[1]}
 		self.stopped_pos = touch.pos
 		if isinstance(self.screen,Screen) and self.magnet:
-			#TODO: 判定解碼是否成功
 			screen = self.screen
 			if screen.current_mode == 1:
 				self.pos = self.origin_pos
@@ -148,7 +147,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 				screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
 
 				
-	def start_switching_animate(self,pos,offset,direction,duration=.3):
+	def start_switching_animate(self,pos,offset,direction,duration=.2):
 		(px,py) = pos
 		(ox,oy) = offset
 		print(f'pos:{pos},offset:{offset}')

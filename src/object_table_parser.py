@@ -20,11 +20,12 @@ if os.path.isfile('res/allocate_all_objects_table.json'):
 	f.close()
 
 object_count = 0
-function_names = {'道具':'item','解碼':'puzzle','開鎖':'lock','切換場景':'switching','觸發':'trigger','線索':'clue'}
+function_names = {'道具':'item','解碼':'puzzle','開鎖':'lock','合成':'synthesis','切換場景':'switching','觸發':'trigger','線索':'clue'}
 chapter_code = {'一':0,'二':1,'三':2,'四':3}
 player = {'A':0,'B':1,'C':2,'D':3}
 #for testing
 max_len_description = 0
+m = 0
 for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 	if '.csv' in f:
 
@@ -36,12 +37,10 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 			if isinstance(object_name,float):
 				continue
 
-			try:
+			#try:
+			if True:
 				content = {'pos_hint':None,'size_hint':None,'source':None}#最後應該只有'nothing'的'source'是None
 
-				for img in os.listdir('res/images/handpainting/') :
-					if ('.png' in img or '.jpg' in img) and object_name in img:
-						content['source'] = os.path.join('res/images/handpainting/',img)
 
 				if object_name in data_dict.keys():#only include{'pos_hint':pos_hint,'size_hint':size_hint,'source':source}
 					print(f'{object_name} data exist!')
@@ -56,13 +55,13 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 
 				content['on_map'] = True
 				print(df['物件一覽表'][i])
-				loc = df['所在地點'][i].split('\'')
-				if len(loc) <= 1:
+				loc = df['所在地點'][i]#.split('\'')
+				if len(loc.split('\'')) <= 1:
 					print(f'特殊地點:{loc}，需另外配置')
 					content['on_map'] = False
 					content['map_name'] = None
 				else:
-					content['map_name'] = loc[1]  
+					content['map_name'] = loc.split('\'')[1]  
 
 				content['player'] = player[f[11]]
 
@@ -82,6 +81,14 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 					for chinese in func:
 						func_types.append(function_names[chinese])
 					content['function_types'] = func_types
+
+				if 'nothing' in content['function_types'] or 'clue' in content['function_types']:
+					content['source'] = None	
+				else:
+					for img in os.listdir('res/images/handpainting/') :
+						if ('.png' in img or '.jpg' in img) and object_name in img:
+							content['source'] = os.path.join('res/images/handpainting/',img)
+
 				if not isinstance(df['文字說明'][i], float):
 					content['description'] = df['文字說明'][i]
 					if len(content['description']) > max_len_description:
@@ -93,14 +100,22 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 				print(f'final content:{content}')
 
 				final_data_dict[object_count] = content
-				name_to_id[object_name] = object_count 
+				if object_name in name_to_id.keys():
+					if not isinstance(name_to_id[object_name],list):
+						name_to_id[object_name] = [name_to_id[object_name]]
+					name_to_id[object_name].append(object_count)
+					print('重覆!')
+					m += 1
+				else:
+					name_to_id[object_name] = object_count 
 				object_count += 1
-			except:
+			else:
+			#except:
 				print('Exception! object_name:',object_name)
 				line = ''
 				for k in df.keys():
 					line += str(df[k][i]) 
-					line += ' '
+					line += '__'
 				line += '\n'
 				print(line)
 			#'player':self.current_player_id,'chapter':self.current_chapter,'map':self.current_map,	
@@ -108,6 +123,16 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 
 
 print(f'final data_dict:{final_data_dict}')
+print(f'final data_dict.keys():{final_data_dict.keys()}')
+for i in range(135):
+	if i not in final_data_dict.keys():
+		print('i:',i)
+print('m:',m)
+print(f'final data_dict[118]:{final_data_dict[118]}')
+print(f'final data_dict[125]:{final_data_dict[125]}')
+print(f'final data_dict[127]:{final_data_dict[127]}')
+
+
 c = 0
 less = []
 for content in final_data_dict.values():
@@ -124,7 +149,8 @@ with open('res/objects/final_objects_table.json','w') as f:
 	json.dump(final_data_dict, f)	
 
 print('name_to_id:',name_to_id)
-
+print('name_to_id.values():',name_to_id.values())
+print('len(name_to_id.values()):',len(name_to_id.values()))
 with open('res/objects/name_to_id_table.json','w') as f:
 	json.dump(name_to_id, f)	
 

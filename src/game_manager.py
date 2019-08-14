@@ -52,7 +52,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.Chapters = self.init_chapters()
 		self.object_table = self.load_object_table()
 		self.unlock_table = self.load_unlock_table()
-		self.name_to_id_table = self.load_name_to_id_table() 
+		self.name_to_id_table = self.load_name_to_id_table() #有些不同id的名稱會重複，重複時查總表
 		self.NPC_table = self.load_NPC_table()
 
 		print("global_w,global_h:",global_w,global_h)
@@ -206,22 +206,23 @@ class Chapter(object):
 		self.object_path = f'res/chapters/{player_id}_{chapter_id}/objects/' #including a json and object images
 		self.map_path = f'res/chapters/{player_id}_{chapter_id}/maps/'  #including map images
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
+		self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)#(player,chapter)
 		self.chapter_NPCs = [] 
 		self.chapter_maps = self.add_chapter_maps(player_id, chapter_id)
-		self.chapter_objects = []#load_chapter_objects()  
+		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
 		self.started = False
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
 		self.pre_plot, self.plot = self.load_chapter_dialogs(player_id, chapter_id)#self.chapter_predialog,self.chapter_postdialog
 
-	def load_chapter_dialogs(self,player_id, chapter_id):#TODO
-		# with open(self.dialog_path+'pre.txt','r') as f:
-		# 	r = f.read()
-		# 	dialog_part = [[line.split(':')[0],line.split(':')[1]] for line in r]
-		# with open(self.dialog_path+'post.txt','r') as f:
-		# 	r = f.read()	
-		# 	dialog_part2 = [[line.split(':')[0],line.split(':')[1]] for line in r]		
-		#for testing
+	def unlock_new_map(self,map_name):
+		for locked_img in os.listdir(self.locked_map_path):
+			if name in locked_img:
+				self.chapter_maps.append(os.path.join(self.locked_map_path,locked_img))
+				break
+		self.load_chapter_objects_of_maps()#load new objects info of unlocked map
+	def load_chapter_dialogs(self,player_id, chapter_id):#TODO: read ine of those 16 file
+
 		dialog_part = [[line.split(':')[0],line.split(':')[1]] for line in 'N:(房門關閉聲)\n\
 N:一場不歡而散的會議後，A回到屬於自己和X的宿舍，盤踞心頭的愁雲和窒息感卻沒應此而減少，反而在一片寂靜中無聲的滋長。\n\
 A:(關上門後無助的沿著門板跌坐在地，把臉埋在臂彎之間)不是我的錯，這和我無關，和我一點關係也沒有！\n\
@@ -252,12 +253,17 @@ N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
 	def load_chapter_title(self,player_id, chapter_id):
 		return ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
 
-	def load_chapter_objects(self):
-		#TODO: load and init all MapObject here
-		with open(self.object_path+'object.json','r') as f:
-			data_dict = json.load(f)
+	def load_chapter_objects_of_maps(self):
+		#TODO: load and init all MapObject here in existing map
+		maps = self.chapter_maps
+
+		chapter_objects = []
+		for i in range(len(maps)):
+			chapter_objects.append([])
+		# with open(self.object_path+'object.json','r') as f:
+		# 	data_dict = json.load(f)
 		# MapObject
-		# self.chapter_objects.append(object_id)
+		return chapter_objects
 		
 	def add_chapter_maps(self,player_id, chapter_id):
 

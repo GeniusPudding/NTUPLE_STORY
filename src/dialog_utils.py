@@ -5,7 +5,6 @@
 from game_manager import *
 
 speaker_name = {'A':'李語蝶(室友)','B':'司馬熏(男友)','C':'孟亦寒(哥哥)','D':'亓官楓(故友)','X':'女主角','M':'媽媽','F':'爸爸','N':'','L':'L','P':'P'}
-#TODO: 顯示玩家角色真名
 special_char_time = .3
 common_char_time = .15
 next_line_time = .7
@@ -18,7 +17,7 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 	clock_time_accu = 0
 	for i,(name,line)  in enumerate(auto_dialog):#displaying
 		clock_time_accu += start_line_clock_time[i]
-		event = Clock.schedule_once(partial(line_display_scheduler,Screen,speaker_name[name],line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time), .5+i*.5+clock_time_accu)#.5 is from the screen start
+		event = Clock.schedule_once(partial(line_display_scheduler,Screen,name,line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time), .5+i*.5+clock_time_accu)#.5 is from the screen start
 		Screen.dialog_events.append(event)
 def auto_dialog_preprocess(auto_dialog):
 	#preprocessing:
@@ -77,7 +76,7 @@ def custom_multisplit(string,split_list):
 def line_display_scheduler(Screen,name,line,last_autoline,ts,tn,tc,*args):#or chars_of_row = 15,rows = 3
 	#print(f'Line display name:{name},line:{line}')
 	
-	Screen.current_speaker_name = name#speaker_name[name] #trigger auto_display_speaker
+	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
 	if len(line) <= 20:
 		chars_of_row = 10
@@ -150,7 +149,7 @@ def semi_manual_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
 		bg = Rectangle(source=first_line_node.switch_map, pos=(0,0), size=(self.w,self.h),group='plot_bg')
 		Screen.bg_widget.load_bg(bg)
 
-	line_display_scheduler(Screen,speaker_name[first_line_node.speaker],first_line_node.text_line,False,special_char_time,next_line_time,common_char_time)
+	line_display_scheduler(Screen,first_line_node.speaker,first_line_node.text_line,False,special_char_time,next_line_time,common_char_time)
 	#screen_auto_display_node(first_line_node)
 	return  first_line_node
 
