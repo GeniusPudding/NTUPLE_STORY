@@ -79,13 +79,13 @@ def line_display_scheduler(Screen,name,line,last_autoline,ts,tn,tc,*args):#or ch
 	
 	Screen.current_speaker_name = name#speaker_name[name] #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
-	if line <= 20:
+	if len(line) <= 20:
 		chars_of_row = 10
 		rows = 2
-	elif line <= 45:
+	elif len(line) <= 45:
 		chars_of_row = 15
 		rows = 3
-	elif line <= 80:
+	elif len(line) <= 80:
 		chars_of_row = 20
 		rows = 4
 	else:

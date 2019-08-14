@@ -12,6 +12,7 @@ path = 'res/objects'
 
 data_dict = {}
 final_data_dict = {}
+name_to_id = {}
 if os.path.isfile('res/allocate_all_objects_table.json'):
 	f = open('res/allocate_all_objects_table.json','r')
 	data_dict = json.load(f)
@@ -90,7 +91,9 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 				#'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description', on_map=True
 
 				print(f'final content:{content}')
+
 				final_data_dict[object_count] = content
+				name_to_id[object_name] = object_count 
 				object_count += 1
 			except:
 				print('Exception! object_name:',object_name)
@@ -119,4 +122,9 @@ print(os.listdir('res/images/handpainting/'))
 print('max_len_description:',max_len_description)
 with open('res/objects/final_objects_table.json','w') as f:
 	json.dump(final_data_dict, f)	
+
+print('name_to_id:',name_to_id)
+
+with open('res/objects/name_to_id_table.json','w') as f:
+	json.dump(name_to_id, f)	
 

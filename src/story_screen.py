@@ -447,7 +447,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print("reload chapter_info:",self.chapter_info)
 	def auto_hp_canvas(self,instance, hp):#if hp = 0, end this round
 		print('[*]hp:', hp)
-		#self.canvas.remove_group('hp')
 		for hp in self.hp_widgets:
 			self.remove_widget(hp)
 		for i in range(self.hp_per_round):
@@ -511,10 +510,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			press_key_id = args[1]#args[1]:ASCII?
 			press_key = args[3]
 			if press_key_id in [276,275]:#<-,->
-				if self.current_mode == 1: 
-					if self.item_view == 0:
+				 
+				if self.item_view == 0:
+					if self.current_mode == 1:
 						self.exploring_maps(press_key_id)
-					elif self.item_view == 1:
+				elif self.item_view == 1:
+					if self.current_mode in [1,2]:
 						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0:
 							self.item_box_canvas_controller('show',direction=press_key_id) 
 
@@ -698,13 +699,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.canvas.add(Rectangle(pos=(.805*global_w,.758*global_h),size=(.19*global_w,.085*global_h),group='cap'))
 		#box
 		self.canvas.add(Color(rgba=(0,100/255,.7,.98),group='cap'))
-		self.canvas.add(Triangle(points=(.70*global_w,.5*global_h,.8*global_w,.5*global_h,.8*global_w,.55*global_h),group='cap'))
+		self.canvas.add(Triangle(points=(.65*global_w,.475*global_h,.8*global_w,.475*global_h,.8*global_w,.55*global_h),group='cap'))
 
 	def canvas_on_item_images(self):
+		#box
 		self.canvas.add(Color(rgba=(0,182/255,1,1),group='cap'))#source='res/images/itemframe.png',
-		self.canvas.add(Rectangle(pos=(.70*global_w,.2*global_h),size=(.2*global_w,.3*global_h),group='cap'))
+		self.canvas.add(Rectangle(pos=(.65*global_w,.225*global_h),size=(.2*global_w,.25*global_h),group='cap'))
 		self.canvas.add(Color(rgba=(0,100/255,.7,1),group='cap'))
-		self.canvas.add(Quad(points=(.90*global_w,.2*global_h,.90*global_w,.5*global_h,global_w,.55*global_h,global_w,.25*global_h),group='cap'))
+		self.canvas.add(Quad(points=(.85*global_w,.225*global_h,.85*global_w,.475*global_h,global_w,.55*global_h,global_w,.3*global_h),group='cap'))
 
 
 	def exploring_dialog(self, press_key_id):
@@ -757,19 +759,20 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.add_widget(self.lock)
 		Clock.schedule_interval(global_mouse, 0.6)
 		print('global_x,global_y:',global_x,global_y)
-		Clock.schedule_interval(partial(self.input_item_judge,expected_input), 0.6)
+		Clock.schedule_interval(partial(self.input_item_judge,lock_content), 0.6)
 
 	def synthesis_handler(self, item):#TODO: 思考如何呈現
 		pass	
 
-	def input_item_judge(self, expected_input,*args):
+	def input_item_judge(self, lock_content,*args):
+		expected_input = lock_content['input_item']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
 		if self.mouse_in_range({'x':.4,'y':.4},(.2,.2)):
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:
 				print('開鎖成功!')
 				spent_time = line_display_scheduler(self,'','開鎖成功!\n',False,special_char_time,next_line_time,common_char_time)
 			
-				lock_output
+				#lock_output: output item, new scene, trigger
 
 			else:
 				print('開鎖失敗!')
@@ -830,7 +833,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				self.current_map = i
 	def on_press_nothing(self, btn):
 		self.dialog_view = 1
-		spent_time = line_display_scheduler(self,'','好像有東西在這裡...但看不出用途...\n',False,special_char_time,next_line_time,common_char_time)
+		text_line = btn.object_content['description']
+		spent_time = line_display_scheduler(self,'',text_line,False,special_char_time,next_line_time,common_char_time)
 		self.delay_hide_dialogframe(spent_time)
 
 	def delay_hide_dialogframe(self, delay_time):#delay_time unit:seconds

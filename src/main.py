@@ -48,11 +48,14 @@ if __name__ == '__main__':
 
     #Config.set('kivy','exit_on_escape',0)
     Config.set('kivy','keyboard_mode','')
-    # TODO: Other needed configs
 
+
+
+    #TODO:checkers of all jsons, if not exist, execute all table parser
 
     with open ('kv/NTUPLE_Story.kv', 'r', encoding='utf-8') as f:
         Builder.load_string(f.read())
-    Window.fullscreen = 'auto'#True
+    if OS == "Windows":
+        Window.fullscreen = 'auto'#True
     NTUPLE_Story().run()#+collect_submodules('kivy.weakmethod')+collect_submodules('pandas')+
 

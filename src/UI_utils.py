@@ -142,10 +142,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		if isinstance(self.screen,Screen) and self.magnet:
 			#TODO: 判定解碼是否成功
 			screen = self.screen
-			if screen.current_mode == 2 and screen.puzzle_pass:#
-				print("解碼成功!")
-				screen.hp_per_round -= 1
-			else:
+			if screen.current_mode == 1:
 				self.pos = self.origin_pos
 				screen.remove_widget(screen.dragging)	
 				screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]

@@ -52,6 +52,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.Chapters = self.init_chapters()
 		self.object_table = self.load_object_table()
 		self.unlock_table = self.load_unlock_table()
+		self.name_to_id_table = self.load_name_to_id_table() 
 		self.NPC_table = self.load_NPC_table()
 		#self.testing_set_chapters_contents(self.object_table, self.NPC_table)
 		
@@ -149,15 +150,17 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		with open('res/objects/final_objects_table.json','r') as f:
 			table = json.load(f)
 			#print('load json object table:',table)
-		
+	
 		return table
 
 	def	load_unlock_table(self):
 		with open('res/objects/unlock_table.json','r') as f:
 			table = json.load(f)
-
 		return table 
-
+	def load_name_to_id_table(self):
+		with open('res/objects/name_to_id_table.json','r') as f:
+			table = json.load(f)
+		return table 		
 	def load_NPC_table(self):
 		table = {0:{'name':'艾爾莎','source':'res/images/testing/Erza.png','map_name':'','pos_hint':'','size_hint':'','player':1,'chapter':0,'function_types':'','description':'妖精的尾巴'}}##key:NPC_id,value:(name,source,location,pos,player,chapter,function_types,description)		return table		
 		return table
