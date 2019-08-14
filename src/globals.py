@@ -73,7 +73,7 @@ def get_screen_size():#TODO:
 		w, h = (dt_r, dt_b)
 	return (w, h)
 def global_mouse(*args):
-	#global global_x,global_y, 
+	global global_x,global_y
 	global_h = get_screen_size()[1]
 	# print('global_x,global_y:',global_x,global_y)
 	# print('id(global_x),id(global_y):',id(global_x),id(global_y))
@@ -86,8 +86,8 @@ def global_mouse(*args):
 		_,_,(global_x, global_y) = win32gui.GetCursorInfo()
 		#global_x, global_y = pyautogui.position()
 		global_y = global_h - global_y
-	return global_x,global_y
+	#return global_x,global_y
 global_w,global_h = get_screen_size()
-global_x,global_y = global_mouse()
+#global_x,global_y = global_mouse()
 
 

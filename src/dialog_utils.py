@@ -18,7 +18,7 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 	clock_time_accu = 0
 	for i,(name,line)  in enumerate(auto_dialog):#displaying
 		clock_time_accu += start_line_clock_time[i]
-		event = Clock.schedule_once(partial(line_display_scheduler,Screen,speaker_name[name],line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time), .5+i*.5+clock_time_accu)#.5 is from the screen start
+		event = Clock.schedule_once(partial(line_display_scheduler,Screen,speaker_name[name],line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,10,2), .5+i*.5+clock_time_accu)#.5 is from the screen start
 		Screen.dialog_events.append(event)
 def auto_dialog_preprocess(auto_dialog):
 	#preprocessing:
@@ -115,11 +115,14 @@ def line_to_labels(line,chars_of_row,rows):
 	(tx,ty) = total_use = (.79,.17)
 	(dx,dy) = char_distance = (.01,.01)
 	(cx,cy) = char_size_hint = ((tx+dx)/chars_of_row - dx,(ty+dy)/rows - dy)#default (.07,.08)
+	print('cx,cy:',cx,cy)
+	print('chars_of_row,rows:',chars_of_row,rows)
 	for char in line:
 		if char != '\n':
 			col = page_char_count % chars_of_row#page_char_count % 10
 			row = rows - 1 - page_char_count // chars_of_row#1 - page_char_count // 10
-			labels.append(Label(text=char,pos_hint={'x':.03+(cx+dx)*col,'y':.015+(cy+dy)*row},color=(1,1,1,1),font_size=48,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
+			print(f'pos_hint:{.03+(cx+dx)*col}, {(cy+dy)*row}, col:{col}, row:{row}')
+			labels.append(Label(text=char,pos_hint={'x':.03+(cx+dx)*col,'y':(cy+dy)*row},color=(1,1,1,1),font_size=48,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
 			page_char_count += 1
 		else:#won't be displayed
 			labels.append(Label(text=char,pos_hint={'x':0,'y':0},color=(1,1,1,1),font_size=36,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
@@ -138,11 +141,6 @@ def semi_manual_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
 	line_display_scheduler(Screen,speaker_name[first_line_node.speaker],first_line_node.text_line,False,special_char_time,next_line_time,common_char_time)
 	#screen_auto_display_node(first_line_node)
 	return  first_line_node
-#def screen_auto_display_node(Screen,node):
-	#name = node.speaker
-	#line = node.text_line
-	#event = Clock.schedule_once(partial(line_display_scheduler,Screen,speaker_name[name],line,False,special_char_time,next_line_time,common_char_time), .5)
-	#Screen.dialog_events.append(event)
 
 class DialogListnode(object):
 	def __init__(self,speaker,text_line,node_type,switch_map_path=None):

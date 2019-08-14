@@ -153,10 +153,9 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		return table
 
 	def	load_unlock_table(self):
-		#TODO:
-		# with open('res/objects/final_unlock_table.json','r') as f:
-		# 	table = json.load(f)
-		table = {}
+		with open('res/objects/unlock_table.json','r') as f:
+			table = json.load(f)
+
 		return table 
 
 	def load_NPC_table(self):

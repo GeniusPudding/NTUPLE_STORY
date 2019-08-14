@@ -90,7 +90,7 @@ def redraw_widget(Widget,*args):
     Widget.bg_rect.pos = Widget.pos	
 def global_free(Widget, free):
 	global freedragging
-	freedragging = free
+	freedragging = free#為何前後變數id不同
 
 freedragging = 1
 class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for dragging item
