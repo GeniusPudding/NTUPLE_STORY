@@ -28,7 +28,7 @@ for i, object_name in enumerate(df['開鎖之物件']):
 		final_data_dict[object_name]['new_scene'] = df['解鎖新場景'][i]
 
 	if isinstance(df['是否觸發'][i],float):
-		final_data_dict[object_name]['trigger'] = None
+		final_data_dict[object_name]['trigger'] = False
 	else:
 		final_data_dict[object_name]['trigger'] = True
 		

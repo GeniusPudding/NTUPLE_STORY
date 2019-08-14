@@ -32,6 +32,7 @@ class ImageButton(ButtonBehavior, Image): #Behavior
 turns = {1:2,2:3,3:0,0:1}
 class GameManagerScreen(Screen):#main control class of the whole game
 	#TODO: 自動存檔功能及記錄檔 防止意外關閉遊戲
+	#TODO: Exceptions
 	p0 = ObjectProperty()
 	p1 = ObjectProperty()
 	p2 = ObjectProperty()
@@ -47,25 +48,14 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.p3 = Player(3,self)
 		self.current_player_id = 3
 		self.current_chapter = [0]*4
-		#self.players = [Player(player_id) for player_id in range(4)]
 		self.players_name = {0:'室友',1:'男友',2:'哥哥',3:'故人'}
 		self.Chapters = self.init_chapters()
 		self.object_table = self.load_object_table()
 		self.unlock_table = self.load_unlock_table()
 		self.name_to_id_table = self.load_name_to_id_table() 
 		self.NPC_table = self.load_NPC_table()
-		#self.testing_set_chapters_contents(self.object_table, self.NPC_table)
-		
+
 		print("global_w,global_h:",global_w,global_h)
-
-		#self.bind(reload_item_list=self.auto_instant_update)
-
-	#非當前螢幕所以不產生事件??
-	# def auto_instant_update(self, instance, reload_item_list ):
-	# 	print('[*] auto update:',instance)
-	# 	if reload_item_list and self.manager.get_screen('story').itemframe is not None:
-	# 		self.manager.get_screen('story').itemframe.item_list = self.players[self.current_player_id].item_list	
-	# 		self.reload_item_list = False
 
 
 	def link_main_screen(self):
@@ -188,12 +178,19 @@ class Player(object):#player_id=player_id
 		self.load_personal_info(player_id)
 		self.GG = False
 	def get_item(self, object_id):#need to consider number of item?
-		print('get_item:',object_id)
-		self.item_list.append(object_id)#key:object_id,value:(name,source,location,pos,player,chapter,function_types,description)
-		self.GM.manager.get_screen('story').reload_item_list = True 
-	def use_item(self, object_id):
-		self.item_list.remove(object_id)#key:object_id,value:(name,source,location,pos,player,chapter,function_types,description)
-		self.GM.manager.get_screen('story').reload_item_list = True 
+		if object_id not in self.item_list:
+			print('get_item:',object_id)
+			self.item_list.append(object_id)#key:object_id,value:(name,source,location,pos,player,chapter,function_types,description)
+			self.GM.manager.get_screen('story').reload_item_list = True 
+		else:
+			print('[*]Exception! Cannot get an item again!')
+	def spend_item(self, object_id):
+		if object_id in self.item_list:
+			print('spend_item:',object_id)
+			self.item_list.remove(object_id)#key:object_id,value:(name,source,location,pos,player,chapter,function_types,description)
+			self.GM.manager.get_screen('story').reload_item_list = True 
+		else:
+			print('[*]Exception! Cannot spend an item that not in item list!')
 	def get_achievement(self,achievement):
 		pass #TODO:思考內容要放啥
 
