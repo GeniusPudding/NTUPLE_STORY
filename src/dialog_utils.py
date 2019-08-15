@@ -4,7 +4,7 @@
 ###################################################
 from game_manager import *
 
-speaker_name = {'A':'李語蝶(室友)','B':'司馬熏(男友)','C':'孟亦寒(哥哥)','D':'亓官楓(故友)','X':'女主角','M':'','F':'','N':'','L':'','P':''}
+speaker_name = {'A':'李語蝶(室友)','B':'司馬熏(男友)','C':'孟亦寒(哥哥)','D':'亓官楓(故友)','X':'女主角','M':'媽媽','F':'爸爸','N':'','L':'','P':''}
 special_char_time = .3
 common_char_time = .15
 next_line_time = .7
@@ -90,6 +90,11 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='N',close_dia
 	else:
 		print('Text Line is too long!! Not supported')
 		return
+
+	print('len(displaying_character_labels)=',len(Screen.displaying_character_labels))
+	if len(Screen.displaying_character_labels)>0:
+		print('有字幕殘留')
+		clear_dialogframe_text(Screen,Screen.displaying_character_labels)
 	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
 	accu_time = 0
 	char_time = 0
@@ -116,10 +121,13 @@ def clock_display_characters(Screen,displaying_character_labels, char, char_id,*
 	else:
 		clear_dialogframe_text(Screen,displaying_character_labels)
 
+
 def clear_dialogframe_text(Screen,displaying_character_labels,*args):#must between the last line characters displayed and the next line be processed  
+	for event in Screen.dialog_events:
+		event.cancel()	
 	for label in displaying_character_labels:
 		Screen.remove_widget(label)
-
+	Screen.displaying_character_labels = []
 def line_to_labels(line,chars_of_row,rows):
 	labels = []
 	page_char_count = 0

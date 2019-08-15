@@ -207,6 +207,7 @@ class Chapter(object):
 		self.player_chapter = (player_id,chapter_id)#(player,chapter)
 		self.chapter_NPCs = [] 
 		self.chapter_maps = self.add_chapter_maps(player_id, chapter_id)
+		self.default_map = self.load_default_map(player_id, chapter_id)
 		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
 		self.started = False
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
@@ -218,8 +219,16 @@ class Chapter(object):
 				self.chapter_maps.append(os.path.join(self.locked_map_path,locked_img))
 				break
 		self.load_chapter_objects_of_maps()#load new objects info of unlocked map
-	def load_chapter_dialogs(self,player_id, chapter_id):#TODO: read ine of those 16 file
 
+	def load_default_map(self,player_id, chapter_id):
+		#TODO: 直接將十六張圖名打在這
+		# default_map = [[],[],[],[]]
+		# for i,m in enumerate(self.chapter_maps):
+		# 	if default_map[player_id][chapter_id] in m:
+		# 		return i
+		return 0
+	def load_chapter_dialogs(self,player_id, chapter_id):#TODO: read ine of those 16 file
+		#self.dialog_path + 'pre.txt' or 'post.txt'
 		dialog_part = [[line.split(':')[0],line.split(':')[1]] for line in 'N:(房門關閉聲)\n\
 N:一場不歡而散的會議後，A回到屬於自己和X的宿舍，盤踞心頭的愁雲和窒息感卻沒應此而減少，反而在一片寂靜中無聲的滋長。\n\
 A:(關上門後無助的沿著門板跌坐在地，把臉埋在臂彎之間)不是我的錯，這和我無關，和我一點關係也沒有！\n\
@@ -269,11 +278,10 @@ N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
 			if '.jpg' in f or '.png' in f:
 				print(f'player_id:{player_id}, chapter_id:{chapter_id}, f:{f}')
 				chapter_maps.append(os.path.join(self.map_path,f))
-		#for testing
-		# chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_1.jpg')
-		# chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_2.jpg')
-		# chapter_maps.append('res/images/screens/testing/'+str(player_id+1)+'_'+str(chapter_id+1)+'_3.jpg')
+
 		return chapter_maps
+
+
 	def add_chapter_NPCs(self,NPC_id):
 		#TODO: load and init all MapObject here
 		self.chapter_NPCs.append(NPC_id)
@@ -303,10 +311,9 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		print('create object types:',self.object_types)
 		#only five probable types, one or many of ['item','puzzle','synthesis','trigger','clue'] or 'nothing'
 
-	def probe_object_on_map(self,*args):#, self
+	def probe_object_on_map(self,*args):#DEBUG: 同步沒做好，無法太快探測物體否則對話會來不及跑
 		print(f'self:{self},args:{args}')
 		screen = args[1]
-		print('equal:',self==args[0])
 		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0:
 			if screen.hp_per_round > 0:
 				if 'item' in self.object_types:
@@ -334,18 +341,9 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 					if 'nothing' in self.object_types:
 						screen.on_press_nothing(self) 	
 				
-				screen.hp_per_round -= 1
+				
 			else:
 				print('No HP in this round')
-
-	def puzzle_bg(self, source):
-		path = source #TODO
-		return path
- 
-
-
-#GM = GameManagerScreen()
-#pygame.init()
 
 
 # >>> def keep(path):

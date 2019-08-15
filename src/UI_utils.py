@@ -19,10 +19,11 @@ def auto_display_speaker(Screen, instance, speaker):#a Screen-bind function
 	Screen.remove_widget(Screen.nametag)
 	Screen.canvas.remove_group('speaker')
 	if name != '':
-		source = 'res/images/players/' + speaker + '.png'
-		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(1,1,1,1),font_size=40,size_hint=(.1,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
+		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(.2,0,1,1),font_size=40,size_hint=(.1,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.nametag)
-		Screen.canvas.add(Rectangle(source=source,pos=(0,.27*global_h),size=(.15*global_w,.35*global_h),group='speaker'))
+		source = 'res/images/players/' + speaker + '.png'
+		if os.path.isfile(source):
+			Screen.canvas.add(Rectangle(source=source,pos=(0,.27*global_h),size=(.15*global_w,.35*global_h),group='speaker'))
 
 class BG_widget(Widget):
 	def __init__(self,**kwargs):#, bg_size, bg_pos, bg_source):
@@ -143,11 +144,18 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		if isinstance(self.screen,Screen) and self.magnet:
 			screen = self.screen
 			if screen.current_mode == 1:
-				self.stopped_pos = self.pos = self.origin_pos
-				screen.remove_widget(screen.dragging)	
-				screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
+				self.reset(screen,1)
+			# elif screen.current_mode == 2: 
+			# 	self.reset(screen,2)
+	def reset(self,screen,mode,*args):
+		print('reset dragging!')
+		self.stopped_pos = self.pos = self.origin_pos
+		screen.remove_widget(screen.dragging)	
+		#if mode == 1:
+		screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
+		
+			
 
-				
 	def start_switching_animate(self,pos,offset,direction,duration=.2):
 		(px,py) = pos
 		(ox,oy) = offset
@@ -220,7 +228,7 @@ def puzzle_select_number(screen, press_key_id):
 		screen.puzzling = False
 		clear_CodedLock(screen)
 		screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!')
-		#TODO:new scene
+		#TODO:加入新場景到章節地圖中
 		#name = 
 		# screen.GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
 		# screen.current_map = len(screen.chapter_maps) - 1 
@@ -234,7 +242,7 @@ def clear_CodedLock(screen):
 		print('No opened Coded Lock')	
 
 
-def synthesis_canvas(screen):
+def synthesis_canvas(screen,item,stage,*args):
 	base_y = .6*global_h
 	space_x = .04*global_w
 	block_x = .01*global_w
@@ -245,32 +253,44 @@ def synthesis_canvas(screen):
 	box_color = (1,1,1,1)
 	operator_color = (.3,1,.2,1)
 	operator_x = .1*global_w
+	item_len = .8*min(box_size[0],box_size[1])
+	item_x, item_y = (box_size[0]-item_len)/2 , (box_size[1]-item_len)/2 
+	if stage == 0:#init
+		#material
+		screen.canvas.add(Color(rgba=block_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(space_x,base_y),size=block_size,group='synthesis'))
+		screen.canvas.add(Color(rgba=box_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(space_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
+		screen.canvas.add(Ellipse(source=item['source'],pos=(space_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis'))
+		#'+'
+		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(2*space_x+bx,base_y+.07*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(2*space_x+bx+.035*global_w,base_y+block_y),size=(.03*global_w,box_size[1]),group='synthesis'))
+		#input
+		screen.canvas.add(Color(rgba=block_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(3*space_x+bx+operator_x,base_y),size=block_size,group='synthesis'))
+		screen.canvas.add(Color(rgba=box_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(3*space_x+bx+operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
+		#'='
+		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.11*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.03*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+		#output
+		screen.canvas.add(Color(rgba=block_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x,base_y),size=block_size,group='synthesis'))
+		screen.canvas.add(Color(rgba=box_color,group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
+	elif stage == 1:#wait for synthesis
+		screen.canvas.add(Ellipse(source=args[0],pos=(3*space_x+bx+operator_x+block_x+item_x,base_y+block_y+item_y) ,size=(item_len,item_len),group='synthesis1'))
+	elif stage == 2:#magic card
+		screen.canvas.add(Rectangle(source='res/images/testing/synthesis.png',pos=(2*space_x+bx+operator_x-.1*global_w, base_y-.3*global_h) ,size=(.2*global_w,.36*global_h),group='synthesis1'))
 
-	#material
-	screen.canvas.add(Color(rgba=block_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(space_x,base_y),size=block_size,group='synthesis'))
-	screen.canvas.add(Color(rgba=box_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(space_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
-	#'+'
-	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(2*space_x+bx,base_y+.07*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
-	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(2*space_x+bx+.035*global_w,base_y+block_y),size=(.03*global_w,box_size[1]),group='synthesis'))
-	#input
-	screen.canvas.add(Color(rgba=block_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(3*space_x+bx+operator_x,base_y),size=block_size,group='synthesis'))
-	screen.canvas.add(Color(rgba=box_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(3*space_x+bx+operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
-	#'='
-	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.11*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
-	screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.03*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
-	#output
-	screen.canvas.add(Color(rgba=block_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x,base_y),size=block_size,group='synthesis'))
-	screen.canvas.add(Color(rgba=box_color,group='synthesis'))
-	screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
+	elif stage == 3:#output
+		screen.canvas.add(Ellipse(source=args[0],pos=(5*space_x+2*bx+2*operator_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis'))
+	else:
+		print(f'synthesis stage {stage} not supported')
 
 class DraggableItem(Image):#Deprecated
 	def __init__(self, frame_pos, frame_size, draggable_item_id, **kargs):#other_pos
