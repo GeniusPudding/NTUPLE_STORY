@@ -51,8 +51,8 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		#print('GM.object_table:',GM.object_table)
 		d_len = min(.15*global_w,.2*global_h)
 	
-		# for object_id in item_list:
-		# 	print('source:',GM.object_table[str(object_id)]['source'])
+
+		#DEBUG:有時會無法加回主畫面
 		self.item_images =  [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 	
 		#item_images與item_list共用focusing_frame_id, 另開一個循環id用來展示選取動畫
 		#when item_images modified, manually modified the item_list
@@ -405,7 +405,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print(f'chapter_maps:{self.chapter_maps},NPCs_allocation:{self.NPCs_allocation},objects_allocation:{self.objects_allocation},current_dialog:{self.auto_dialog}')
 
 	def auto_new_chapter(self, instance, complete_chapter):#called when outer calls "self.complete_chapter = True"  
-		if complete_chapter:
+		if complete_chapter:#DEBUG
 			print('[*]complete_chapter:', complete_chapter)#after the plot's dialog ended
 			GM.change_chapter()
 			#TODO: link to the plot of the chapter's ending
@@ -572,8 +572,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.clear_text_on_screen()
 					self.finish_auto = True
 					#for testing
-				if self.current_mode == 1:
-					self.enter_puzzle_mode(64, 'synthesis')
+				# if self.current_mode == 1: #DEBUG
+				# 	self.enter_puzzle_mode(64, 'synthesis')
 			elif press_key_id == 116:#t
 				if self.cur_unsafed:
 					self.testing_save_object_pos()
@@ -586,7 +586,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			elif  press_key_id == 109:#m:
 				if self.current_mode == 1:
-					self.complete_chapter = True
+					self.complete_chapter = True#DEBUG
 			elif  press_key_id == 110:#n:
 				if self.current_mode == 1:
 					if self.item_view == 0: 
@@ -805,7 +805,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#Clock.schedule_once(partial(synthesis_canvas,self,item,stage=1),.5)
 			#Clock.schedule_once(partial(synthesis_canvas,self,item,stage=2),1)
 			Clock.schedule_once(partial(try_synthesis,self,expected_input,dragging_object_id),1)
-		elif not self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)) and self.dragging.free == 1 :	
+		elif not self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)) and self.dragging.free == 1 :	#DEBUG
 			self.dragging.reset(self,2)
 
 	def lock_handler(self, item):#原image消失?背景模糊?對話框顯示物件敘述
@@ -862,7 +862,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				# self.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
 
 			self.hp_per_round -= 1
-		elif not self.mouse_in_range({'x':.4,'y':.4},(.2,.2)) and self.dragging.free == 1:
+		elif not self.mouse_in_range({'x':.4,'y':.4},(.2,.2)) and self.dragging.free == 1:#DEBUG
 			print('超出範圍，返回原位')
 			self.dragging.reset(self,2)
 	def mouse_in_range(self,pos_hint,size_hint):

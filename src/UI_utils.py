@@ -34,9 +34,15 @@ class BG_widget(Widget):
 		self.parent.canvas.before.add(bg)
 
 	def on_touch_down(self, touch): #For the flexibility to implement some user interaction functions on the whole screen
-		print('bg on_touch_down')
+		#print('bg on_touch_down')
 		print(touch)
 		print(touch.pos,touch.spos)
+		f = open('touch.txt','w')
+		f.write('touch event:\n')
+		print(touch.spos[0],touch.spos[1])
+		f.write(f'touch spos:({touch.spos[0]},{touch.spos[1]})')
+		f.close()
+
 class CircleImage(Widget):#Image
 	def __init__(self,source, **kargs):
 		super(CircleImage, self).__init__( **kargs)

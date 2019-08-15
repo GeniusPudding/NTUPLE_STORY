@@ -1,0 +1,101 @@
+########## 2019-08-15 20:35:15.197018 ########## 
+
+player_id:0, chapter_id:0, f:A女書桌.jpg
+player_id:0, chapter_id:0, f:女主書桌.jpg
+player_id:0, chapter_id:0, f:雙人宿舍夜.jpg
+player_id:0, chapter_id:1, f:A女書桌.jpg
+player_id:0, chapter_id:1, f:博雅.jpg
+player_id:0, chapter_id:1, f:女主書桌.jpg
+player_id:0, chapter_id:1, f:女主書桌的抽屜.jpg
+player_id:0, chapter_id:1, f:雙人宿舍日.jpg
+player_id:0, chapter_id:2, f:A女書桌.jpg
+player_id:0, chapter_id:2, f:女主書桌.jpg
+player_id:0, chapter_id:2, f:女主書桌的抽屜.jpg
+player_id:0, chapter_id:2, f:行政大樓.jpg
+player_id:0, chapter_id:2, f:雙人宿舍日.jpg
+player_id:0, chapter_id:3, f:A女書桌.jpg
+player_id:0, chapter_id:3, f:女主書桌.jpg
+player_id:0, chapter_id:3, f:女主書桌的抽屜.jpg
+player_id:0, chapter_id:3, f:雙人宿舍日.jpg
+player_id:1, chapter_id:0, f:農場夜.jpg
+player_id:1, chapter_id:1, f:B男宿舍夜.jpg
+player_id:1, chapter_id:1, f:排球場.jpg
+player_id:1, chapter_id:2, f:女主家裡房間一.jpg
+player_id:1, chapter_id:2, f:女主家裡房間二.jpg
+player_id:1, chapter_id:3, f:女主家裡房間二.jpg
+player_id:2, chapter_id:0, f:女主家C男房間晚一.jpg
+player_id:2, chapter_id:1, f:鳥籠植物造景區.jpg
+player_id:2, chapter_id:1, f:鳥籠青鳥區.jpg
+player_id:2, chapter_id:2, f:女主家客廳.jpg
+player_id:2, chapter_id:3, f:女主家C男房間晚二.jpg
+player_id:3, chapter_id:0, f:D女房間.jpg
+player_id:3, chapter_id:1, f:D女房間.jpg
+player_id:3, chapter_id:2, f:D女房間二.jpg
+player_id:3, chapter_id:3, f:D女房間二.jpg
+player_id:3, chapter_id:3, f:D女抽屜.jpg
+global_w,global_h: 1280 710
+global_w,global_h: 1280 710
+global_w:1280,global_h:710
+init pos=[0, 0],size=[1280, 710],self=<Screen name='story'>,type(self)=<class 'story_screen.StoryScreen'>,(w,h)=(1280, 710),Window.size=(1280, 710)
+init bg, self.parent:None
+Enter function: next_round
+turns: {1: 2, 2: 3, 3: 0, 0: 1}
+[*]current_player_chapter:  [0, 0]
+[*]chapter_info: <game_manager.Chapter object at 0x120193d68>
+[*]auto_seal: True
+init itemframe global_w:1280,global_h:710,self.size:[100, 100],self.parent=None:
+[*] auto update instance: True
+[*]item frame gen items: [6, 7, 16, 18]
+item_list: [6, 7, 16, 18]
+self.item_images[0].pos:[960.0, 284.0]
+self.item_images[1].pos:[1002.6666666666666, 295.8333333333333]
+self.item_images[2].pos:[1045.3333333333333, 307.6666666666667]
+self.item_images[3].pos:[1088.0, 319.5]
+reload self.itemframe.item_list: [6, 7, 16, 18]
+Enter function: generate_item_tag
+chapter_info: <game_manager.Chapter object at 0x120193d68> self.itemframe: <story_screen.ItemFrame object at 0x1223b2180>
+chapter_maps:['res/chapters/0_0/maps/A女書桌.jpg', 'res/chapters/0_0/maps/女主書桌.jpg', 'res/chapters/0_0/maps/雙人宿舍夜.jpg'],NPCs_allocation:[],objects_allocation:[[], [], []],current_dialog:[['N', '(房門關閉聲)'], ['N', '一場不歡而散的會議後，A回到屬於自己和X的宿舍，盤踞心頭的愁雲和窒息感卻沒應此而減少，反而在一片寂靜中無聲的滋長。'], ['A', '(關上門後無助的沿著門板跌坐在地，把臉埋在臂彎之間)不是我的錯，這和我無關，和我一點關係也沒有！'], ['N', 'C憤怒而受傷的神色揮之不去，濃厚的罪惡感在思緒中揮舞著利爪，思考變得破碎，始終無法連貫，'], ['N', '但怎麼想，C也想不出來自己做錯了些什麼。'], ['N', '所以，不是我的錯。'], ['N', '原本是這麼想著，A才稍稍緩下情緒，卻瞥見了書桌上的一件物品，表情一瞬間的慘白，彷彿想起了些什麼，'], ['N', '胸口被人緊掐著，連呼吸都是折磨。']]
+reload chapter_info: <game_manager.Chapter object at 0x120193d68>
+player:0, chapter:0 ,self.size:[1280, 710]
+[*]hp: 20
+[*]current map: 0
+self.chapter_maps: ['res/chapters/0_0/maps/A女書桌.jpg', 'res/chapters/0_0/maps/女主書桌.jpg', 'res/chapters/0_0/maps/雙人宿舍夜.jpg']
+self.chapter_maps[current_map]: res/chapters/0_0/maps/A女書桌.jpg
+self.chapter_maps[self.current_map]: res/chapters/0_0/maps/A女書桌.jpg
+testing copy key:6,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/A女書桌.jpg', 'name': 'A女書桌', 'on_map': True, 'map_name': '雙人宿舍夜', 'player': 0, 'chapter': [0, 1, 2, 3], 'function_types': ['switching'], 'description': ''} to unlocated_mapobjects dir
+testing copy key:7,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/女主書桌的抽屜.jpg', 'name': '女主書桌', 'on_map': True, 'map_name': '雙人宿舍夜', 'player': 0, 'chapter': [0, 1, 2, 3], 'function_types': ['switching'], 'description': ''} to unlocated_mapobjects dir
+testing copy key:7,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/女主書桌的抽屜.jpg', 'name': '女主書桌', 'on_map': True, 'map_name': '雙人宿舍夜', 'player': 0, 'chapter': [0, 1, 2, 3], 'function_types': ['switching'], 'description': ''} to unlocated_mapobjects dir
+testing copy key:16,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/眼鏡.png', 'name': '眼鏡', 'on_map': True, 'map_name': 'A女書桌', 'player': 0, 'chapter': [0], 'function_types': ['item'], 'description': '我的眼鏡。因為輕微近視，讀書的時候都會戴上。'} to unlocated_mapobjects dir
+testing copy key:18,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/美工刀.png', 'name': '美工刀', 'on_map': True, 'map_name': 'A女書桌', 'player': 0, 'chapter': [0, 1], 'function_types': ['item'], 'description': '我新買的，還很好用。'} to unlocated_mapobjects dir
+testing copy key:26,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/A女書桌.jpg', 'name': 'A女書桌', 'on_map': True, 'map_name': '雙人宿舍日', 'player': 0, 'chapter': [0, 1, 2, 3], 'function_types': ['switching'], 'description': ''} to unlocated_mapobjects dir
+testing copy key:27,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/女主書桌的抽屜.jpg', 'name': '女主書桌', 'on_map': True, 'map_name': '雙人宿舍日', 'player': 0, 'chapter': [0, 1, 2, 3], 'function_types': ['switching'], 'description': ''} to unlocated_mapobjects dir
+testing copy key:27,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/女主書桌的抽屜.jpg', 'name': '女主書桌', 'on_map': True, 'map_name': '雙人宿舍日', 'player': 0, 'chapter': [0, 1, 2, 3], 'function_types': ['switching'], 'description': ''} to unlocated_mapobjects dir
+testing copy key:28,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/CD.png', 'name': 'CD', 'on_map': True, 'map_name': '女主書桌的抽屜', 'player': 0, 'chapter': [1], 'function_types': ['item'], 'description': '一片CD，上頭甚麼也沒註記。說不定裡面有甚麼不能被看到的影片...？'} to unlocated_mapobjects dir
+testing copy key:31,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/社團資料下半部.png', 'name': '社團資料下半部', 'on_map': True, 'map_name': '女主書桌的抽屜', 'player': 0, 'chapter': [1, 2], 'function_types': ['item', 'synthesis'], 'description': '孟亦安的社團資料。但一看就知道缺少了上半部。'} to unlocated_mapobjects dir
+testing copy key:36,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/圓鍬.png', 'name': '圓鍬', 'on_map': True, 'map_name': '農場夜', 'player': 1, 'chapter': [0], 'function_types': ['item'], 'description': '圓鍬。有點沉，但用來挖土沒問題。'} to unlocated_mapobjects dir
+testing copy key:51,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/牙刷.png', 'name': '牙刷', 'on_map': True, 'map_name': 'B男宿舍夜', 'player': 1, 'chapter': [1], 'function_types': ['item', 'synthesis'], 'description': '牙刷。現在被我拿來刷小東西。'} to unlocated_mapobjects dir
+testing copy key:52,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/洗衣粉.png', 'name': '洗衣粉', 'on_map': True, 'map_name': 'B男宿舍夜', 'player': 1, 'chapter': [1], 'function_types': ['item', 'synthesis'], 'description': '住宿生必備的洗衣粉。'} to unlocated_mapobjects dir
+testing copy key:53,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/礦泉水.png', 'name': '礦泉水', 'on_map': True, 'map_name': 'B男宿舍夜', 'player': 1, 'chapter': [1], 'function_types': ['item', 'synthesis'], 'description': '昨晚買的礦泉水，還有一半沒喝完。'} to unlocated_mapobjects dir
+testing copy key:62,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/孟亦安的日記.png', 'name': '孟亦安的日記', 'on_map': True, 'map_name': '女主家裡房間二', 'player': 1, 'chapter': [0, 1, 2, 3], 'function_types': ['trigger'], 'description': ''} to unlocated_mapobjects dir
+testing copy key:67,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/女主家裡房間抽屜鑰匙.png', 'name': '女主家裡房間抽屜', 'on_map': True, 'map_name': '女主家裡房間二', 'player': 1, 'chapter': [0, 1, 2, 3], 'function_types': ['lock'], 'description': '抽屜。一如往常的鎖住了。'} to unlocated_mapobjects dir
+testing copy key:74,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/鉛筆.png', 'name': '鉛筆', 'on_map': True, 'map_name': '女主家C男房間(晚)', 'player': 2, 'chapter': [0], 'function_types': ['item'], 'description': '2B鉛筆，用來素描或是畫圖都很好用。'} to unlocated_mapobjects dir
+testing copy key:81,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/裝著青鳥淚水的花灑.png', 'name': '花灑', 'on_map': True, 'map_name': '鳥籠植物造景區', 'player': 2, 'chapter': [1], 'function_types': ['item'], 'description': '一般的花灑，但是裡面沒有任何水可以澆花。'} to unlocated_mapobjects dir
+testing copy key:81,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/裝著青鳥淚水的花灑.png', 'name': '花灑', 'on_map': True, 'map_name': '鳥籠植物造景區', 'player': 2, 'chapter': [1], 'function_types': ['item'], 'description': '一般的花灑，但是裡面沒有任何水可以澆花。'} to unlocated_mapobjects dir
+testing copy key:91,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/小鏟子.png', 'name': '小鏟子', 'on_map': True, 'map_name': '女主家客廳', 'player': 2, 'chapter': [2], 'function_types': ['item'], 'description': '家居必備萬用小鏟子。'} to unlocated_mapobjects dir
+testing copy key:102,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/可看相片的單眼相機.jpg', 'name': '單眼相機', 'on_map': True, 'map_name': '女主家C男房間晚二', 'player': 2, 'chapter': [3], 'function_types': ['lock'], 'description': '歐西牌的單眼相機。現在沒有電了。'} to unlocated_mapobjects dir
+testing copy key:104,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/C男抽屜鑰匙.png', 'name': 'C男抽屜', 'on_map': True, 'map_name': '女主家C男房間晚二', 'player': 2, 'chapter': [0, 1, 2, 3], 'function_types': ['lock'], 'description': '抽屜。\n（獲得道具：充電器、沒電的電池）'} to unlocated_mapobjects dir
+testing copy key:111,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/手電筒.png', 'name': '手電筒', 'on_map': True, 'map_name': 'D女房間', 'player': 3, 'chapter': [0], 'function_types': ['item'], 'description': '手電筒。居家必備良物。'} to unlocated_mapobjects dir
+testing copy key:118,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/木製小盒子.png', 'name': '木製小盒子', 'on_map': True, 'map_name': 'D女房間', 'player': 3, 'chapter': [0, 1, 2, 3], 'function_types': ['lock'], 'description': '木製小盒子。'} to unlocated_mapobjects dir
+testing copy key:119,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/長尺.png', 'name': '長尺', 'on_map': True, 'map_name': 'D女房間', 'player': 3, 'chapter': [0, 1, 2, 3], 'function_types': ['item'], 'description': '很長的折疊尺。'} to unlocated_mapobjects dir
+testing copy key:125,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/木製小盒子.png', 'name': '木製小盒子', 'on_map': True, 'map_name': 'D女房間', 'player': 3, 'chapter': [1], 'function_types': ['lock'], 'description': '木製小盒子。'} to unlocated_mapobjects dir
+testing copy key:126,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/長尺.png', 'name': '長尺', 'on_map': True, 'map_name': 'D女房間', 'player': 3, 'chapter': [0, 1], 'function_types': ['item'], 'description': '很長的折疊尺。'} to unlocated_mapobjects dir
+testing copy key:133,item:{'pos_hint': None, 'size_hint': None, 'source': 'res/images/handpainting/歐希土勒夫香水.png', 'name': '歐希土勒夫香水', 'on_map': True, 'map_name': 'D女抽屜', 'player': 3, 'chapter': [0, 1, 2, 3], 'function_types': ['item', 'trigger'], 'description': ''} to unlocated_mapobjects dir
+testing objects: ['res/images/unlocated_mapobjects/A女書桌.jpg', 'res/images/unlocated_mapobjects/CD.png', 'res/images/unlocated_mapobjects/C男抽屜鑰匙.png', 'res/images/unlocated_mapobjects/可看相片的單眼相機.jpg', 'res/images/unlocated_mapobjects/圓鍬.png', 'res/images/unlocated_mapobjects/女主家裡房間抽屜鑰匙.png', 'res/images/unlocated_mapobjects/女主書桌.jpg', 'res/images/unlocated_mapobjects/女主書桌的抽屜.jpg', 'res/images/unlocated_mapobjects/孟亦安的日記.png', 'res/images/unlocated_mapobjects/小鏟子.png', 'res/images/unlocated_mapobjects/手電筒.png', 'res/images/unlocated_mapobjects/木製小盒子.png', 'res/images/unlocated_mapobjects/歐希土勒夫香水.png', 'res/images/unlocated_mapobjects/洗衣粉.png', 'res/images/unlocated_mapobjects/牙刷.png', 'res/images/unlocated_mapobjects/眼鏡.png', 'res/images/unlocated_mapobjects/礦泉水.png', 'res/images/unlocated_mapobjects/社團資料下半部.png', 'res/images/unlocated_mapobjects/美工刀.png', 'res/images/unlocated_mapobjects/花灑.png', 'res/images/unlocated_mapobjects/裝著青鳥淚水的花灑.png', 'res/images/unlocated_mapobjects/鉛筆.png', 'res/images/unlocated_mapobjects/長尺.png']
+create object types: ['lock']
+create object types: ['item']
+create object types: ['nothing']
+create object types: ['switching']
+create object types: ['puzzle']
+create object types: ['item', 'synthesis']
+My keyboard have been closed!
+self.auto_dialog: [['N', '那是個普通的日子。'], ['N', '普通的校區、普通的椰林、普通的總圖。'], ['N', '一場，再普通不過的太陽雨。'], ['N', '雨停之後，她再也沒出現。'], ['C', '(憤怒的拍桌)X去哪裡了！你們真一點想法也沒有？'], ['D', '(白眼)你兇有什麼用？能解決問題嗎？'], ['C', '(怒吼)失蹤的不是你妹妹！你懂什麼！我醜話先說在前頭，要是X有個萬一，我就是...'], ['A', '(害怕)你...你們別吵了，X她...'], ['C', '(怒瞪A一眼)'], ['B', '(興致缺缺的移開視線，彷彿事不關己)人沒了就是沒了，急有什麼用。'], ['C', '(憤怒的揪起B的衣領)你說得這是人話嗎！要不是你、我妹妹怎麼會消失！'], ['B', '(一臉莫名其妙)我？ (翻白眼，但眼神中透著心虛)你別瘋狗亂咬人，X跟我明明白白，我們一點問題都沒有。'], ['C', '(聽了B的話愣了好一陣子，臉上寫滿了不敢置信，眼神隨即變得兇惡)你有膽再說一次！'], ['C', 'A！妳說過我家X這些時間都不對勁是吧？有這麼回事吧？'], ['A', '(被嚇了一跳，唯唯諾諾的點頭，眼神飄移著)X...X她的確...'], ['C', '還有D！上回你們見面又發生了什麼事？'], ['D', '(滿臉莫名其妙，一臉看瘋子似的眼神)從頭到我到底關我什麼事？我和X已經多少年沒見面了！'], ['D', '不過我說，你從頭到尾到底在亂吼些什麼？那是你妹妹，你自己不該最清楚嗎？'], ['C', '(面色突然的僵硬，眼神中帶著哀傷)...我不知道。'], ['N', '會議室內被突如其來的沉默籠罩，所有人互看著，各異的眼神打轉各自的心思，'], ['N', 'X的失蹤彷彿一根刺，梗在所有人的喉間，呼吸變得困難，近乎溺水的窒息感讓人喘不過氣，'], ['N', '但最終誰也無法在這片泥沼中待著，D面色厭煩地離開了會議室，接著所有人魚貫而出，似乎不願再正視這麼件事。'], ['N', '只是，X的失蹤彷彿夢魘一般，在每個人的心頭盤據。'], ['N', '所有人都還沒注意到，自己曾經的一舉一動，都在另一人心上畫下傷痕，'], ['N', '那個人每天每夜對著淌血的傷口無助的嘆息，最終走向漠視。']]

@@ -35,7 +35,7 @@ class NTUPLE_Story(App):
         return sm
 
 if __name__ == '__main__':
-    # sys.stdout = open('debug/stdout.txt', 'a+')
+    #sys.stdout = open('stdout.txt', 'a+')
     # sys.stderr = open('debug/stderr.txt', 'a+')
     # sys.stderr.write('#####'+str(datetime.datetime.now())+'#####\n')
     print('#'*10, datetime.datetime.now(), '#'*10, '\n')
