@@ -26,7 +26,7 @@ def auto_dialog_preprocess(auto_dialog):
 	for _,line in new_auto_dialog:#for i,(_,line) in enumerate(auto_dialog):
 		time = cal_line_time_accu(line)#new_auto_dialog,line,i,start_line_clock_time)#start_line_clock_time = 
 		start_line_clock_time.append(time)	
-	print('after preprocessing, new_auto_dialog:',new_auto_dialog,'start_line_clock_time:',start_line_clock_time)	
+	#print('after preprocessing, new_auto_dialog:',new_auto_dialog,'start_line_clock_time:',start_line_clock_time)	
 	return start_line_clock_time,new_auto_dialog#auto_dialog
 def dialog_segmentation(dialog,max_count):
 	new_dialog = []
@@ -39,11 +39,11 @@ def dialog_segmentation(dialog,max_count):
 				new_line[1] += p
 			else:
 				new_line[1] += '\n'
-				print('add new_line:',new_line)
+				#print('add new_line:',new_line)
 				new_dialog.append(new_line)
 				new_line = [name,p]	
 		new_line[1] += '\n'
-		print('add new_line:',new_line)	
+		#print('add new_line:',new_line)	
 		new_dialog.append(new_line)
 
 	return new_dialog
@@ -69,13 +69,13 @@ def custom_multisplit(string,split_list):
 			head_id = i+1
 		elif i == len(string)-1:
 			result_string.append(string[head_id:i+1])
-	print("custom_multisplit:",result_string)
+	#print("custom_multisplit:",result_string)
 	return result_string
 
 
 def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='N',close_dialogframe=False,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
-	
+	#print('Screen.dialog_events:',Screen.dialog_events)
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
 	if len(line) <= 20:
@@ -95,7 +95,9 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='N',close_dia
 	if len(Screen.displaying_character_labels)>0:
 		print('有字幕殘留')
 		clear_dialogframe_text(Screen,Screen.displaying_character_labels)
+	print('start generate line:',line)
 	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
+	
 	accu_time = 0
 	char_time = 0
 	for i,char in enumerate(line):
@@ -123,8 +125,9 @@ def clock_display_characters(Screen,displaying_character_labels, char, char_id,*
 
 
 def clear_dialogframe_text(Screen,displaying_character_labels,*args):#must between the last line characters displayed and the next line be processed  
-	for event in Screen.dialog_events:
-		event.cancel()	
+	print('[*]clear_dialogframe_text!')
+	# for event in Screen.dialog_events:
+	# 	event.cancel()	
 	for label in displaying_character_labels:
 		Screen.remove_widget(label)
 	Screen.displaying_character_labels = []

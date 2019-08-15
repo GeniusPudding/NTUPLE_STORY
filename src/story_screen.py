@@ -16,7 +16,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 	#offset = ListProperty((0,0))
 	switchable = BooleanProperty(True)
 	playing_anim_num = NumericProperty()
-	def __init__(self,**kwargs):
+	def __init__(self,screen,**kwargs):
 		super(ItemFrame, self).__init__(**kwargs)
 		print(f"init itemframe global_w:{global_w},global_h:{global_h},self.size:{self.size},self.parent={self.parent}:")
 
@@ -25,7 +25,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		self.infoFrame = Widget()
 		self.item_name = Widget()
 		self.infoContent = Widget()
-
+		self.screen = screen
 		self.bind(item_list=self.auto_gen_items)
 		self.bind(focusing_frame_id=self.auto_focus)
 
@@ -46,13 +46,13 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		self.offset = (.1/(self.count-1)*global_w,.05/(self.count-1)*global_h)
 		item_cur_pos = []
 		for i in range(self.count):
-			print('test append pos:',(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1]))
+			#print('test append pos:',(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1]))
 			item_cur_pos.append([(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1])])
-		print('GM.object_table:',GM.object_table)
+		#print('GM.object_table:',GM.object_table)
 		d_len = min(.15*global_w,.2*global_h)
 	
-		for object_id in item_list:
-			print('source:',GM.object_table[str(object_id)]['source'])
+		# for object_id in item_list:
+		# 	print('source:',GM.object_table[str(object_id)]['source'])
 		self.item_images =  [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 	
 		#item_images與item_list共用focusing_frame_id, 另開一個循環id用來展示選取動畫
 		#when item_images modified, manually modified the item_list
@@ -67,16 +67,17 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 	def auto_focus(self, instance, focusing_frame_id):#handle the info and object id
 		print('auto focus frame id:',focusing_frame_id)
 		print('current self.item_list:',self.item_list)
-		screen = self.parent
+		screen = self.screen
 		object_id = self.item_list[focusing_frame_id]
 		#clear the last status
-		screen.clear_text_on_screen()	
 		if focusing_frame_id >=0 :	
+			screen.clear_text_on_screen()	#DEBUG
 			if screen.current_mode == 1:
 				self.display_item_info(object_id,screen)
 				self.display_item_name(object_id,screen)
 			screen.focusing_object_id = object_id
 		else:
+			print('when close itemframe, screen:',screen)
 			screen.remove_widget(self.item_name)
 			screen.focusing_object_id = -1
 
@@ -103,9 +104,6 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		self.playing_anim_num = self.count #determined by the number of animations
 		n = self.count
 		d_len = min(.15*global_w,.2*global_h)
-
-		# for i in range(n):
-		# 	print(f'self.item_images[{i}].pos:{self.item_images[self.cyclic[i]].pos}')
 
 		if press_key_id==276:
 			print ("key action left")
@@ -140,7 +138,6 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 			#store last pos:	
 			final_pos = self.back_pos
 			init_pos = self.front_pos
-			#print('final_pos:',final_pos,'init_pos:',init_pos)
 			self.curve_animation(screen,self.item_images[self.cyclic[0]],init_pos,final_pos)
 			for i in range(1,n):
 				im = self.item_images[self.cyclic[i]]
@@ -150,7 +147,6 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 			for i in reversed(range(n)):
 				self.cyclic[i] += 1
 				self.cyclic[i] %= n
-				#print(f'redraw self.item_images[{self.cyclic[i]}].pos:{self.item_images[self.cyclic[i]].pos}')
 				screen.remove_widget(self.item_images[self.cyclic[i]])
 				screen.add_widget(self.item_images[self.cyclic[i]])
 
@@ -401,7 +397,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.chapter_title = Label(text=self.chapter_info.chapter_title,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		self.seal_on = not self.chapter_info.started
 		self.remove_widget(self.itemframe)
-		self.itemframe = ItemFrame(pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
+		self.itemframe = ItemFrame(screen = self,pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
 		self.reload_item_list = True
 		self.generate_item_tag()
 		print('chapter_info:', chapter_info,'self.itemframe:',self.itemframe)
@@ -660,10 +656,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.add_widget(self.item_tag)	
 	def hide_itemframe(self,*args):
 		print('Enter function: hide_itemframe')
-		
-		self.dialog_view = 0
-		self.item_box_canvas_controller('hide')
 		self.remove_widget(self.itemframe)
+		self.dialog_view = 0
+		self.item_box_canvas_controller('hide')		
 		self.remove_widget(self.item_tag)
 		
 		self.generate_item_tag()
@@ -682,6 +677,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			else: #just open itemframe
 				for i in reversed(range(self.itemframe.count)):
 					item = self.itemframe.item_images[self.itemframe.cyclic[i]]
+					print('add item source:',item.source)
 					self.add_widget(item)			
 				self.itemframe.focusing_frame_id = self.itemframe.cyclic[0]#->auto_focus->auto_focus_item->dragging generate
 				#make sure the dragging is inside box canvas
@@ -691,10 +687,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#select button
 
 		elif action == 'hide':
-			self.itemframe.focusing_frame_id = -1
+			
 			self.canvas.remove_group('cap')
 			for item in self.itemframe.item_images:
 				self.remove_widget(item)
+			self.itemframe.focusing_frame_id = -1
 			self.canvas.remove_group('itemicon') 
 
 	def canvas_under_item_images(self):#TODO:道具欄按鍵提示(->,<-,Enter,i,click,...)
@@ -791,7 +788,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				GM.players[screen.current_player_id].get_item(output_id)
 
 			else:
-				print('合成失敗!')
+				print('合成失敗!')#DEBUG
 				spent_time = line_display_scheduler(screen,'合成失敗...',False,special_char_time,next_line_time,common_char_time)
 				Clock.schedule_once(screen.clear_text_on_screen,spent_time+.3)
 				Clock.schedule_once(partial(screen.dragging.reset,screen,2),spent_time+.3) 		
@@ -956,8 +953,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.item_view ^= 1
 
 	def clear_text_on_screen(self,*args):#TODO:clear_text_on_screen如何與line_display_scheduler對應之同步問題
-		# for event in self.dialog_events:
-		# 	event.cancel()	
+		print('[*]clear_text_on_screen!!')
+		for event in self.dialog_events:
+			event.cancel()	
+
 		clear_dialogframe_text(self,self.displaying_character_labels)
 		
 	def to_phone_screen(self,*args):
