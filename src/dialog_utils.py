@@ -73,7 +73,7 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='N',close_dialogframe=False,*args):#or chars_of_row = 15,rows = 3
+def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
 	#print('Screen.dialog_events:',Screen.dialog_events)
 	Screen.current_speaker_name = name# #trigger auto_display_speaker

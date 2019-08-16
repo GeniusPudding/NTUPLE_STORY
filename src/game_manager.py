@@ -69,9 +69,12 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 		self.main_screen.start_story(self)		
 
-		
+	def start_chapter(self):
+		self.Chapters[self.current_player_id][self.current_chapter[self.current_player_id]].started = True
+
 	def change_turn(self):
 		print('turns:',turns)
+		print('self.current_chapter:',self.current_chapter)
 		if len(turns) == 0:
 			self.to_ending(self.current_player_id)
 		
@@ -115,9 +118,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			last_one = True
 		self.manager.get_screen('ending').load_ending(player_id,last_one)
 		self.manager.current = 'ending'
-	# def init_players(self): #TODO
-	# 	for p in range(1,5):
-	# 		self.players.append(Player(player_id=p)) 
+
 	def init_chapters(self): #TODO: load game info
 		Chapters = []
 		for p in range(4):
@@ -222,40 +223,66 @@ class Chapter(object):
 
 	def load_default_map(self,player_id, chapter_id):
 		#TODO: 直接將十六張圖名打在這
+		default_maps = ['雙人宿舍夜','博雅','雙人宿舍日','雙人宿舍日','農場夜',\
+		'B男宿舍夜','','女主家裡房間一','女主家C男房間晚一','','女主家客廳',\
+		'女主家C男房間晚二','D女房間','D女房間','D女房間二','D女房間二']
 		# default_map = [[],[],[],[]]
-		# for i,m in enumerate(self.chapter_maps):
-		# 	if default_map[player_id][chapter_id] in m:
-		# 		return i
+		for i,m in enumerate(self.chapter_maps):
+			if default_maps[player_id*4+chapter_id] in m:
+				return i
 		return 0
 	def load_chapter_dialogs(self,player_id, chapter_id):#TODO: read ine of those 16 file
-		#self.dialog_path + 'pre.txt' or 'post.txt'
-		dialog_part = [[line.split(':')[0],line.split(':')[1]] for line in 'N:(房門關閉聲)\n\
-N:一場不歡而散的會議後，A回到屬於自己和X的宿舍，盤踞心頭的愁雲和窒息感卻沒應此而減少，反而在一片寂靜中無聲的滋長。\n\
-A:(關上門後無助的沿著門板跌坐在地，把臉埋在臂彎之間)不是我的錯，這和我無關，和我一點關係也沒有！\n\
-N:C憤怒而受傷的神色揮之不去，濃厚的罪惡感在思緒中揮舞著利爪，思考變得破碎，始終無法連貫，\n\
-N:但怎麼想，C也想不出來自己做錯了些什麼。\n\
-N:所以，不是我的錯。\n\
-N:原本是這麼想著，A才稍稍緩下情緒，卻瞥見了書桌上的一件物品，表情一瞬間的慘白，彷彿想起了些什麼，\n\
-N:胸口被人緊掐著，連呼吸都是折磨。'.split('\n')]
-		
-		dialog_part2 = [[line.split(':')[0],line.split(':')[1]] for line in 'B:欸，怎麼了？一副愁雲慘霧的？\n\
-X:(拿著成績單，表情難過得快哭出來似的)B...怎麼辦啦，我的模考成績...\n\
-B:(表情疑惑地接過成績單，臉上一瞬間的錯愕)老天，這怎麼回事？不是說這次有妳哥哥幫妳嗎？怎麼整整掉了三個級分？\n\
-X:(表情難過的欲言又止，最終只是搖頭)我不知道...我回家之後要怎麼辦...\n\
-N:一想起回家後可能發生的畫面，X忍不住哽咽，B看著心裡也難過，煩躁地抓亂了頭髮，卻無能為力，只能好言安慰了一番，最終X神色失落的回到家，顫抖著手遞出了成績單。\n\
-F:(看了一眼成績單，憤怒的拍在桌上)這種成績也敢拿回家丟人現眼！\n\
-X:(害怕得發抖)我...我...我不是...\n\
-M:(無奈地嘆氣，拍拍F的肩膀)別對X生氣，考這種成績也不是她願意的...\n\
-N:聽了M這麼緩和氣氛，X才稍稍鬆了口氣，下一句話，心情卻被一瞬間的推落懸崖，不斷的，向無底的深淵跌落。\n\
-M:(嘆氣)X沒有她哥哥那麼聰明，稍微笨了一點，何必強迫孩子？\n\
-N:一句話深深刺傷X所剩無幾的自尊，也許是人生中第一次，手臂一揮，掃落了桌上的杯具，X無視瓷器碎裂的聲音和父親的怒吼，逃入房中上了鎖，再也不願意開門。\n\
-N:而客廳裡，作為哥哥的C卻承擔了父母所有的怒火。\n\
-F:你看看你妹妹那是什麼德性！就告訴你不要跟她玩在一起，她這年紀就該念書！你跟她說什麼遊戲，談什麼動畫！\n\
-M:(難過地擦眼淚)就是啊，C...你也不想想，要是你妹妹怎麼了，到時候難過的還是你啊...\n\
-N:C沈默著，對所有的指責和訓話保持緘默，似乎已經放棄了爭辯。\n\
-N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
+		#self.dialog_path + '1.txt' or '2.txt'
+		try:
+			f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
+			pre =[line for line in f1.read().split('\n') if len(line)>0]
+			part1 = []
+			for line in pre:
+				if len(line.split(':'))>1:
+					part1.append([line.split(':')[0],line.split(':')[1]])
+				else:
+					part1.append(['',line])
+		except:
+			part1 = [[line.split(':')[0],line.split(':')[1]] for line in 'N:(房門關閉聲)\n\
+	N:一場不歡而散的會議後，A回到屬於自己和X的宿舍，盤踞心頭的愁雲和窒息感卻沒應此而減少，反而在一片寂靜中無聲的滋長。\n\
+	A:(關上門後無助的沿著門板跌坐在地，把臉埋在臂彎之間)不是我的錯，這和我無關，和我一點關係也沒有！\n\
+	N:C憤怒而受傷的神色揮之不去，濃厚的罪惡感在思緒中揮舞著利爪，思考變得破碎，始終無法連貫，\n\
+	N:但怎麼想，C也想不出來自己做錯了些什麼。\n\
+	N:所以，不是我的錯。\n\
+	N:原本是這麼想著，A才稍稍緩下情緒，卻瞥見了書桌上的一件物品，表情一瞬間的慘白，彷彿想起了些什麼，\n\
+	N:胸口被人緊掐著，連呼吸都是折磨。'.split('\n')]
 
-		return dialog_part,dialog_part2#can be many dialog_parts?
+		try:
+			f2 = open(os.path.join(self.dialog_path,'2.txt'),'r',encoding='utf-16')
+			post = [line for line in f2.read().split('\n') if len(line)>0]
+			part2 = []
+			for line in post:
+				if len(line.split(':'))>1:
+					part2.append([line.split(':')[0],line.split(':')[1]])
+				else:
+					part2.append(['',line])
+		except:
+			part2 = [[line.split(':')[0],line.split(':')[1]] for line in 'B:欸，怎麼了？一副愁雲慘霧的？\n\
+	X:(拿著成績單，表情難過得快哭出來似的)B...怎麼辦啦，我的模考成績...\n\
+	B:(表情疑惑地接過成績單，臉上一瞬間的錯愕)老天，這怎麼回事？不是說這次有妳哥哥幫妳嗎？怎麼整整掉了三個級分？\n\
+	X:(表情難過的欲言又止，最終只是搖頭)我不知道...我回家之後要怎麼辦...\n\
+	N:一想起回家後可能發生的畫面，X忍不住哽咽，B看著心裡也難過，煩躁地抓亂了頭髮，卻無能為力，只能好言安慰了一番，最終X神色失落的回到家，顫抖著手遞出了成績單。\n\
+	F:(看了一眼成績單，憤怒的拍在桌上)這種成績也敢拿回家丟人現眼！\n\
+	X:(害怕得發抖)我...我...我不是...\n\
+	M:(無奈地嘆氣，拍拍F的肩膀)別對X生氣，考這種成績也不是她願意的...\n\
+	N:聽了M這麼緩和氣氛，X才稍稍鬆了口氣，下一句話，心情卻被一瞬間的推落懸崖，不斷的，向無底的深淵跌落。\n\
+	M:(嘆氣)X沒有她哥哥那麼聰明，稍微笨了一點，何必強迫孩子？\n\
+	N:一句話深深刺傷X所剩無幾的自尊，也許是人生中第一次，手臂一揮，掃落了桌上的杯具，X無視瓷器碎裂的聲音和父親的怒吼，逃入房中上了鎖，再也不願意開門。\n\
+	N:而客廳裡，作為哥哥的C卻承擔了父母所有的怒火。\n\
+	F:你看看你妹妹那是什麼德性！就告訴你不要跟她玩在一起，她這年紀就該念書！你跟她說什麼遊戲，談什麼動畫！\n\
+	M:(難過地擦眼淚)就是啊，C...你也不想想，要是你妹妹怎麼了，到時候難過的還是你啊...\n\
+	N:C沈默著，對所有的指責和訓話保持緘默，似乎已經放棄了爭辯。\n\
+	N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
+
+		print('part1:',part1)
+		print('part2:',part2)
+
+		return part1,part2#can be many dialog_parts?
 	def load_chapter_title(self,player_id, chapter_id):
 		return ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
 
@@ -308,7 +335,7 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 			self.touch_range = self.size_hint
 		else:
 			self.touch_range = touch_range
-		print('create object types:',self.object_types)
+		#print('create object types:',self.object_types)
 		#only five probable types, one or many of ['item','puzzle','synthesis','trigger','clue'] or 'nothing'
 
 	def probe_object_on_map(self,*args):#DEBUG: 同步沒做好，無法太快探測物體否則對話會來不及跑

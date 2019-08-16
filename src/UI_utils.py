@@ -13,15 +13,15 @@ def auto_prompt(Screen,press_key,pos_hint,instance, prompt,extra_info=''):#a Scr
 		#MUST set remove_widget in Screen's key_action function
 
 
-def auto_display_speaker(Screen, instance, speaker):#a Screen-bind function
-	print('[*] Display speaker: ',speaker)
-	name = speaker_name[speaker]
+def auto_display_speaker(Screen, instance, name):#name is Chinese here   #a Screen-bind function
+	print('[*] Display speaker: ',name)
+	#name = speaker_name[speaker]
 	Screen.remove_widget(Screen.nametag)
 	Screen.canvas.remove_group('speaker')
-	if name != '':
+	if name not in ['','N']:
 		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(.2,0,1,1),font_size=40,size_hint=(.1,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.nametag)
-		source = 'res/images/players/' + speaker + '.png'
+		source = 'res/images/players/' + name + '.png'
 		if os.path.isfile(source):
 			Screen.canvas.add(Rectangle(source=source,pos=(0,.27*global_h),size=(.15*global_w,.35*global_h),group='speaker'))
 
@@ -37,11 +37,7 @@ class BG_widget(Widget):
 		#print('bg on_touch_down')
 		print(touch)
 		print(touch.pos,touch.spos)
-		f = open('touch.txt','w')
-		f.write('touch event:\n')
-		print(touch.spos[0],touch.spos[1])
-		f.write(f'touch spos:({touch.spos[0]},{touch.spos[1]})')
-		f.close()
+
 
 class CircleImage(Widget):#Image
 	def __init__(self,source, **kargs):
@@ -53,7 +49,7 @@ class CircleImage(Widget):#Image
 		self.bind(pos=redraw_widget, size=redraw_widget)
 		self.source = source
 
-	def start_switching_animate(self,pos,offset,direction,duration=.3):#offset and duration also can be a list, and must have same length 
+	def start_switching_animate(self,pos,offset,direction,duration=.35):#offset and duration also can be a list, and must have same length 
 		(px,py) = pos
 		#print(f'Before anim... pos:{pos},offset:{offset},direction:{direction}')
 		if not isinstance(offset, list):#only a tuple
@@ -123,14 +119,11 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 
 	def on_touch_down(self, touch):
 		print(f"Free item on_touch_down touch.pos:{touch.pos}")
-		#global freedragging
 		
 		if self.collide_point(*touch.pos):
-			self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)	
-			print(f'on_touch_down freedragging:{freedragging},id(freedragging):{id(freedragging)}')		 
 			self.free = 0
+			self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)			
 			self.dragger = 1
-			print(f'on_touch_down freedragging:{freedragging},id(freedragging):{id(freedragging)}')
 			if isinstance(self.screen,Screen): 
 				self.screen.item_view = 0 #here make focusing_frame_id = -1
 	def on_touch_move(self, touch):
@@ -140,11 +133,8 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 
 	def on_touch_up(self, touch): #release a dragging item here
 		print(f'Free item on_touch_up touch.pos:{touch.pos}"')
-		#global freedragging 
-		print(f'on_touch_up freedragging:{freedragging},id(freedragging):{id(freedragging)}')
 		self.free = 1
 		self.dragger = 0
-		print(f'on_touch_up freedragging:{freedragging},id(freedragging):{id(freedragging)}')
 		self.stopped_pos_hint = {'x':touch.spos[0],'y':touch.spos[1]}
 		self.stopped_pos = touch.pos
 		if isinstance(self.screen,Screen) and self.magnet:
@@ -154,7 +144,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 			# elif screen.current_mode == 2: 
 			# 	self.reset(screen,2)
 	def reset(self,screen,mode,*args):
-		print('reset dragging!')
+		#print('reset dragging!')
 		self.stopped_pos = self.pos = self.origin_pos
 		screen.remove_widget(screen.dragging)	
 		#if mode == 1:
@@ -270,7 +260,7 @@ def synthesis_canvas(screen,item,stage,*args):
 		screen.canvas.add(Ellipse(source=item['source'],pos=(space_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis'))
 		#'+'
 		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
-		screen.canvas.add(Rectangle(pos=(2*space_x+bx,base_y+.07*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(2*space_x+bx,base_y+.07*global_h),size=(operator_x,.06*global_h),group='synthesis'))
 		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
 		screen.canvas.add(Rectangle(pos=(2*space_x+bx+.035*global_w,base_y+block_y),size=(.03*global_w,box_size[1]),group='synthesis'))
 		#input
@@ -280,9 +270,9 @@ def synthesis_canvas(screen,item,stage,*args):
 		screen.canvas.add(Rectangle(pos=(3*space_x+bx+operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
 		#'='
 		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
-		screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.11*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.11*global_h),size=(operator_x,.06*global_h),group='synthesis'))
 		screen.canvas.add(Color(rgba=operator_color,group='synthesis'))
-		screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.03*global_h),size=(box_size[0],.06*global_h),group='synthesis'))
+		screen.canvas.add(Rectangle(pos=(4*space_x+2*bx+operator_x,base_y+.03*global_h),size=(operator_x,.06*global_h),group='synthesis'))
 		#output
 		screen.canvas.add(Color(rgba=block_color,group='synthesis'))
 		screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x,base_y),size=block_size,group='synthesis'))
@@ -290,10 +280,10 @@ def synthesis_canvas(screen,item,stage,*args):
 		screen.canvas.add(Rectangle(pos=(5*space_x+2*bx+2*operator_x+block_x,base_y+block_y),size=box_size,group='synthesis'))
 	elif stage == 1:#wait for synthesis
 		screen.canvas.add(Ellipse(source=args[0],pos=(3*space_x+bx+operator_x+block_x+item_x,base_y+block_y+item_y) ,size=(item_len,item_len),group='synthesis1'))
-	elif stage == 2:#magic card
-		screen.canvas.add(Rectangle(source='res/images/testing/synthesis.png',pos=(2*space_x+bx+operator_x-.1*global_w, base_y-.3*global_h) ,size=(.2*global_w,.36*global_h),group='synthesis1'))
+		#magic card
+		screen.canvas.add(Rectangle(source='res/images/testing/synthesis.png',pos=(2*space_x+bx+operator_x/2-.125*global_w, base_y-.375*global_h) ,size=(.25*global_w,.45*global_h),group='synthesis1'))
 
-	elif stage == 3:#output
+	elif stage == 2:#output
 		screen.canvas.add(Ellipse(source=args[0],pos=(5*space_x+2*bx+2*operator_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis'))
 	else:
 		print(f'synthesis stage {stage} not supported')
