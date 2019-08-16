@@ -205,33 +205,35 @@ class Chapter(object):
 		self.map_path = f'res/chapters/{player_id}_{chapter_id}/maps/'  #including map images
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
 		self.locked_map_path = 'res/images/locked/'
-		self.player_chapter = (player_id,chapter_id)#(player,chapter)
+		self.player_chapter = (player_id,chapter_id)
 		self.chapter_NPCs = [] 
-		self.chapter_maps = self.add_chapter_maps(player_id, chapter_id)
+		self.chapter_maps = self.add_chapter_maps()
 		self.default_map = self.load_default_map(player_id, chapter_id)
 		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
 		self.started = False
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
-		self.pre_plot, self.plot = self.load_chapter_dialogs(player_id, chapter_id)#self.chapter_predialog,self.chapter_postdialog
+		self.pre_plot, self.plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
 
 	def unlock_new_map(self,map_name):
 		for locked_img in os.listdir(self.locked_map_path):
-			if name in locked_img:
+			if map_name in locked_img:
 				self.chapter_maps.append(os.path.join(self.locked_map_path,locked_img))
 				break
 		self.load_chapter_objects_of_maps()#load new objects info of unlocked map
 
 	def load_default_map(self,player_id, chapter_id):
-		#TODO: 直接將十六張圖名打在這
+		# if (player_id==1 and chapter_id==2) or (player_id==2 and chapter_id==1):
+		# 	return -1 #TODO
+
 		default_maps = ['雙人宿舍夜','博雅','雙人宿舍日','雙人宿舍日','農場夜',\
-		'B男宿舍夜','','女主家裡房間一','女主家C男房間晚一','','女主家客廳',\
+		'B男宿舍夜','(半自動模式)','女主家裡房間一','女主家C男房間晚一','(半自動模式)','女主家客廳',\
 		'女主家C男房間晚二','D女房間','D女房間','D女房間二','D女房間二']
 		# default_map = [[],[],[],[]]
 		for i,m in enumerate(self.chapter_maps):
 			if default_maps[player_id*4+chapter_id] in m:
 				return i
 		return 0
-	def load_chapter_dialogs(self,player_id, chapter_id):#TODO: read ine of those 16 file
+	def load_chapter_dialogs(self):#TODO: read ine of those 16 file
 		#self.dialog_path + '1.txt' or '2.txt'
 		try:
 			f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
@@ -288,22 +290,40 @@ class Chapter(object):
 
 	def load_chapter_objects_of_maps(self):
 		#TODO: load and init all MapObject here in existing map
+		#from self.object_path 
 		maps = self.chapter_maps
-
 		chapter_objects = []
 		for i in range(len(maps)):
 			chapter_objects.append([])
-		# with open(self.object_path+'object.json','r') as f:
-		# 	data_dict = json.load(f)
+
+		with open(self.object_path+'chapter_objects.json','r') as f:
+			objects_table = json.load(f)
+			print('chapter\'s objects_table:',objects_table)
+			for str_id in  objects_table.keys():
+				chapter_object = objects_table[str_id]
+				if chapter_object['on_map'] == True:
+					if chapter_object['pos_hint'] is not None and chapter_object['pos_hint'] is not None:
+						on_map = 0
+						for map_id,map_path in enumerate(maps):
+							if chapter_object['name'] in map_path:
+								chapter_objects[map_id].append(MapObject(screen=self, object_id=int(str_id),\
+								object_content=chapter_object,size_hint=chapter_object.size_hint,pos_hint=chapter_object.pos_hint))
+								on_map = 1
+								break
+						if not on_map:
+							print(f'[*] Exception! Can\'t find object:{chapter_object}\'s map!')
+
+					else:
+						print(f'[*] Exception! object:{chapter_object} 資料不足') 
+
 		# MapObject
 		return chapter_objects
 		
-	def add_chapter_maps(self,player_id, chapter_id):
+	def add_chapter_maps(self):
 
 		chapter_maps = []
 		for f in os.listdir(self.map_path):
 			if '.jpg' in f or '.png' in f:
-				print(f'player_id:{player_id}, chapter_id:{chapter_id}, f:{f}')
 				chapter_maps.append(os.path.join(self.map_path,f))
 
 		return chapter_maps
@@ -319,10 +339,9 @@ class Chapter(object):
 		return 'res/images/testing/Erza.png'
 
 
-class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的ImageButton 
-	def __init__(self,object_id,object_content,screen,touch_range , **kargs):
-		#Window.bind(on_key_down=self.key_action)
-		#self.source = 'res/images/testing/synthesisframe.png'
+class MapObject(ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas區分是否有source圖片
+	def __init__(self,object_id,object_content,screen,touch_range='default', **kargs):
+		#依照是否有source圖片區分
 		self.callback = partial(self.probe_object_on_map,self,screen)#()
 		self.object_id = object_id
 		super(MapObject, self).__init__(self.callback,self.object_id,allow_stretch=True,keep_ratio=False,**kargs)
@@ -330,13 +349,15 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		self.object_types = object_content['function_types']
 		self.map_name = object_content['map_name']
 		self.source = object_content['source']
-		#screen = screen
+		if self.source is None:
+			self.canvas.add(Color(rgba=(1,1,1,0),group='mapobject'))
+			self.canvas.add(Rectangle(pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
+				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='mapobject'))
+
 		if touch_range == 'default':
 			self.touch_range = self.size_hint
 		else:
 			self.touch_range = touch_range
-		#print('create object types:',self.object_types)
-		#only five probable types, one or many of ['item','puzzle','synthesis','trigger','clue'] or 'nothing'
 
 	def probe_object_on_map(self,*args):#DEBUG: 同步沒做好，無法太快探測物體否則對話會來不及跑
 		print(f'self:{self},args:{args}')
@@ -344,7 +365,7 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0:
 			if screen.hp_per_round > 0:
 				if 'item' in self.object_types:
-					#定義: 可以收進"道具欄"並可"使用"
+					#定義: 可以收進"道具欄"
 					screen.on_press_item(self)
 				else:
 					if 'puzzle' in self.object_types:
@@ -354,18 +375,19 @@ class MapObject(ImageButton):# 有可能會改成繼承FreeDraggableItem的Image
 						#定義: 將正確道具拖曳至此物件，以打開該物件；例如[鑰匙]
 						screen.on_press_lock(self) 
 					if 'synthesis' in self.object_types:
-						#定義: 將正確道具拖曳至此物件，以打開該物件；例如[鑰匙]
+						#定義: 可以跟另一樣道具合成產生新道具
 						screen.on_press_synthesis(self)
 					if 'clue' in self.object_types:
-						#定義: 作為［解碼］所需要的關鍵資訊
+						#定義: 作為遊戲所需要的關鍵資訊
 						screen.on_press_clue(self) 
 					if 'trigger' in self.object_types:
-						#定義: 點擊即觸發進入劇情
+						#定義: 點擊即觸發進入劇情模式
 						screen.on_press_trigger(self) 
 					if 'switching' in self.object_types:
 						#定義: 點擊切換場景用
 						screen.on_press_switching(self) 	
 					if 'nothing' in self.object_types:
+						#定義: 無特別功用
 						screen.on_press_nothing(self) 	
 				
 				

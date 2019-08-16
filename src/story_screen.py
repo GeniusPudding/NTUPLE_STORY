@@ -230,7 +230,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	current_player_id = NumericProperty()
 	current_chapter = NumericProperty(-1)
 	current_player_chapter = ReferenceListProperty(current_player_id, current_chapter)
-	current_map = NumericProperty(-1)
+	current_map_id = NumericProperty(-1)
 	chapter_maps = ListProperty()#need to bind?
 	current_speaker_name = StringProperty('N')
 	hp_per_round = NumericProperty(-1)
@@ -274,7 +274,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print("init pos={},size={},self={},type(self)={},(w,h)={},Window.size={}".format(self.pos,self.size,self,type(self),(self.w,self.h),Window.size))
 		self.bind(hp_per_round=self.auto_hp_canvas)
 		self.bind(current_speaker_name=partial(auto_display_speaker,self))
-		self.bind(current_map=self.auto_switch_maps)
+		self.bind(current_map_id=self.auto_switch_maps)
 		#self.bind(current_player_chapter=self.auto_reload_chapter_info)
 		self.bind(chapter_info=self.auto_load_chapter_info_contents)
 		self.bind(dialog_view=self.auto_dialog_view)
@@ -325,9 +325,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#self.generate_item_tag()
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
-		self.current_map = -1
-		self.current_map = self.chapter_info.default_map #0#trigger the map loading function
-		#print("self.chapter_maps[self.current_map]:",self.chapter_maps[self.current_map])
+		self.current_map_id = -1
+		self.current_map_id = self.chapter_info.default_map #0#trigger the map loading function
+		#print("self.chapter_maps[self.current_map_id]:",self.chapter_maps[self.current_map_id])
 
 		#for testing, load subgame button 
 		#self.add_widget(self.subgame_button)
@@ -337,12 +337,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		#for testing
 
-		test1 = MapObject(screen=self, object_id=125,object_content=GM.object_table[str(125)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.5,'y':.3})
-		test2 = MapObject(screen=self, object_id=127,object_content=GM.object_table[str(127)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.3,'y':.3})
-		test3 = MapObject(screen=self, object_id=124,object_content=GM.object_table[str(124)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.5,'y':.5})
-		test4 = MapObject(screen=self, object_id=6,object_content=GM.object_table[str(6)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.3,'y':.5})
-		test5 = MapObject(screen=self, object_id=58,object_content=GM.object_table[str(58)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.1,'y':.3})
-		test6 = MapObject(screen=self, object_id=66,object_content=GM.object_table[str(66)],touch_range='default',size_hint=(.15,.15),pos_hint={'x':.1,'y':.5})
+		test1 = MapObject(screen=self, object_id=125,object_content=GM.object_table[str(125)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.3})
+		test2 = MapObject(screen=self, object_id=127,object_content=GM.object_table[str(127)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.3})
+		test3 = MapObject(screen=self, object_id=124,object_content=GM.object_table[str(124)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.5})
+		test4 = MapObject(screen=self, object_id=6,object_content=GM.object_table[str(6)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.5})
+		test5 = MapObject(screen=self, object_id=58,object_content=GM.object_table[str(58)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.3})
+		test6 = MapObject(screen=self, object_id=66,object_content=GM.object_table[str(66)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.5})
 		self.remove_widget(test1)#lock 
 		self.remove_widget(test2)#lock input item  
 		self.remove_widget(test3)#nothing
@@ -474,17 +474,17 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			popup.open()
 			self.next_round()                           
 
-	def auto_switch_maps(self,instance, current_map):#TODO: 清除所有畫面上部件重新載入，或是把這個功能做在切換回合時
-		if current_map >= 0:
-			print('[*]current map:', current_map)
+	def auto_switch_maps(self,instance, current_map_id):#TODO: 清除所有畫面上部件重新載入，或是把這個功能做在切換回合時
+		if current_map_id >= 0:
+			print('[*]current map:', current_map_id)
 			print("self.chapter_maps:",self.chapter_maps)
 			#self.canvas.before.remove_group('bg')
-			print("self.chapter_maps[current_map]:",self.chapter_maps[current_map])
-			bg = Rectangle(source=self.chapter_maps[current_map], pos=(0,0), size=(self.w,self.h),group='bg')
+			print("self.chapter_maps[current_map_id]:",self.chapter_maps[current_map_id])
+			bg = Rectangle(source=self.chapter_maps[current_map_id], pos=(0,0), size=(self.w,self.h),group='bg')
 			self.bg_widget.load_bg(bg)
 
-			for mapobject in self.objects_allocation[current_map]:#2D-list
-				if mapobject.map_name in self.chapter_maps[current_map]:
+			for mapobject in self.objects_allocation[current_map_id]:#2D-list
+				if mapobject.map_name in self.chapter_maps[current_map_id]:
 					self.map_objects_allocator(mapobject,'allocate')
 				else:
 					self.map_objects_allocator(mapobject,'deallocate')
@@ -643,16 +643,16 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			if press_key_id==276:
 				print ("key action left")
-				if self.current_map <= 0:
-					self.current_map = num - 1
+				if self.current_map_id <= 0:
+					self.current_map_id = num - 1
 				else:
-					self.current_map -= 1				
+					self.current_map_id -= 1				
 			elif press_key_id==275:
 				print ("key action right")
-				if self.current_map >= num - 1:
-					self.current_map = 0
+				if self.current_map_id >= num - 1:
+					self.current_map_id = 0
 				else:
-					self.current_map += 1
+					self.current_map_id += 1
 
 	def generate_item_tag(self):
 		print("Enter function: generate_item_tag")
@@ -847,6 +847,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		expected_input = lock_content['input_item']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
 		if E2_distance(self.dragging.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range({'x':.4,'y':.4},(.2,.2)):
+			print('GM.object_table[str(dragging_object_id)][\'name\']:',GM.object_table[str(dragging_object_id)]['name'] )
+			print('expected_input:',expected_input)
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:
 				self.lock_event.cancel()
 				self.global_mouse_event.cancel()
@@ -867,7 +869,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 					name = lock_content['new_scene'].split('\'')[1]
 					GM.Chapters[self.current_player_id][self.current_chapter].unlock_new_map(name)
-					self.current_map = len(self.chapter_maps) - 1 #unlock and go to new scene
+					self.current_map_id = len(self.chapter_maps) - 1 #unlock and go to new scene
 				if lock_content['trigger']:
 					print('開鎖成功...觸發劇情!')	
 					self.quit_puzzle_mode(text='開鎖成功...觸發劇情!',turn_mode=3)
@@ -920,7 +922,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if self.item_view == 1:
 			Clock.schedule_once(self.delay_switch_item_view,spent_time+.5)
 
-	#TODO: implement object functions here, btn must be an instance of MapObject()
+	#TODO: implement object functions here, btn must be an instance of MapObject
 	def on_press_item(self, btn):
 		self.hp_per_round -= 1
 		object_id = btn.object_id
@@ -955,7 +957,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print('self.chapter_maps:',self.chapter_maps)
 		for i,img in enumerate(self.chapter_maps):
 			if new_scene_name in img:
-				self.current_map = i
+				self.current_map_id = i
 
 	def on_press_nothing(self, btn):
 		self.hp_per_round -= 1
@@ -1064,7 +1066,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	# 	with open('res/allocate_all_objects_table.json','w') as f:	
 	# 		json.dump(data, f)
 	# 	self.remove_widget(self.cur_testing_dragitem)
-	# 	#f.write(f'player_id:{self.current_player_id},chapter_id:{self.current_chapter},mapid:{self.current_map},object_pos_hint:{pos_hint},object_size_hint:{size_hint},source:{source}\n')
+	# 	#f.write(f'player_id:{self.current_player_id},chapter_id:{self.current_chapter},mapid:{self.current_map_id},object_pos_hint:{pos_hint},object_size_hint:{size_hint},source:{source}\n')
 	# 	#f.close()
 	# 	self.cur_unsafed = False
 

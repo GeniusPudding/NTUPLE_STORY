@@ -17,7 +17,7 @@ class PrologueScreen(Screen):
 		super(PrologueScreen, self).__init__(**kwargs)
 		self.size = (self.w,self.h) = (global_w,global_h) 
 
-		self.auto_dialog = [[line.split(':')[0],line.split(':')[1]] for line in 'N:那是個普通的日子。\n\
+		self.auto_dialog = [[speaker_name[line.split(':')[0]],line.split(':')[1]] for line in 'N:那是個普通的日子。\n\
 N:普通的校區、普通的椰林、普通的總圖。\n\
 N:一場，再普通不過的太陽雨。\n\
 N:雨停之後，她再也沒出現。\n\

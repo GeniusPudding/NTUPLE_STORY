@@ -225,9 +225,9 @@ def puzzle_select_number(screen, press_key_id):
 		clear_CodedLock(screen)
 		screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!')
 		#TODO:加入新場景到章節地圖中
-		#name = 
-		# screen.GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
-		# screen.current_map = len(screen.chapter_maps) - 1 
+		name = '女主家裡房間二'
+		screen.GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
+		screen.current_map = len(screen.chapter_maps) - 1 
 
 def clear_CodedLock(screen):
 	try:

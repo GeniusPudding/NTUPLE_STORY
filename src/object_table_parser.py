@@ -10,14 +10,14 @@ import os
 path = 'res/objects'
 
 
-data_dict = {}
+# data_dict = {}
 final_data_dict = {}
 name_to_id = {}
-if os.path.isfile('res/allocate_all_objects_table.json'):
-	f = open('res/allocate_all_objects_table.json','r')
-	data_dict = json.load(f)
-	print('exist data:',data_dict)
-	f.close()
+# if os.path.isfile('res/allocate_all_objects_table.json'):
+# 	f = open('res/allocate_all_objects_table.json','r')
+# 	data_dict = json.load(f)
+# 	print('exist data:',data_dict)
+# 	f.close()
 
 object_count = 0
 function_names = {'道具':'item','解碼':'puzzle','開鎖':'lock','合成':'synthesis','切換場景':'switching','觸發':'trigger','線索':'clue'}
@@ -42,14 +42,14 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 				content = {'pos_hint':None,'size_hint':None,'source':None}#最後應該只有'nothing'的'source'是None
 
 
-				if object_name in data_dict.keys():#only include{'pos_hint':pos_hint,'size_hint':size_hint,'source':source}
-					print(f'{object_name} data exist!')
-					print(data_dict[object_name])
-					content = data_dict[object_name]
-				else: 	
-					print(f'{object_name} setting not exist!\nGo to the main screen to set the pos and size!\n')	
+				# if object_name in data_dict.keys():#only include{'pos_hint':pos_hint,'size_hint':size_hint,'source':source}
+				# 	print(f'{object_name} data exist!')
+				# 	print(data_dict[object_name])
+				# 	content = data_dict[object_name]
+				# else: 	
+				# 	print(f'{object_name} setting not exist!\nGo to the main screen to set the pos and size!\n')	
 				
-				print(f'init content:{content}')
+				# print(f'init content:{content}')
 
 				content['name'] = object_name
 
@@ -82,9 +82,9 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 						func_types.append(function_names[chinese])
 					content['function_types'] = func_types
 
-				if 'nothing' in content['function_types'] or 'clue' in content['function_types']:
-					content['source'] = None	
-				else:
+				if set(['nothing','clue','switching']) & set(content['function_types']) != set():
+				# 	content['source'] = None	
+				# else:
 					for img in os.listdir('res/images/handpainting/') :
 						if ('.png' in img or '.jpg' in img) and object_name in img:
 							content['source'] = os.path.join('res/images/handpainting/',img)
