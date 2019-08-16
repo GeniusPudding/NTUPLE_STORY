@@ -49,15 +49,16 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 
 			content['name'] = object_name
 
-			content['on_map'] = True
-			print(df['物件一覽表'][i])
+			content['on_map_name'] = False#True
 			loc = df['所在地點'][i]#.split('\'')
-			if len(loc.split('\'')) <= 1:
-				print(f'特殊地點:{loc}，需另外配置')
-				content['on_map'] = False
-				content['map_name'] = None
+			if len(loc.split('\'')) > 1:
+			# 	print(f'特殊地點:{loc}，需另外配置')
+			# 	content['on_map'] = False
+			# 	content['map_name'] = None
+			# else:
+				content['on_map_name'] = loc.split('\'')[1]  
 			else:
-				content['map_name'] = loc.split('\'')[1]  
+				print('道具欄')
 
 			content['player'] = player[f[11]]
 

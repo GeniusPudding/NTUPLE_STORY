@@ -72,22 +72,9 @@ def get_screen_size():#TODO:
 		print("Height =", GetSystemMetrics(1))
 		w, h = (dt_r, dt_b)
 	return (w, h)
-def global_mouse(*args):
-	global global_x,global_y
-	global_h = get_screen_size()[1]
-	# print('global_x,global_y:',global_x,global_y)
-	# print('id(global_x),id(global_y):',id(global_x),id(global_y))
-	if OS == "Darwin": #Macbook
-		global_x, global_y = pygame.mouse.get_pos()#Bugs in Windows
-		global_y = global_h - global_y
-	elif OS == "Windows":#at home
-		#import pyautogui
-		#print("win32gui.GetCursorInfo():",win32gui.GetCursorInfo())
-		_,_,(global_x, global_y) = win32gui.GetCursorInfo()
-		#global_x, global_y = pyautogui.position()
-		global_y = global_h - global_y
-	#return global_x,global_y
+
+
 global_w,global_h = get_screen_size()
-#global_x,global_y = global_mouse()
+
 
 

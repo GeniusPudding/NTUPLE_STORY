@@ -326,7 +326,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
 		self.current_map_id = -1
-		self.current_map_id = self.chapter_info.default_map #0#trigger the map loading function
+		self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
 		#print("self.chapter_maps[self.current_map_id]:",self.chapter_maps[self.current_map_id])
 
 		#for testing, load subgame button 
@@ -336,24 +336,24 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#self.testing_objects_path_init()
 
 		#for testing
-		test1 = MapObject(screen=self, object_id=125,object_content=GM.object_table[str(125)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.3})
-		test2 = MapObject(screen=self, object_id=127,object_content=GM.object_table[str(127)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.3})
-		test3 = MapObject(screen=self, object_id=124,object_content=GM.object_table[str(124)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.5})
-		test4 = MapObject(screen=self, object_id=6,object_content=GM.object_table[str(6)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.5})
-		test5 = MapObject(screen=self, object_id=58,object_content=GM.object_table[str(58)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.3})
-		test6 = MapObject(screen=self, object_id=66,object_content=GM.object_table[str(66)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.5})
-		self.remove_widget(test1)#lock 
-		self.remove_widget(test2)#lock input item  
-		self.remove_widget(test3)#nothing
-		self.remove_widget(test4)#switching
-		self.remove_widget(test5)#puzzle 木製保險櫃(關)
-		self.remove_widget(test6)#synthesis		
-		self.add_widget(test1)#lock 
-		self.add_widget(test2)#lock input item  
-		self.add_widget(test3)#nothing
-		self.add_widget(test4)#switching
-		self.add_widget(test5)#puzzle 木製保險櫃(關)
-		self.add_widget(test6)#synthesis
+		# test1 = MapObject(screen=self, object_id=125,object_content=GM.object_table[str(125)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.3})
+		# test2 = MapObject(screen=self, object_id=127,object_content=GM.object_table[str(127)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.3})
+		# test3 = MapObject(screen=self, object_id=124,object_content=GM.object_table[str(124)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.5})
+		# test4 = MapObject(screen=self, object_id=6,object_content=GM.object_table[str(6)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.5})
+		# test5 = MapObject(screen=self, object_id=58,object_content=GM.object_table[str(58)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.3})
+		# test6 = MapObject(screen=self, object_id=66,object_content=GM.object_table[str(66)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.5})
+		# self.remove_widget(test1)#lock 
+		# self.remove_widget(test2)#lock input item  
+		# self.remove_widget(test3)#nothing
+		# self.remove_widget(test4)#switching
+		# self.remove_widget(test5)#puzzle 木製保險櫃(關)
+		# self.remove_widget(test6)#synthesis		
+		# self.add_widget(test1)#lock 
+		# self.add_widget(test2)#lock input item  
+		# self.add_widget(test3)#nothing
+		# self.add_widget(test4)#switching
+		# self.add_widget(test5)#puzzle 木製保險櫃(關)
+		# self.add_widget(test6)#synthesis
 
 		#auto save
 		self.save_game()
@@ -376,7 +376,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 3:
 			self.item_view = 0
 			self.clear_text_on_screen()
-			self.dialog_view = 1
+			self.dialog_view = 1#DEBUG 有時沒出來
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
 			auto_prompt(self,'->',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='For next sentence...\n')
 
@@ -403,15 +403,18 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def auto_load_chapter_info_contents(self, instance, chapter_info):
 		print('[*]Auto load chapter_info for new round!')
 		if not self.chapter_info.started:
-			self.chapter_title = Label(text=self.chapter_info.chapter_title,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
+			self.chapter_title = self.chapter_info.chapter_title
 			self.current_mode = 0
 		else:
 			self.current_mode = 1
 		self.chapter_maps = chapter_info.chapter_maps
-		self.NPCs_allocation = chapter_info.chapter_NPCs#TODO: load NPCs
-		self.objects_allocation = chapter_info.chapter_objects#TODO: load objects
-		self.auto_dialog = self.chapter_info.pre_plot 
-		self.manual_dialog = self.chapter_info.plot
+		self.NPCs_allocation = chapter_info.chapter_NPCs#deprecated
+		self.objects_allocation = chapter_info.chapter_objects#DEBUG:疑似蓋掉原本的canvas圖片
+		self.auto_dialog = self.chapter_info.chapter_pre_plot 
+		self.manual_dialog = self.chapter_info.chapter_plot
+		self.scenes = self.chapter_info.chapter_plot_scenes
+		self.plot_scenes_table = self.chapter_info.chapter_scenes_table
+
 		self.remove_widget(self.itemframe)
 		self.itemframe = ItemFrame(screen = self,pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
 		self.reload_item_list = True
@@ -486,6 +489,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			self.map_objects_allocator(None,'deallocate')
 			for mapobject in self.objects_allocation[current_map_id]:#2D-list
+				print('mapobject info:',mapobject.object_id ,mapobject.map_name)
 				self.map_objects_allocator(mapobject,'allocate')
 					
 
@@ -754,11 +758,25 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				self.next_dialog()
 			print('self.manual_node.text_line:',self.manual_node.text_line)	#為何都會自動消失
 	
-	#TODO: 在這邊加判斷是否要切換場景
 	def next_dialog(self,*args):
+		table = self.plot_scenes_table
+		for i in table.keys():
+			print(f'table[{i}][\'line\']:',table[i]['line'])
+			print('self.manual_node.text_line:',self.manual_node.text_line)
+			if len(table[i]['line'].split(':')) > 1:
+				table_line =  table[i]['line'].split(':')[1]
+			else:
+				table_line = table[i]['line']
+			if table_line == self.manual_node.text_line.strip('\n'):
+				print('Switch bg to:',table[i]['source'])
+				bg = Rectangle(source=table[i]['source'], pos=(0,0), size=(self.w,self.h),group='bg')
+				self.bg_widget.load_bg(bg)
+				break
+
 		if self.manual_node.type != 'tail':
 			self.clear_text_on_screen()
 			node = self.manual_node = self.manual_node.get_next()
+			print('self.manual_node.text_line:',self.manual_node.text_line)
 			self.lastline_time = line_display_scheduler(self,node.text_line,False,special_char_time,next_line_time,common_char_time,name=node.speaker)
 		else:
 			#prompt to next chapter, end round

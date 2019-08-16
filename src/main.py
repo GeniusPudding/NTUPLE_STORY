@@ -30,7 +30,7 @@ class NTUPLE_Story(App):
         sm.add_widget(PhoneScreen(name='phone'))
         sm.add_widget(InfoScreen(name='info'))     
         sm.add_widget(EndingScreen(name='ending'))         
-        sm.current = 'title'
+        sm.current = 'cover'
 
         return sm
 

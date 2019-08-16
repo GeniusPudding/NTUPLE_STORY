@@ -22,7 +22,7 @@ scene_dicts = [[{},{},{},{}],[{},{},{},{}],[{},{},{},{}],[{},{},{},{}]]
 for i,scene_name in enumerate(df['場景']):
 	try:
 		content = {'scene':scene_name,'line':df['對話'][i]}
-		#print('content:',content)
+		print('content:',content)
 		if isinstance(df['朦朧'][i],float):
 			content['hazy'] = False
 		else:
@@ -43,12 +43,7 @@ for p in range(4):
 			for f in os.listdir(scene_dir):
 				os.remove(os.path.join(scene_dir, f))	
 
-
-		d = scene_dicts[p][c]
-		with open(scene_dir+'plot_scenes.json','w') as f:
-			json.dump(d, f)	
-		print(f'p:{p},c:{c},scene_dicts[{p}][{c}]:{d}')
-
+		d = scene_dicts[p][c]		
 		hp = 'res/images/handpainting/'
 		for i in d.keys():
 			for img in os.listdir(hp) :
@@ -56,7 +51,14 @@ for p in range(4):
 					if d[i]['hazy']:
 						if d[i]['scene'] in img.split('.')[0] and '朦朧' in img.split('.')[0]:
 							shutil.copy(os.path.join(hp,img), scene_dir)
+							d[i]['source'] = os.path.join(scene_dir,img)
 					else:	
 						if d[i]['scene'] == img.split('.')[0]:
 							shutil.copy(os.path.join(hp,img), scene_dir)
+							d[i]['source'] = os.path.join(scene_dir,img)
 
+
+		
+		with open(scene_dir+'plot_scenes.json','w') as f:
+			json.dump(d, f)	
+		print(f'p:{p},c:{c},scene_dicts[{p}][{c}]:{d}')

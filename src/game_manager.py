@@ -127,7 +127,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 				Chapters[p].append(Chapter(player_id=p, chapter_id=r))
 		return Chapters
 	def load_object_table(self):
-		#'id':{'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description','on_map'}
+		#'id':{'name','source','pos_hint','size_hint','player','chapter','function_types','description','on_map_name'}
 		with open('res/objects/final_objects_table.json','r') as f:
 			table = json.load(f)
 			#print('load json object table:',table)
@@ -207,16 +207,16 @@ class Chapter(object):
 		self.scene_path = f'res/chapters/{player_id}_{chapter_id}/scenes/' #including scene images for the plot mode
 		self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)
-		self.chapter_NPCs = [] 
+		self.chapter_NPCs = [] #deprecated
 		self.chapter_maps = self.add_chapter_maps()
-		self.default_map = self.load_default_map(player_id, chapter_id)
+		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
 		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
-		self.plot_scenes = self.load_plot_scenes()
+		self.chapter_plot_scenes = self.load_plot_scenes()
+		self.chapter_scenes_table = self.load_scenes_table()
+		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
+		self.chapter_pre_plot, self.chapter_plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
 		self.started = False
 		self.used_list = []#used objects' id
- 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
-		self.pre_plot, self.plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
-
 	def unlock_new_map(self,map_name):
 		for locked_img in os.listdir(self.locked_map_path):
 			if map_name in locked_img:
@@ -229,7 +229,7 @@ class Chapter(object):
 		# 	return -1 #TODO
 
 		default_maps = ['雙人宿舍夜','博雅','雙人宿舍日','雙人宿舍日','農場夜',\
-		'B男宿舍夜','(半自動模式)','女主家裡房間一','女主家C男房間晚一','(半自動模式)','女主家客廳',\
+		'B男宿舍夜','排球場','女主家裡房間一','女主家C男房間晚一','女主家C男房間晚一','女主家客廳',\
 		'女主家C男房間晚二','D女房間','D女房間','D女房間二','D女房間二']
 		# default_map = [[],[],[],[]]
 		for i,m in enumerate(self.chapter_maps):
@@ -237,55 +237,44 @@ class Chapter(object):
 				return i
 		return 0
 	def load_chapter_dialogs(self):#TODO: read ine of those 16 file
-		#self.dialog_path + '1.txt' or '2.txt'
-		try:
-			f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
-			pre =[line for line in f1.read().split('\n') if len(line)>0]
-			part1 = []
-			for line in pre:
-				if len(line.split(':'))>1:
-					part1.append([line.split(':')[0],line.split(':')[1]])
-				else:
-					part1.append(['',line])
-		except:
-			part1 = [[line.split(':')[0],line.split(':')[1]] for line in 'N:(房門關閉聲)\n\
-	N:一場不歡而散的會議後，A回到屬於自己和X的宿舍，盤踞心頭的愁雲和窒息感卻沒應此而減少，反而在一片寂靜中無聲的滋長。\n\
-	A:(關上門後無助的沿著門板跌坐在地，把臉埋在臂彎之間)不是我的錯，這和我無關，和我一點關係也沒有！\n\
-	N:C憤怒而受傷的神色揮之不去，濃厚的罪惡感在思緒中揮舞著利爪，思考變得破碎，始終無法連貫，\n\
-	N:但怎麼想，C也想不出來自己做錯了些什麼。\n\
-	N:所以，不是我的錯。\n\
-	N:原本是這麼想著，A才稍稍緩下情緒，卻瞥見了書桌上的一件物品，表情一瞬間的慘白，彷彿想起了些什麼，\n\
-	N:胸口被人緊掐著，連呼吸都是折磨。'.split('\n')]
-		try:
-			f2 = open(os.path.join(self.dialog_path,'2.txt'),'r',encoding='utf-16')
-			post = [line for line in f2.read().split('\n') if len(line)>0]
-			part2 = []
-			for line in post:
-				if len(line.split(':'))>1:
-					part2.append([line.split(':')[0],line.split(':')[1]])
-				else:
-					part2.append(['',line])
-		except:
-			part2 = [[line.split(':')[0],line.split(':')[1]] for line in 'B:欸，怎麼了？一副愁雲慘霧的？\n\
-	X:(拿著成績單，表情難過得快哭出來似的)B...怎麼辦啦，我的模考成績...\n\
-	B:(表情疑惑地接過成績單，臉上一瞬間的錯愕)老天，這怎麼回事？不是說這次有妳哥哥幫妳嗎？怎麼整整掉了三個級分？\n\
-	X:(表情難過的欲言又止，最終只是搖頭)我不知道...我回家之後要怎麼辦...\n\
-	N:一想起回家後可能發生的畫面，X忍不住哽咽，B看著心裡也難過，煩躁地抓亂了頭髮，卻無能為力，只能好言安慰了一番，最終X神色失落的回到家，顫抖著手遞出了成績單。\n\
-	F:(看了一眼成績單，憤怒的拍在桌上)這種成績也敢拿回家丟人現眼！\n\
-	X:(害怕得發抖)我...我...我不是...\n\
-	M:(無奈地嘆氣，拍拍F的肩膀)別對X生氣，考這種成績也不是她願意的...\n\
-	N:聽了M這麼緩和氣氛，X才稍稍鬆了口氣，下一句話，心情卻被一瞬間的推落懸崖，不斷的，向無底的深淵跌落。\n\
-	M:(嘆氣)X沒有她哥哥那麼聰明，稍微笨了一點，何必強迫孩子？\n\
-	N:一句話深深刺傷X所剩無幾的自尊，也許是人生中第一次，手臂一揮，掃落了桌上的杯具，X無視瓷器碎裂的聲音和父親的怒吼，逃入房中上了鎖，再也不願意開門。\n\
-	N:而客廳裡，作為哥哥的C卻承擔了父母所有的怒火。\n\
-	F:你看看你妹妹那是什麼德性！就告訴你不要跟她玩在一起，她這年紀就該念書！你跟她說什麼遊戲，談什麼動畫！\n\
-	M:(難過地擦眼淚)就是啊，C...你也不想想，要是你妹妹怎麼了，到時候難過的還是你啊...\n\
-	N:C沈默著，對所有的指責和訓話保持緘默，似乎已經放棄了爭辯。\n\
-	N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
+
+		# max1 = 0
+		f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
+		pre =[line for line in f1.read().split('\n') if len(line)>0]
+		part1 = []
+		for line in pre:
+			line_list = line.split(':')
+			if len(line_list)>1:
+				part1.append([line_list[0],line_list[1]])
+				# if len(line_list[1]) > max1:
+				# 	max1 = len(line_list[1])
+			else:
+				part1.append(['',line])
+				# if len(line) > max1:
+				# 	max1 = len(line)
+
+		# max2 = 0
+		f2 = open(os.path.join(self.dialog_path,'2.txt'),'r',encoding='utf-16')
+		post = [line for line in f2.read().split('\n') if len(line)>0]
+		part2 = []
+		for line in post:
+			line_list = line.split(':')
+			if len(line_list)>1:
+				part2.append([line_list[0],line_list[1]])
+				# if len(line_list[1]) > max2:
+				# 	max2 = len(line_list[1])
+				# 	print('max line:',line_list[1])
+			else:
+				part2.append(['',line])
+				# if len(line) > max2:
+				# 	max2 = len(line)
+				# 	print('max line:',line)
+		#print('part2:',part2)
+		#print(f'Line length MAX1:{max1},MAX2:{max2}')
 		return part1,part2#can be many dialog_parts?
 	def load_chapter_title(self,player_id, chapter_id):
-		return ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
-
+		text = ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
+		return Label(text=text,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
 	def load_chapter_objects_of_maps(self):
 		#TODO: load and init all MapObject here in existing map
 		#from self.object_path 
@@ -296,32 +285,42 @@ class Chapter(object):
 
 		with open(self.object_path+'chapter_objects.json','r') as f:
 			objects_table = json.load(f)
-			print('chapter\'s objects_table:',objects_table)
+			#print('chapter\'s objects_table:',objects_table)
 			for str_id in  objects_table.keys():
-				chapter_object = objects_table[str_id]
-				if chapter_object['on_map'] == True:
-					if chapter_object['pos_hint'] is not None and chapter_object['size_hint'] is not None:
+				obj = objects_table[str_id]
+				if obj['on_map_name'] is not None:
+					if obj['pos_hint'] is not None and obj['size_hint'] is not None:
 						on_map = 0
 						for map_id,map_path in enumerate(maps):
-							if chapter_object['name'] == map_path.split('/')[-1].split('.')[0]:
-								print(f'map id:{} allocate object id:{str_id}')
-								chapter_objects[map_id].append(MapObject(screen=self, object_id=int(str_id),\
-								object_content=chapter_object,size_hint=chapter_object.size_hint,pos_hint=chapter_object.pos_hint))
+							#print('obj[\'on_map_name\']:',obj['on_map_name'])
+							#print('map_path...:',map_path.split('/')[-1].split('.')[0])
+							if obj['on_map_name'] == map_path.split('/')[-1].split('.')[0]:
+								print(f'map id:{map_id} allocate object id:{str_id}')
+								chapter_objects[map_id].append(MapObject(screen=self, object_id=int(str_id),object_content=obj,\
+								size_hint=obj['size_hint'],pos_hint={'x':obj['pos_hint'][0],'y':obj['pos_hint'][1]}))
 								on_map = 1
 								break
 						if not on_map:
-							print(f'[*] Exception! Can\'t find object:{chapter_object}\'s map!')
+							print(f'[*] Exception! Can\'t find object:{obj}\'s map!')
 
 					else:
-						print(f'[*] Exception! object:{chapter_object} 資料不足') 
+						print(f'[*] Exception! object:{obj} 資料不足') 
 
 		# MapObject
 		print('chapter_objects:',chapter_objects)
 		return chapter_objects
 	
 	def load_plot_scenes(self):
-		#self.plot_scenes
-		return
+		s = []
+		for img in os.listdir(self.scene_path):
+			if '.png' in img or '.jpg' in img:
+				s.append(img)
+		return s
+
+	def load_scenes_table(self):
+		with open(os.path.join(self.scene_path,'plot_scenes.json'),'r') as f:
+			table = json.load(f)
+		return table
 
 	def add_chapter_maps(self):
 
@@ -343,20 +342,25 @@ class Chapter(object):
 		return 'res/images/testing/Erza.png'
 
 
-class MapObject(ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas區分是否有source圖片
+class MapObject(Widget):#ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas區分是否有source圖片
 	def __init__(self,object_id,object_content,screen,touch_range='default', **kargs):
 		#依照是否有source圖片區分
-		self.callback = partial(self.probe_object_on_map,self,screen)#()
+		#self.callback = partial(self.probe_object_on_map,self,screen)#()
+		super(MapObject, self).__init__(**kargs)
 		self.object_id = object_id
-		super(MapObject, self).__init__(self.callback,self.object_id,allow_stretch=True,keep_ratio=False,**kargs)
+		self.source = object_content['source']
+		#super(MapObject, self).__init__(self.callback,self.object_id,allow_stretch=True,keep_ratio=False,**kargs)
 		self.object_content = object_content
 		self.object_types = object_content['function_types']
-		self.map_name = object_content['map_name']
-		self.source = object_content['source']
+		self.map_name = object_content['on_map_name']
+		self.screen = screen
 		self.used = False
 		if self.source is None:
 			self.canvas.add(Color(rgba=(1,1,1,0),group='mapobject'))
 			self.canvas.add(Rectangle(pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
+				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='mapobject'))
+		else:
+			self.canvas.add(Rectangle(source=self.source,pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
 				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='mapobject'))
 
 		if touch_range == 'default':
@@ -364,12 +368,16 @@ class MapObject(ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas
 		else:
 			self.touch_range = touch_range
 
-	def probe_object_on_map(self,*args):#DEBUG: 同步沒做好，無法太快探測物體否則對話會來不及跑
+	def on_touch_down(self,touch):
+		print(f"Map object on_touch_down touch.pos:{touch.pos}")
+		if self.collide_point(*touch.pos):
+			self.probe_object_on_map()
+
+	def probe_object_on_map(self,*args):
 		print(f'self:{self},args:{args}')
-		screen = args[1]
+		screen = self.screen#args[1]
 		
 		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0 and not screen.probing:
-			#if screen.hp_per_round > 0:
 			screen.probing = True
 			if 'item' in self.object_types:
 				#定義: 可以收進"道具欄"
@@ -398,8 +406,6 @@ class MapObject(ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas
 					screen.on_press_nothing(self) 	
 				
 				
-			# else:
-			# 	print('No HP in this round')
 
 
 # >>> def keep(path):

@@ -87,6 +87,9 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dial
 	elif len(line) <= 80:
 		chars_of_row = 20
 		rows = 4
+	elif len(line) <= 125:
+		chars_of_row = 25
+		rows = 5
 	else:
 		print('Text Line is too long!! Not supported')
 		return
@@ -154,24 +157,24 @@ def line_to_labels(line,chars_of_row,rows):
 #Manual-dialog tools part:
 def semi_manual_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
 	print('[*] Start manual play dialog')	
-	first_line_node = semi_manual_dialog_preprocess(dialog)
+	first_line_node = semi_manual_dialog_preprocess(dialog,'flexable')
 
-	if first_line_node.switch_map is not None:
-		bg = Rectangle(source=first_line_node.switch_map, pos=(0,0), size=(self.w,self.h),group='plot_bg')
-		Screen.bg_widget.load_bg(bg)
-
+	# if first_line_node.switch_map is not None:
+	# 	bg = Rectangle(source=first_line_node.switch_map, pos=(0,0), size=(self.w,self.h),group='plot_bg')
+	# 	Screen.bg_widget.load_bg(bg)
+	print('first_line_node.text_line:',first_line_node.text_line)
 	line_display_scheduler(Screen,first_line_node.text_line,False,special_char_time,next_line_time,common_char_time,name=first_line_node.speaker)
 	#screen_auto_display_node(first_line_node)
 	return  first_line_node
 
 class DialogListnode(object):
-	def __init__(self,speaker,text_line,node_type,switch_map_path=None):
+	def __init__(self,speaker,text_line,node_type):#,switch_map_path=None):
 		self.speaker = speaker
 		self.text_line = text_line
 		self.type = node_type#"inner","head","tail"
 		self.last = None
 		self.next = None
-		self.switch_map = switch_map_path#需要支援返回對話時切換回上一張場景嗎
+		#self.switch_map = switch_map_path#需要支援返回對話時切換回上一張場景嗎
 		#TODO: 在對話撥放的同時切換map
 	def set_last(self,listnode):
 		self.last = listnode
@@ -182,10 +185,15 @@ class DialogListnode(object):
 	def get_next(self):
 		return self.next
 
-def semi_manual_dialog_preprocess(dialog):
-	new_auto_dialog = dialog_segmentation(dialog,20)
-
-	last_node = head_node = DialogListnode(new_auto_dialog[0][0],new_auto_dialog[0][1],'head')
+def semi_manual_dialog_preprocess(dialog,format):
+	new_auto_dialog = dialog
+	if format == 'flexable':#Cancel the fixed-length partition here to support the scene-switching function
+		last_node = head_node = DialogListnode(new_auto_dialog[0][0],new_auto_dialog[0][1],'head')
+	elif format == 'fixed-length':
+		new_auto_dialog = dialog_segmentation(dialog,20) 
+		last_node = head_node = DialogListnode(new_auto_dialog[0][0],new_auto_dialog[0][1],'head')		
+	else:
+		print('The format is not supported by the dialog system!')
 	for name,line in new_auto_dialog[1:-1]:
 		node = DialogListnode(name,line,'inner')
 		last_node.set_next(node)

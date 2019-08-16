@@ -4,8 +4,8 @@ class CoverScreen(Screen):
 		super(CoverScreen, self).__init__(**kwargs)
 		Window.bind(on_key_down=self.key_action)
 	def key_action(self, *args):
-		if self.manager.current == 'title':	#DEBUG:收不到
-			print('Title args:',args)
+		if self.manager.current == 'cover':
+			print('Cover args:',args)
 			press_key_id = args[1]
 			print("press_key_id:",press_key_id)
 			if press_key_id == 13:

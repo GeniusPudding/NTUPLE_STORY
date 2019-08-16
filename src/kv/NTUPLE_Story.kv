@@ -1,4 +1,4 @@
-# from title_screen import TitleScreen
+# from cover_screen import CoverScreen
 # from intro_screen import IntroScreen
 # from story_screen import StoryScreen
 # from game_screen import GameScreen
@@ -9,7 +9,7 @@
 # from memory_screen import MemoryScreen   
 # from prologue_screen import PrologueScreen
 
-<TitleScreen>:
+<CoverScreen>:
 	FloatLayout:
         canvas:
             Rectangle:
@@ -110,16 +110,10 @@
             size_hint: (.3, .6)
             pos_hint: {'x': .35,'y':.22}
 
-<SynthesisFrame>:
-    canvas:
-        Rectangle:
-            source:'res/images/testing/synthesisframe.png'
-            pos: (.84*root.parent_w,.33*root.parent_h)
-            size: (.16*root.parent_w,.5*root.parent_h)
 
 <ItemFrame>:
     FloatLayout:
-        canvas.before:
+        canvas:
             # Color:
             #     rgba:  0.988, 0.988, 0.988, 1#94/255, 197/255, 231/255, 1 #
             Rectangle:
