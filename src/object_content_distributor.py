@@ -20,8 +20,6 @@ for i in objects_table.keys():
 	for c in content['chapter']:
 		dicts[p][c][i] = content
 
-		
-
 for p in range(4):
 	for c in range(4):
 		object_dir = 'res/chapters/'+str(p)+'_'+str(c)+'/objects/'

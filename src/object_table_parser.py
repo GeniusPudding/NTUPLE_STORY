@@ -37,89 +37,73 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 			if isinstance(object_name,float):
 				continue
 
-			#try:
-			if True:
-				content = {'pos_hint':None,'size_hint':None,'source':None}#最後應該只有'nothing'的'source'是None
+			content = {'pos_hint':None,'size_hint':None,'source':None}#最後應該只有'nothing'的'source'是None
+			lb = df['左下'][i]
+			rt = df['右上'][i]
+			if not (isinstance(lb, float) or isinstance(rt, float)):
+				[px,py] = lb[lb.find('(')+1:lb.find(')')].split(',')
+				[tx,ty] = rt[rt.find('(')+1:rt.find(')')].split(',')
+				print(lb,rt,i,px,py,tx,ty)
+				content['pos_hint'] = (float(px),float(py))
+				content['size_hint'] = (float(tx)-float(px),float(ty)-float(py))
 
+			content['name'] = object_name
 
-				# if object_name in data_dict.keys():#only include{'pos_hint':pos_hint,'size_hint':size_hint,'source':source}
-				# 	print(f'{object_name} data exist!')
-				# 	print(data_dict[object_name])
-				# 	content = data_dict[object_name]
-				# else: 	
-				# 	print(f'{object_name} setting not exist!\nGo to the main screen to set the pos and size!\n')	
-				
-				# print(f'init content:{content}')
-
-				content['name'] = object_name
-
-				content['on_map'] = True
-				print(df['物件一覽表'][i])
-				loc = df['所在地點'][i]#.split('\'')
-				if len(loc.split('\'')) <= 1:
-					print(f'特殊地點:{loc}，需另外配置')
-					content['on_map'] = False
-					content['map_name'] = None
-				else:
-					content['map_name'] = loc.split('\'')[1]  
-
-				content['player'] = player[f[11]]
-
-				content['chapter'] = [0,1,2,3]
-
-				if not isinstance(df['取得章節'][i],float):    #len(df['取得章節'][i]) > 0:
-					content['chapter'] = []
-					for chap in df['取得章節'][i].split('、'):
-						content['chapter'].append(chapter_code[chap])
-				
-				func = df['功能'][i]
-				if len(func) <= 1:
-					content['function_types'] = ['nothing']
-				else:
-					func = df['功能'][i].split('、')
-					func_types = []
-					for chinese in func:
-						func_types.append(function_names[chinese])
-					content['function_types'] = func_types
-
-				if set(['nothing','clue','switching']) & set(content['function_types']) != set():
-				# 	content['source'] = None	
-				# else:
-					for img in os.listdir('res/images/handpainting/') :
-						if ('.png' in img or '.jpg' in img) and object_name in img:
-							content['source'] = os.path.join('res/images/handpainting/',img)
-
-				if not isinstance(df['文字說明'][i], float):
-					content['description'] = df['文字說明'][i]
-					if len(content['description']) > max_len_description:
-						max_len_description = len(content['description'])
-				else:
-					content['description'] = ''
-				#'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description', on_map=True
-
-				print(f'final content:{content}')
-
-				final_data_dict[object_count] = content
-				if object_name in name_to_id.keys():
-					if not isinstance(name_to_id[object_name],list):
-						name_to_id[object_name] = [name_to_id[object_name]]
-					name_to_id[object_name].append(object_count)
-					print('重覆!')
-					m += 1
-				else:
-					name_to_id[object_name] = object_count 
-				object_count += 1
+			content['on_map'] = True
+			print(df['物件一覽表'][i])
+			loc = df['所在地點'][i]#.split('\'')
+			if len(loc.split('\'')) <= 1:
+				print(f'特殊地點:{loc}，需另外配置')
+				content['on_map'] = False
+				content['map_name'] = None
 			else:
-			#except:
-				print('Exception! object_name:',object_name)
-				line = ''
-				for k in df.keys():
-					line += str(df[k][i]) 
-					line += '__'
-				line += '\n'
-				print(line)
-			#'player':self.current_player_id,'chapter':self.current_chapter,'map':self.current_map,	
+				content['map_name'] = loc.split('\'')[1]  
 
+			content['player'] = player[f[11]]
+
+			content['chapter'] = [0,1,2,3]
+
+			if not isinstance(df['取得章節'][i],float):    #len(df['取得章節'][i]) > 0:
+				content['chapter'] = []
+				for chap in df['取得章節'][i].split('、'):
+					content['chapter'].append(chapter_code[chap])
+				
+			func = df['功能'][i]
+			if len(func) <= 1:
+				content['function_types'] = ['nothing']
+			else:
+				func = df['功能'][i].split('、')
+				func_types = []
+				for chinese in func:
+					func_types.append(function_names[chinese])
+				content['function_types'] = func_types
+
+			if set(['nothing','clue','switching']) & set(content['function_types']) == set():
+				for img in os.listdir('res/images/handpainting/') :
+					if ('.png' in img or '.jpg' in img) and object_name == img.split('.')[0]:
+						content['source'] = os.path.join('res/images/handpainting/',img)
+						break
+
+			if not isinstance(df['文字說明'][i], float):
+				content['description'] = df['文字說明'][i]
+				if len(content['description']) > max_len_description:
+					max_len_description = len(content['description'])
+			else:
+				content['description'] = ''
+			#'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description', on_map=True
+
+			print(f'final content:{content}')
+
+			final_data_dict[object_count] = content
+			if object_name in name_to_id.keys():
+				if not isinstance(name_to_id[object_name],list):
+					name_to_id[object_name] = [name_to_id[object_name]]
+				name_to_id[object_name].append(object_count)
+				print('重覆!')
+				m += 1
+			else:
+				name_to_id[object_name] = object_count 
+			object_count += 1
 
 
 print(f'final data_dict:{final_data_dict}')
@@ -130,11 +114,6 @@ for i in range(135):
 	if 'puzzle' in  final_data_dict[i]['function_types']:
 		print(final_data_dict[i])
 print('m:',m)
-print(f'final data_dict[6]:{final_data_dict[6]}')
-print(f'final data_dict[124]:{final_data_dict[124]}')
-print(f'final data_dict[125]:{final_data_dict[125]}')
-print(f'final data_dict[127]:{final_data_dict[127]}')
-
 
 # c = 0
 # less = []

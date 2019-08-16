@@ -76,8 +76,10 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		if focusing_frame_id >= 0:	
 			screen.clear_text_on_screen()	#DEBUG
 			#screen.remove_widget(self.item_name)
-			if screen.current_mode in [1,2]:
+			if screen.current_mode == 1:
 				self.display_item_info(object_id,screen)
+				self.display_item_name(object_id,screen)
+			elif screen.current_mode == 2:
 				self.display_item_name(object_id,screen)
 			screen.focusing_object_id = object_id
 		else:
@@ -188,10 +190,9 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		if len(types) == 1:#'item' only, 
 			
 			if touch is not None:
-				print("拿起一般道具!")
+				print("拖曳普通道具!")
 				screen.add_widget(screen.dragging)
 				screen.dragging.on_touch_down(touch)
-				print(f'use_item freedragging:{freedragging},id(freedragging):{id(freedragging)}')
 			else:
 				print("普通道具，無法單獨使用!")#DEBUG:clear
 				spent_time = line_display_scheduler(screen,'普通道具，無法單獨使用!',False,special_char_time,next_line_time,common_char_time)
@@ -211,7 +212,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 					print("拖曳道具!")
 					screen.add_widget(screen.dragging)
 					screen.dragging.on_touch_down(touch)
-					print(f'use_item freedragging:{freedragging},id(freedragging):{id(freedragging)}')
+
 	def on_touch_down(self, touch):
 		#for testing
 		print('itemframe touch.profile:',touch.profile,'touch.id:',touch.id,'touch.pos:',touch.pos)
@@ -233,7 +234,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	current_map_id = NumericProperty(-1)
 	chapter_maps = ListProperty()#need to bind?
 	current_speaker_name = StringProperty('N')
-	hp_per_round = NumericProperty(-1)
+	hp_per_round = NumericProperty(100)
 	w = NumericProperty(100)
 	h = NumericProperty(100) 
 	button_width = NumericProperty(0.15)
@@ -261,6 +262,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	puzzling = BooleanProperty(False)
 	current_scene = StringProperty('')
 	behavior_type = StringProperty('')
+	probing = BooleanProperty(False)
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -292,6 +294,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.displaying_character_labels = []
 		self.lock = Image()
 		self.chapter_title = Label()
+		self.mapobjects_register = []
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
@@ -321,9 +324,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#round-binding canvas: 
 		self.hp_per_round = 20#trigger event
 
-		#generate personal item list
-		#self.generate_item_tag()
-
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
 		self.current_map_id = -1
 		self.current_map_id = self.chapter_info.default_map #0#trigger the map loading function
@@ -336,7 +336,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#self.testing_objects_path_init()
 
 		#for testing
-
 		test1 = MapObject(screen=self, object_id=125,object_content=GM.object_table[str(125)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.3})
 		test2 = MapObject(screen=self, object_id=127,object_content=GM.object_table[str(127)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.3})
 		test3 = MapObject(screen=self, object_id=124,object_content=GM.object_table[str(124)],size_hint=(.15,.15),pos_hint={'x':.5,'y':.5})
@@ -460,10 +459,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.chapter_info = GM.Chapters[self.current_player_id][self.current_chapter]#load chapter info at each round starts
 		print("chapter_info reloaded:",self.chapter_info)
 	def auto_hp_canvas(self,instance, hp):#if hp = 0, end this round
-		print('[*]hp:', hp)#TODO:hp-1 動畫
+		print('[*]hp:', hp)#TODO:hp-1 動畫 
 		for hp in self.hp_widgets:
 			self.remove_widget(hp)
-		for i in range(self.hp_per_round):#TODO: 換圖片(希望跟台大有關)
+		for i in range(self.hp_per_round):#TODO: 換圖片(希望跟台大有關), 改成canvas繪圖
 			hp = Image(source='res/images/testing/HP.png',pos_hint={'x':.94-.06*i,'y':.85},size_hint=(.04,.1))
 			self.add_widget(hp)
 			self.hp_widgets.append(hp)
@@ -472,7 +471,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#TODO:check if there is any status not be cleared
 			popup = Popup(title='體力耗盡',title_size='28sp',title_font='res/HuaKangTiFan-CuTi-1.otf',title_color=[.2,.9,.1,.9],content=Label(text='輪到下一位玩家',font_size=64,font_name= 'res/HuaKangTiFan-CuTi-1.otf'),size_hint=(None, None), size=(400, 400))
 			popup.open()
-			self.next_round()                           
+			auto_prompt(self,'Enter',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='體力耗盡!\n')
+
+			                         
 
 	def auto_switch_maps(self,instance, current_map_id):#TODO: 清除所有畫面上部件重新載入，或是把這個功能做在切換回合時
 		if current_map_id >= 0:
@@ -483,11 +484,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			bg = Rectangle(source=self.chapter_maps[current_map_id], pos=(0,0), size=(self.w,self.h),group='bg')
 			self.bg_widget.load_bg(bg)
 
+			self.map_objects_allocator(None,'deallocate')
 			for mapobject in self.objects_allocation[current_map_id]:#2D-list
-				if mapobject.map_name in self.chapter_maps[current_map_id]:
-					self.map_objects_allocator(mapobject,'allocate')
-				else:
-					self.map_objects_allocator(mapobject,'deallocate')
+				self.map_objects_allocator(mapobject,'allocate')
+					
 
 
 	def auto_reload_item_list(self,instance, reload_item_list):#->auto_gen_items
@@ -567,6 +567,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.remove_widget(self.prompt_label)
 					self.current_mode = 1#exploring mode entry
 
+				elif self.hp_per_round <= 0:
+					self.next_round()  
+
 				elif self.current_mode == 1:
 					if self.item_view == 1:
 						self.itemframe.use_item(self,self.focusing_object_id,None)
@@ -630,12 +633,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			return True	
 	def map_objects_allocator(self, MapObject, action):#TODO: 按照物件種類分類做，線索和普通物件無圖片，配置選取框範圍於地圖上即可
 		if action == 'allocate':
-
+			self.mapobjects_register.append(MapObject)
 			self.add_widget(MapObject)
 
 		elif action == 'deallocate':
-
-			self.remove_widget(MapObject)
+			for MapObject in self.mapobjects_register:
+				self.remove_widget(MapObject)
 
 	def exploring_maps(self, press_key_id):
 
@@ -769,6 +772,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	#TODO: 計時器功能
 	def enter_puzzle_mode(self, object_id, behavior_type):#在道具欄使用道具進入的puzzle_mode跟地圖上點擊進入相同
+		self.probing = False
 		self.current_mode = 2#open item view
 		self.canvas.add(Color(rgba=(.2,.2,.2,.2),group='puzzle_mode'))
 		self.canvas.add(Rectangle(pos=self.pos,size=self.size,group='puzzle_mode'))
@@ -803,11 +807,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		def try_synthesis(screen,expected_input,dragging_object_id,*args):
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:
+				print('取消前 screen.synthesis_event:',screen.synthesis_event)
 				screen.synthesis_event.cancel()
+				print('取消後 screen.synthesis_event:',screen.synthesis_event)
 				screen.global_mouse_event.cancel()
 				GM.players[screen.current_player_id].spend_item(dragging_object_id)
 				print('合成成功...獲得新道具!')
 				screen.quit_puzzle_mode(text='合成成功...獲得新道具!')
+				#WARNING: name_to_id可能重複
 				output_id = GM.name_to_id_table[synthesis_content['output']]
 				synthesis_canvas(self,item,2,GM.object_table[str(output_id)]['source'])
 				GM.players[screen.current_player_id].get_item(output_id)
@@ -859,8 +866,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				if lock_content['output_item'] is not None:
 					print('開鎖成功...獲得新道具!')
 					self.quit_puzzle_mode(text='開鎖成功...獲得新道具!')
-
-
+					#WARNING: name_to_id可能重複
 					output_id = GM.name_to_id_table[lock_content['output_item']]
 					GM.players[self.current_player_id].get_item(output_id)
 				if lock_content['new_scene'] is not None:
@@ -879,9 +885,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				spent_time = line_display_scheduler(self,'開鎖失敗...',False,special_char_time,next_line_time,common_char_time)
 				Clock.schedule_once(self.clear_text_on_screen,spent_time+.3)	
 				self.dragging.reset(self,2)
-				# self.dragging.stopped_pos = self.dragging.pos = self.dragging.origin_pos
-				# self.remove_widget(self.dragging)	
-				# self.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
 
 			self.hp_per_round -= 1
 		elif not self.mouse_in_range({'x':.4,'y':.4},(.2,.2)) and self.dragging.free == 1:#DEBUG
@@ -942,6 +945,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.enter_puzzle_mode(btn.object_id, 'synthesis')	
 
 	def on_press_trigger(self,btn):
+		self.probing = False
 		self.current_mode = 3
 
 	def on_press_clue(self, btn):
@@ -952,6 +956,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.delay_hide_dialogframe(.5+spent_time)
 
 	def on_press_switching(self,btn):
+		self.probing = False
 		new_scene_name = btn.object_content['name']
 		print('new_scene_name:',new_scene_name)
 		print('self.chapter_maps:',self.chapter_maps)
@@ -971,6 +976,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print('self.displaying_character_labels:',self.displaying_character_labels)
 		Clock.schedule_once(self.delay_switch_dialog_view,delay_time+.1)
 		Clock.schedule_once(self.clear_text_on_screen,delay_time)
+		def probing_free(screen,*args):
+			self.probing = False
+		Clock.schedule_once(partial(probing_free,self),delay_time+.2)
 
 	def delay_switch_dialog_view(self,dt):
 		self.dialog_view ^= 1	

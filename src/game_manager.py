@@ -204,14 +204,17 @@ class Chapter(object):
 		self.object_path = f'res/chapters/{player_id}_{chapter_id}/objects/' #including a json and object images
 		self.map_path = f'res/chapters/{player_id}_{chapter_id}/maps/'  #including map images
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
+		self.scene_path = f'res/chapters/{player_id}_{chapter_id}/scenes/' #including scene images for the plot mode
 		self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)
 		self.chapter_NPCs = [] 
 		self.chapter_maps = self.add_chapter_maps()
 		self.default_map = self.load_default_map(player_id, chapter_id)
 		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
+		self.plot_scenes = self.load_plot_scenes()
 		self.started = False
-		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
+		self.used_list = []#used objects' id
+ 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
 		self.pre_plot, self.plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
 
 	def unlock_new_map(self,map_name):
@@ -253,7 +256,6 @@ class Chapter(object):
 	N:所以，不是我的錯。\n\
 	N:原本是這麼想著，A才稍稍緩下情緒，卻瞥見了書桌上的一件物品，表情一瞬間的慘白，彷彿想起了些什麼，\n\
 	N:胸口被人緊掐著，連呼吸都是折磨。'.split('\n')]
-
 		try:
 			f2 = open(os.path.join(self.dialog_path,'2.txt'),'r',encoding='utf-16')
 			post = [line for line in f2.read().split('\n') if len(line)>0]
@@ -280,10 +282,6 @@ class Chapter(object):
 	M:(難過地擦眼淚)就是啊，C...你也不想想，要是你妹妹怎麼了，到時候難過的還是你啊...\n\
 	N:C沈默著，對所有的指責和訓話保持緘默，似乎已經放棄了爭辯。\n\
 	N:也許，從那一刻起，很多事情就已經扭曲了。'.split('\n')]
-
-		print('part1:',part1)
-		print('part2:',part2)
-
 		return part1,part2#can be many dialog_parts?
 	def load_chapter_title(self,player_id, chapter_id):
 		return ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
@@ -302,10 +300,11 @@ class Chapter(object):
 			for str_id in  objects_table.keys():
 				chapter_object = objects_table[str_id]
 				if chapter_object['on_map'] == True:
-					if chapter_object['pos_hint'] is not None and chapter_object['pos_hint'] is not None:
+					if chapter_object['pos_hint'] is not None and chapter_object['size_hint'] is not None:
 						on_map = 0
 						for map_id,map_path in enumerate(maps):
-							if chapter_object['name'] in map_path:
+							if chapter_object['name'] == map_path.split('/')[-1].split('.')[0]:
+								print(f'map id:{} allocate object id:{str_id}')
 								chapter_objects[map_id].append(MapObject(screen=self, object_id=int(str_id),\
 								object_content=chapter_object,size_hint=chapter_object.size_hint,pos_hint=chapter_object.pos_hint))
 								on_map = 1
@@ -317,15 +316,20 @@ class Chapter(object):
 						print(f'[*] Exception! object:{chapter_object} 資料不足') 
 
 		# MapObject
+		print('chapter_objects:',chapter_objects)
 		return chapter_objects
-		
+	
+	def load_plot_scenes(self):
+		#self.plot_scenes
+		return
+
 	def add_chapter_maps(self):
 
 		chapter_maps = []
 		for f in os.listdir(self.map_path):
 			if '.jpg' in f or '.png' in f:
 				chapter_maps.append(os.path.join(self.map_path,f))
-
+		print('chapter_maps:',chapter_maps)
 		return chapter_maps
 
 
@@ -349,6 +353,7 @@ class MapObject(ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas
 		self.object_types = object_content['function_types']
 		self.map_name = object_content['map_name']
 		self.source = object_content['source']
+		self.used = False
 		if self.source is None:
 			self.canvas.add(Color(rgba=(1,1,1,0),group='mapobject'))
 			self.canvas.add(Rectangle(pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
@@ -362,37 +367,39 @@ class MapObject(ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas
 	def probe_object_on_map(self,*args):#DEBUG: 同步沒做好，無法太快探測物體否則對話會來不及跑
 		print(f'self:{self},args:{args}')
 		screen = args[1]
-		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0:
-			if screen.hp_per_round > 0:
-				if 'item' in self.object_types:
-					#定義: 可以收進"道具欄"
-					screen.on_press_item(self)
-				else:
-					if 'puzzle' in self.object_types:
-						#定義: 物件需要輸入正確密碼，以打開該物件；例如[密碼鎖]
-						screen.on_press_puzzle(self) 
-					if 'lock' in self.object_types:
-						#定義: 將正確道具拖曳至此物件，以打開該物件；例如[鑰匙]
-						screen.on_press_lock(self) 
-					if 'synthesis' in self.object_types:
-						#定義: 可以跟另一樣道具合成產生新道具
-						screen.on_press_synthesis(self)
-					if 'clue' in self.object_types:
-						#定義: 作為遊戲所需要的關鍵資訊
-						screen.on_press_clue(self) 
-					if 'trigger' in self.object_types:
-						#定義: 點擊即觸發進入劇情模式
-						screen.on_press_trigger(self) 
-					if 'switching' in self.object_types:
-						#定義: 點擊切換場景用
-						screen.on_press_switching(self) 	
-					if 'nothing' in self.object_types:
-						#定義: 無特別功用
-						screen.on_press_nothing(self) 	
-				
-				
+		
+		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0 and not screen.probing:
+			#if screen.hp_per_round > 0:
+			screen.probing = True
+			if 'item' in self.object_types:
+				#定義: 可以收進"道具欄"
+				screen.on_press_item(self)
 			else:
-				print('No HP in this round')
+				if 'puzzle' in self.object_types:
+					#定義: 物件需要輸入正確密碼，以打開該物件；例如[密碼鎖]
+					screen.on_press_puzzle(self) 
+				if 'lock' in self.object_types:
+					#定義: 將正確道具拖曳至此物件，以打開該物件；例如[鑰匙]
+					screen.on_press_lock(self) 
+				if 'synthesis' in self.object_types:
+					#定義: 可以跟另一樣道具合成產生新道具
+					screen.on_press_synthesis(self)
+				if 'clue' in self.object_types:
+					#定義: 作為遊戲所需要的關鍵資訊
+					screen.on_press_clue(self) 
+				if 'trigger' in self.object_types:
+					#定義: 點擊即觸發進入劇情模式
+					screen.on_press_trigger(self) 
+				if 'switching' in self.object_types:
+					#定義: 點擊切換場景用
+					screen.on_press_switching(self) 	
+				if 'nothing' in self.object_types:
+					#定義: 無特別功用
+					screen.on_press_nothing(self) 	
+				
+				
+			# else:
+			# 	print('No HP in this round')
 
 
 # >>> def keep(path):

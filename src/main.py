@@ -3,7 +3,7 @@
 ###################################################
 
 from game_manager import *
-from title_screen import TitleScreen
+from cover_screen import CoverScreen
 from intro_screen import IntroScreen
 from story_screen import StoryScreen
 from ending_screen import EndingScreen
@@ -22,7 +22,7 @@ class NTUPLE_Story(App):
         sm.add_widget(SealScreen(name='seal'))  
         sm.add_widget(StoryScreen(name='story'))
         sm.get_screen('gm').link_main_screen()
-        sm.add_widget(TitleScreen(name='title'))
+        sm.add_widget(CoverScreen(name='cover'))
         sm.add_widget(IntroScreen(name='intro'))
         sm.add_widget(PrologueScreen(name='prologue'))   
         sm.add_widget(MemoryScreen(name='memory'))       
