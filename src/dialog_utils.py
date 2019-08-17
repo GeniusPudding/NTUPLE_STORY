@@ -199,16 +199,10 @@ def semi_manual_dialog_preprocess(dialog,format):
 	node = DialogListnode(new_auto_dialog[-1][0],new_auto_dialog[-1][1],'tail')
 	last_node.set_next(node)
 	node.set_last(last_node)
-	#testing
-	node = head_node
+	# #testing
+	# node = head_node
 
-	#TODO:加入針對每個node是否切換場景圖的function
-
-	while node.get_next() is not None:
-		print(node.text_line)
-		node = node.get_next()
+	# while node.get_next() is not None:
+	# 	print(node.text_line)
+	# 	node = node.get_next()
 	return head_node
-
-def switching_scene_lines(plot_text):
-	lines_to_scene = []#(the line,the scene path)
-	return lines_to_scene

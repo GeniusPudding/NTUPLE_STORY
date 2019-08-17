@@ -228,7 +228,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 
 class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上下面, 注意image檔案拉扯問題
 	#TODO: EXCEPTIONS!!!
-	#TODO: 右鍵控制
+	#TODO: ban右鍵控制
 	
 	current_player_id = NumericProperty()
 	current_chapter = NumericProperty(-1)
@@ -272,7 +272,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		global GM
 		GM = linked_GM
 
-		self.size = (self.w,self.h) = (global_w,global_h)#get_screen_size()#default size is (100,100)
+		self.size = (self.w,self.h) = (global_w,global_h)#get_screen_size()
 		print(f"global_w:{global_w},global_h:{global_h}")	
 		self.button_height = self.dialogframe_height/2
 		print("init pos={},size={},self={},type(self)={},(w,h)={},Window.size={}".format(self.pos,self.size,self,type(self),(self.w,self.h),Window.size))
@@ -303,7 +303,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 
 		self.bg_widget = BG_widget(parent =self)
-		self.add_widget(self.bg_widget) #bg_size=(self.w,self.h*.75),bg_pos=(0,self.h*.25),bg_source=self.get_screen_path()))
+		self.add_widget(self.bg_widget) 
 
 		self.load_game() #auto load/save this game, or set a button
 
@@ -544,7 +544,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def key_action(self, *args):#TODO:盡量統一按鍵、做好遊戲按鍵提示介面
 		if self.manager.current == 'story':	
 			print('story key: ',args)
-			press_key_id = args[1]#args[1]:ASCII?
+			press_key_id = args[1]#args[1]:ASCII
 			press_key = args[3]
 			if press_key_id in [276,275]:#<-,->
 
@@ -587,7 +587,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				if self.seal_on and self.manager.current == 'story':
 					print('Get ENTER!')
 					self.seal_on = False
-					#self.current_mode = 0#precursor mode entry
 
 				elif self.current_mode == 0 and self.finish_auto:
 					self.remove_widget(self.prompt_label)
