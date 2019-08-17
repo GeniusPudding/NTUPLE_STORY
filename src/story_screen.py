@@ -372,11 +372,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			Clock.schedule_once(self.delay_switch_dialog_view,.8)
 
 			#start exploring mode, allocate objects on chapter's map 
-			self.map_objects_allocator(None,'deallocate')
+			self.map_objects_allocator('deallocate')
 			if self.item_view == 0:
-				for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
-					print('mapobject info:',mapobject.object_id ,mapobject.map_name)
-					self.map_objects_allocator(mapobject,'allocate')
+				self.map_objects_allocator('allocate')
+				# for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
+				# 	print('mapobject info:',mapobject.object_id ,mapobject.map_name)
+				# 	self.map_objects_allocator(mapobject,'allocate')
 						
 
 
@@ -386,7 +387,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#TODO配置一個小返回按鈕提示於角落，按下'b'回到mode 1
 
 		elif mode == 3:
-			self.map_objects_allocator(None,'deallocate')
+			self.map_objects_allocator('deallocate')
 			if self.item_view == 1:
 				self.item_view = 0
 			self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
@@ -465,13 +466,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def auto_item_view(self, instance, item_view):#Entry and Exit of all itemframe functions
 		print('[*]item view:', item_view)#TODO: 檢查會有哪些地方需要MUTEXs or Locks去同步共享資源
 		if item_view == 1:#TODO:改成另外呼叫open itemframe而非直接改item_view值
-			self.map_objects_allocator(None,'deallocate')#DEBUG
+			self.map_objects_allocator('deallocate')#DEBUG
 			self.display_itemframe()	
 		elif item_view == 0:
 			self.hide_itemframe()
-			for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
-				print('mapobject info:',mapobject.object_id ,mapobject.map_name)
-				self.map_objects_allocator(mapobject,'allocate')
+			self.map_objects_allocator('allocate')
+			# for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
+			# 	print('mapobject info:',mapobject.object_id ,mapobject.map_name)
+			# 	self.map_objects_allocator(mapobject,'allocate')
 
 	#select the background image of this story	
 	def auto_reload_chapter_info(self, instance, c_p):#called when outer calls "self.current_player_id, self.current_chapter = GM.change_turn()"
@@ -506,10 +508,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.bg_widget.load_bg(bg)
 
 			if self.current_mode == 1 and self.item_view == 0:#DEBUG
-				self.map_objects_allocator(None,'deallocate')
-				for mapobject in self.objects_allocation[current_map_id]:#2D-list
-					print('mapobject info:',mapobject.object_id ,mapobject.map_name)
-					self.map_objects_allocator(mapobject,'allocate')
+				self.map_objects_allocator('deallocate')
+				self.map_objects_allocator('allocate')
+				# for mapobject in self.objects_allocation[current_map_id]:#2D-list
+				# 	print('mapobject info:',mapobject.object_id ,mapobject.map_name)
+				# 	self.map_objects_allocator(mapobject,'allocate')
 						
 
 
@@ -656,10 +659,13 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			press_key_id = args[1]#args[1]:ASCII?
 
 			return True	
-	def map_objects_allocator(self, MapObject, action):#TODO: 按照物件種類分類做，線索和普通物件無圖片，配置選取框範圍於地圖上即可
+	def map_objects_allocator(self, action):#TODO: 按照物件種類分類做，線索和普通物件無圖片，配置選取框範圍於地圖上即可
 		if action == 'allocate':
-			self.mapobjects_register.append(MapObject)
-			self.add_widget(MapObject)
+			for MapObject in self.objects_allocation[self.current_map_id]:#2D-list
+				print('MapObject info:',MapObject.object_id ,MapObject.map_name)
+				#self.map_objects_allocator(mapobject,'allocate')
+				self.mapobjects_register.append(MapObject)
+				self.add_widget(MapObject)
 
 		elif action == 'deallocate':
 			for MapObject in self.mapobjects_register:
@@ -987,11 +993,23 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def on_press_item(self, btn):
 		self.hp_per_round -= 1
 		object_id = btn.object_id
-		GM.players[self.current_player_id].get_item(object_id)
-		self.remove_widget(btn) 
+		self.pickup_chapter_objects(object_id,btn)
+
 		self.dialog_view = 1
 		spent_time = line_display_scheduler(self,'好像撿到有用的道具了呦',False,special_char_time,next_line_time,common_char_time)
 		self.delay_hide_dialogframe(spent_time)
+
+	def pickup_chapter_objects(self, object_id,btn):
+		for MapObject in self.objects_allocation[self.current_map_id]:
+			if MapObject.object_id == object_id:
+				picked_item = MapObject
+				break
+
+		GM.Chapters[self.current_player_id][self.current_chapter].chapter_objects[self.current_map_id].remove(picked_item)#
+		#self.objects_allocation[self.current_map_id].remove(picked_item)
+		GM.players[self.current_player_id].get_item(object_id)
+		self.remove_widget(btn) 
+
 
 	def on_press_puzzle(self, btn):
 		self.enter_puzzle_mode(btn.object_id, 'puzzle')	

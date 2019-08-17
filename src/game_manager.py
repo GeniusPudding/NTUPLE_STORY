@@ -212,17 +212,20 @@ class Chapter(object):
 		self.chapter_maps = self.add_chapter_maps()
 		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
 		self.chapter_objects = self.load_chapter_objects_of_maps(main_screen) #objects_allocation[current_map] = list of MapObjects 
+		#self.picked_item = []
 		self.chapter_plot_scenes = self.load_plot_scenes()
 		self.chapter_scenes_table = self.load_scenes_table()
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
 		self.chapter_pre_plot, self.chapter_plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
 		self.started = False
 		self.used_list = []#used objects' id
-	def unlock_new_map(self,map_name):
+
+	def unlock_new_map(self,map_name):#DEBUG: 不需要重新載入所有地圖物件
 		for locked_img in os.listdir(self.locked_map_path):
 			if map_name in locked_img:
 				self.chapter_maps.append(os.path.join(self.locked_map_path,locked_img))
 				break
+		#TODO
 		self.load_chapter_objects_of_maps(main_screen)#load new objects info of unlocked map
 
 	def load_default_map(self,player_id, chapter_id):
