@@ -406,7 +406,7 @@ class PhoneScreen(Screen):#TODO: set a restart phone button
 		
 
 
-	def back_to_story(self,btn):
+	def back_to_story(self,*args):
 		print('back_to_story')
 		self.phonescreen_state[0] = False
 		self.phonescreen_state[1] = False

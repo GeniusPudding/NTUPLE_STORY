@@ -371,10 +371,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			#start exploring mode, allocate objects on chapter's map 
 			self.map_objects_allocator(None,'deallocate')
-			for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
-				print('mapobject info:',mapobject.object_id ,mapobject.map_name)
-				self.map_objects_allocator(mapobject,'allocate')
-					
+			if self.item_view == 0:
+				for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
+					print('mapobject info:',mapobject.object_id ,mapobject.map_name)
+					self.map_objects_allocator(mapobject,'allocate')
+						
 
 
 
@@ -461,10 +462,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def auto_item_view(self, instance, item_view):#Entry and Exit of all itemframe functions
 		print('[*]item view:', item_view)#TODO: 檢查會有哪些地方需要MUTEXs or Locks去同步共享資源
-		if item_view == 1:
+		if item_view == 1:#TODO:改成另外呼叫open itemframe而非直接改item_view值
+			self.map_objects_allocator(None,'deallocate')#DEBUG
 			self.display_itemframe()	
 		else:
 			self.hide_itemframe()
+			for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
+				print('mapobject info:',mapobject.object_id ,mapobject.map_name)
+				self.map_objects_allocator(mapobject,'allocate')
 
 	#select the background image of this story	
 	def auto_reload_chapter_info(self, instance, c_p):#called when outer calls "self.current_player_id, self.current_chapter = GM.change_turn()"
@@ -497,7 +502,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			bg = Rectangle(source=self.chapter_maps[current_map_id], pos=(0,0), size=(self.w,self.h),group='bg')
 			self.bg_widget.load_bg(bg)
 
-			if self.current_mode == 1:
+			if self.current_mode == 1 and self.item_view == 0:#DEBUG
 				self.map_objects_allocator(None,'deallocate')
 				for mapobject in self.objects_allocation[current_map_id]:#2D-list
 					print('mapobject info:',mapobject.object_id ,mapobject.map_name)
@@ -720,7 +725,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				for i in reversed(range(self.itemframe.count)):
 					item = self.itemframe.item_images[self.itemframe.cyclic[i]]
 					print('add item source:',item.source)
-					self.add_widget(item)			
+					if item not in self.children:
+						self.add_widget(item)		
+					else:
+						print(f'[*]Exception: item:{item} is already in the screen')	
 				self.itemframe.focusing_frame_id = self.itemframe.cyclic[0]#->auto_focus->auto_focus_item->dragging generate
 				#make sure the dragging is inside box canvas
 
@@ -806,6 +814,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.canvas.add(Color(rgba=(.2,.2,.2,.2),group='puzzle_mode'))
 		self.canvas.add(Rectangle(pos=self.pos,size=self.size,group='puzzle_mode'))
 		item = GM.object_table[str(object_id)]
+		print('puzzle_mode item:',item)
 		self.behavior_type = behavior_type
 		if behavior_type == 'puzzle':
 			self.puzzle_handler(item)
@@ -854,7 +863,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				Clock.schedule_once(screen.clear_text_on_screen,spent_time+.5)
 				Clock.schedule_once(partial(screen.dragging.reset,screen,2),spent_time+.5) 		
 				self.canvas.remove_group('synthesis1')
-			screen.hp_per_round -= 1#DEBUG: 連續扣血問題
+			#screen.hp_per_round -= 1#DEBUG: 連續扣血問題
 
 		expected_input = synthesis_content['input']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
@@ -874,8 +883,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		lock_name = item['name']
 		lock_content = GM.unlock_table[lock_name]
 		expected_input = lock_content['input_item']
-		self.lock = Image(source=item['source'],pos_hint ={'x':.4,'y':.4},size_hint=(.2,.2) ,allow_stretch=True,keep_ratio=False)
-		self.add_widget(self.lock)
+		# self.lock = Image(source=item['source'],pos_hint ={'x':.4,'y':.4},size_hint=(.2,.2) ,allow_stretch=True,keep_ratio=False)
+		# self.add_widget(self.lock)
+		self.canvas.add(Rectangle(source=item['source'],pos=(.4*global_w,.4*global_h),size=(.2*global_w,.2*global_h),group='lock'))
 		self.global_mouse_event = Clock.schedule_interval(global_mouse, 0.1)
 		self.lock_event = Clock.schedule_interval(partial(self.key_item_judge,lock_content), 0.1)
 
@@ -915,7 +925,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				Clock.schedule_once(self.clear_text_on_screen,spent_time+.3)	
 				self.dragging.reset(self,2)
 
-			self.hp_per_round -= 1
+			#self.hp_per_round -= 1
 		elif not self.mouse_in_range({'x':.4,'y':.4},(.2,.2)) and self.dragging.free == 1:#DEBUG
 			print('開鎖超出範圍，返回原位')		
 			self.dragging.reset(self,2)
@@ -939,7 +949,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif self.behavior_type == 'lock':
 			self.lock_event.cancel()
 			self.global_mouse_event.cancel()
-			self.remove_widget(self.lock)			
+			#self.remove_widget(self.lock)	
+			self.canvas.remove_group('lock')	
 		elif self.behavior_type == 'synthesis':
 			print('quit synthesis')
 			self.synthesis_event.cancel()

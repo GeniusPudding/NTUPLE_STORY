@@ -141,7 +141,8 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 			screen = self.screen
 			if screen.current_mode == 1:
 				self.reset(screen,1)
-			# elif screen.current_mode == 2: 
+			elif screen.current_mode == 2: 
+				screen.hp_per_round -= 1#DEBUG
 			# 	self.reset(screen,2)
 	def reset(self,screen,mode,*args):
 		#print('reset dragging!')
