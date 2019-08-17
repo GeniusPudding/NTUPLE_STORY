@@ -17,5 +17,6 @@ class IntroScreen(Screen):
 		self._keyboard.unbind(on_key_down=self.key_action)
 		self._keyboard = None
 
+
 	def on_touch_down(self, touch):
 		self.manager.current = 'prologue'

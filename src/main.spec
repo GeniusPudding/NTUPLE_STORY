@@ -3,9 +3,9 @@ from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal,hookspath
 from PyInstaller.utils.hooks import collect_submodules
 block_cipher = None
 
-excludekivy = get_deps_minimal(video=None, audio=None,spelling=None,camera=None)['excludes']
+excludekivy = get_deps_minimal(video=None, window=True, audio=['gstplayer', 'ffpyplayer', 'sdl2'], spelling='enchant',camera=None)['excludes']
 a = Analysis(['main.py'],
-             pathex=['C:\\Users\\user\\Desktop\\NTU PIECE\\NTU PIECE\\src'],
+             pathex=['C:\\Users\\user\\Desktop\\NTUPLE_STORY\\src'],
              binaries=[],
              datas=[],
              hiddenimports=(collect_submodules('numpy')+collect_submodules('pygame')+collect_submodules('kivy')+collect_submodules('kivy.garden')),
@@ -33,4 +33,4 @@ exe = EXE(pyz,
           upx=True,
           runtime_tmpdir=None,
           console=True, 
-          icon= 'C:\\Users\\user\\Desktop\\NTU PIECE\\NTU PIECE\\src\\China.ico')
+          icon= 'C:\\Users\\user\\Desktop\\NTUPLE_STORY\\src\\China.ico')

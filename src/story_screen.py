@@ -43,7 +43,8 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		print('[*]item frame gen items:',item_list)
 		self.count = len(item_list)
 		print("item_list:",item_list)
-		self.offset = (.1/(self.count-1)*global_w,.05/(self.count-1)*global_h)
+		if self.count > 1:
+			self.offset = (.1/(self.count-1)*global_w,.05/(self.count-1)*global_h)
 		item_cur_pos = []
 		for i in range(self.count):
 			#print('test append pos:',(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1]))
@@ -55,14 +56,12 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		#DEBUG:有時會無法加回主畫面
 		for ci in self.item_images :
 			self.screen.remove_widget(ci)
-		self.item_images =  [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 	
+		self.item_images = [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 	
 		#item_images與item_list共用focusing_frame_id, 另開一個循環id用來展示選取動畫
 		#when item_images modified, manually modified the item_list
 		
 		for i in range(self.count):
 			self.cyclic[i] = i
-
-			#print(f'self.item_images[{i}].pos:{self.item_images[i].pos}')
 
 
 	#dynamic generate part:	
@@ -108,63 +107,64 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		if screen.item_view == 0:
 			print('dialogframe closed too fast!')
 			screen.item_view = 1
-		self.playing_anim_num = self.count #determined by the number of animations
-		n = self.count
-		d_len = min(.15*global_w,.2*global_h)
+		n = self.playing_anim_num = self.count #determined by the number of animations
+		#n = self.count
+		if n > 1:
+			d_len = min(.15*global_w,.2*global_h)
 
-		if press_key_id==276:
-			print ("key action left")
-	
+			if press_key_id==276:
+				print ("key action left")
+		
 
-			#store last pos:	
-			final_pos = self.front_pos
-			init_pos = self.back_pos
-			#print('final_pos:',final_pos,'init_pos:',init_pos)
-			self.curve_animation(screen,self.item_images[self.cyclic[n-1]],init_pos,final_pos)
-			for i in range(n-1):
-				im = self.item_images[self.cyclic[i]]
-				im.start_switching_animate(im.pos,self.offset,'positive')
+				#store last pos:	
+				final_pos = self.front_pos
+				init_pos = self.back_pos
+				#print('final_pos:',final_pos,'init_pos:',init_pos)
+				self.curve_animation(screen,self.item_images[self.cyclic[n-1]],init_pos,final_pos)
+				for i in range(n-1):
+					im = self.item_images[self.cyclic[i]]
+					im.start_switching_animate(im.pos,self.offset,'positive')
 
-			#redraw for the correctness of overlapped order	and update the cyclic indice
-			for i in reversed(range(n)):
-				self.cyclic[i] -= 1
-				self.cyclic[i] %= n
-				#print(f'redraw self.item_images[{self.cyclic[i]}].pos:{self.item_images[self.cyclic[i]].pos}')
-				screen.remove_widget(self.item_images[self.cyclic[i]])
-				screen.add_widget(self.item_images[self.cyclic[i]])	
+				#redraw for the correctness of overlapped order	and update the cyclic indice
+				for i in reversed(range(n)):
+					self.cyclic[i] -= 1
+					self.cyclic[i] %= n
+					#print(f'redraw self.item_images[{self.cyclic[i]}].pos:{self.item_images[self.cyclic[i]].pos}')
+					screen.remove_widget(self.item_images[self.cyclic[i]])
+					screen.add_widget(self.item_images[self.cyclic[i]])	
 
-			#By definition, cyclic[0] = focusing_frame_id
-			if self.focusing_frame_id <= 0:
-				self.focusing_frame_id = n - 1
-			else:
-				self.focusing_frame_id -= 1	
+				#By definition, cyclic[0] = focusing_frame_id
+				if self.focusing_frame_id <= 0:
+					self.focusing_frame_id = n - 1
+				else:
+					self.focusing_frame_id -= 1	
 
-		elif press_key_id==275:
-			print ("key action right")
+			elif press_key_id==275:
+				print ("key action right")
 
-			#store last pos:	
-			final_pos = self.back_pos
-			init_pos = self.front_pos
-			self.curve_animation(screen,self.item_images[self.cyclic[0]],init_pos,final_pos)
-			for i in range(1,n):
-				im = self.item_images[self.cyclic[i]]
-				im.start_switching_animate(im.pos,self.offset,'negative')
+				#store last pos:	
+				final_pos = self.back_pos
+				init_pos = self.front_pos
+				self.curve_animation(screen,self.item_images[self.cyclic[0]],init_pos,final_pos)
+				for i in range(1,n):
+					im = self.item_images[self.cyclic[i]]
+					im.start_switching_animate(im.pos,self.offset,'negative')
 
-			#redraw for the correctness of overlapped order	and update the cyclic indice
-			for i in reversed(range(n)):
-				self.cyclic[i] += 1
-				self.cyclic[i] %= n
-				screen.remove_widget(self.item_images[self.cyclic[i]])
-				screen.add_widget(self.item_images[self.cyclic[i]])
+				#redraw for the correctness of overlapped order	and update the cyclic indice
+				for i in reversed(range(n)):
+					self.cyclic[i] += 1
+					self.cyclic[i] %= n
+					screen.remove_widget(self.item_images[self.cyclic[i]])
+					screen.add_widget(self.item_images[self.cyclic[i]])
 
-			#By definition, cyclic[0] = focusing_frame_id	
-			if self.focusing_frame_id >= n - 1:
-				self.focusing_frame_id = 0
-			else:
-				self.focusing_frame_id += 1				
+				#By definition, cyclic[0] = focusing_frame_id	
+				if self.focusing_frame_id >= n - 1:
+					self.focusing_frame_id = 0
+				else:
+					self.focusing_frame_id += 1				
 
 
-		print('self.cyclic:',self.cyclic,'self.playing_anim_num:',self.playing_anim_num)
+			print('self.cyclic:',self.cyclic,'self.playing_anim_num:',self.playing_anim_num)
 
 		self.switchable = True
 
@@ -218,7 +218,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 	def on_touch_down(self, touch):
 		#for testing
 		print('itemframe touch.profile:',touch.profile,'touch.id:',touch.id,'touch.pos:',touch.pos)
-		if self.parent is not None and self.focusing_frame_id >= 0 and self.item_images[self.focusing_frame_id].collide_point(*touch.pos):
+		if self.parent is not None and self.focusing_frame_id >= 0 and self.item_images[self.focusing_frame_id].collide_point(*touch.pos) and self.count > 0:
 			object_id = self.item_list[self.focusing_frame_id]
 			screen = self.parent
 			self.use_item(screen,object_id,touch)
@@ -324,7 +324,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 
 		#round-binding canvas: 
-		self.hp_per_round = 20#trigger event
+		self.hp_per_round = 20#trigger event #auto save?
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
 		self.current_map_id = -1
@@ -476,7 +476,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			# 	self.map_objects_allocator(mapobject,'allocate')
 
 	#select the background image of this story	
-	def auto_reload_chapter_info(self, instance, c_p):#called when outer calls "self.current_player_id, self.current_chapter = GM.change_turn()"
+	def auto_reload_chapter_info(self, instance, c_p):#do not bind "self.current_player_id, self.current_chapter = GM.change_turn()" !
 		print('[*]current_player_chapter: ', c_p)
 		self.chapter_info = GM.Chapters[self.current_player_id][self.current_chapter]#load chapter info at each round starts
 		print("chapter_info reloaded:",self.chapter_info)
@@ -485,14 +485,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		for hp in self.hp_widgets:
 			self.remove_widget(hp)
 		for i in range(self.hp_per_round):#TODO: 換圖片(希望跟台大有關), 改成canvas繪圖
-			hp = Image(source='res/images/testing/HP.png',pos_hint={'x':.94-.06*i,'y':.85},size_hint=(.04,.1))
+			hp = Image(source='res/images/testing/HP.png',pos_hint={'x':.94-.04*i,'y':.85},size_hint=(.03,.1))
 			self.add_widget(hp)
 			self.hp_widgets.append(hp)
 		if self.hp_per_round <= 0:
 			self.quit_puzzle_mode()
 			#TODO:check if there is any status not be cleared
-			popup = Popup(title='體力耗盡',title_size='28sp',title_font='res/HuaKangTiFan-CuTi-1.otf',title_color=[.2,.9,.1,.9],content=Label(text='輪到下一位玩家',font_size=64,font_name= 'res/HuaKangTiFan-CuTi-1.otf'),size_hint=(None, None), size=(400, 400))
-			popup.open()
+			# popup = Popup(title='體力耗盡',title_size='28sp',title_font='res/HuaKangTiFan-CuTi-1.otf',title_color=[.2,.9,.1,.9],content=Label(text='輪到下一位玩家',font_size=64,font_name= 'res/HuaKangTiFan-CuTi-1.otf'),size_hint=(None, None), size=(400, 400))
+			# popup.open()
 			auto_prompt(self,'Enter',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='體力耗盡!\n')
 
 			                         
@@ -519,7 +519,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def auto_reload_item_list(self,instance, reload_item_list):
 		if reload_item_list:
 			print('[*] auto update instance:',reload_item_list)
+			print('init self.itemframe.item_list:',self.itemframe.item_list)
 			self.itemframe.item_list = GM.players[self.current_player_id].item_list #->auto_gen_items
+			print('after init self.itemframe.item_list:',self.itemframe.item_list)
+
 			print('reload items:',self.itemframe.item_list)	
 			self.reload_item_list = False
 
@@ -599,7 +602,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.next_round()  
 
 				elif self.current_mode == 1:
-					if self.item_view == 1:
+					if self.item_view == 1 and self.itemframe.count > 0:
 						self.itemframe.use_item(self,self.focusing_object_id,None)
 
 				elif self.current_mode == 2:
@@ -739,8 +742,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					if item not in self.children:
 						self.add_widget(item)		
 					else:
-						print(f'[*]Exception: item:{item} is already in the screen')	
-				self.itemframe.focusing_frame_id = self.itemframe.cyclic[0]#->auto_focus->auto_focus_item->dragging generate
+						print(f'[*]Exception: item:{item} is already in the screen')
+				if self.itemframe.count > 0:
+					self.itemframe.focusing_frame_id = self.itemframe.cyclic[0]#->auto_focus->auto_focus_item->dragging generate
+				else:
+					self.itemframe.focusing_frame_id = -1
 				#make sure the dragging is inside box canvas
 
 			self.canvas_on_item_images()
@@ -769,14 +775,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.canvas.add(Rectangle(pos=(.805*global_w,.758*global_h),size=(.19*global_w,.085*global_h),group='cap'))
 		#box
 		self.canvas.add(Color(rgba=(0,100/255,.7,.98),group='cap'))
-		self.canvas.add(Triangle(points=(.65*global_w,.475*global_h,.8*global_w,.475*global_h,.8*global_w,.55*global_h),group='cap'))
+		self.canvas.add(Triangle(points=(.65*global_w,.475*global_h,.8*global_w,.475*global_h,.8*global_w,.5*global_h),group='cap'))
 
 	def canvas_on_item_images(self):
 		#box
 		self.canvas.add(Color(rgba=(0,182/255,1,1),group='cap'))#source='res/images/itemframe.png',
 		self.canvas.add(Rectangle(pos=(.65*global_w,.225*global_h),size=(.2*global_w,.25*global_h),group='cap'))
 		self.canvas.add(Color(rgba=(0,100/255,.7,1),group='cap'))
-		self.canvas.add(Quad(points=(.85*global_w,.225*global_h,.85*global_w,.475*global_h,global_w,.55*global_h,global_w,.3*global_h),group='cap'))
+		self.canvas.add(Quad(points=(.85*global_w,.225*global_h,.85*global_w,.475*global_h,global_w,.5*global_h,global_w,.25*global_h),group='cap'))
 
 
 	def exploring_dialog(self, press_key_id):
@@ -819,7 +825,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.lastline_time = line_display_scheduler(self,node.text_line,False,special_char_time,next_line_time,common_char_time,name=node.speaker)
 
 	#TODO: 計時器功能
-	def enter_puzzle_mode(self, object_id, behavior_type):#在道具欄使用道具進入的puzzle_mode跟地圖上點擊進入相同
+	def enter_puzzle_mode(self, object_id, behavior_type):#TODO: 原本在地圖上的會有自己的判定範圍
 		self.probing = False
 		self.current_mode = 2#open item view
 		self.canvas.add(Color(rgba=(.2,.2,.2,.2),group='puzzle_mode'))
@@ -850,8 +856,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if self.item_view == 0:
 			self.item_view = 1
 		synthesis_canvas(self,item,0)
-		self.global_mouse_event = Clock.schedule_interval(global_mouse, 0.1)
-		self.synthesis_event = Clock.schedule_interval(partial(self.material_item_judge,item,synthesis_content), 0.1)
+		if self.itemframe.count > 0:
+			self.global_mouse_event = Clock.schedule_interval(global_mouse, 0.1)
+			self.synthesis_event = Clock.schedule_interval(partial(self.material_item_judge,item,synthesis_content), 0.1)
 
 	def material_item_judge(self,item,synthesis_content,*args):
 
@@ -902,8 +909,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if self.item_view == 0:
 			self.item_view = 1
 		self.canvas.add(Rectangle(source=item['source'],pos=(.4*global_w,.4*global_h),size=(.2*global_w,.2*global_h),group='lock'))
-		self.global_mouse_event = Clock.schedule_interval(global_mouse, 0.1)
-		self.lock_event = Clock.schedule_interval(partial(self.key_item_judge,lock_content), 0.1)
+		if self.itemframe.count > 0:
+			self.global_mouse_event = Clock.schedule_interval(global_mouse, 0.1)
+			self.lock_event = Clock.schedule_interval(partial(self.key_item_judge,lock_content), 0.1)
 
 	def key_item_judge(self,lock_content,*args):
 		expected_input = lock_content['input_item']
@@ -966,14 +974,20 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.canvas.remove_group('puzzle')
 			clear_CodedLock(self)#only for codedlock 
 		elif self.behavior_type == 'lock':
-			self.lock_event.cancel()
-			self.global_mouse_event.cancel()
+			try:
+				self.lock_event.cancel()
+				self.global_mouse_event.cancel()
+			except:
+				pass
 			#self.remove_widget(self.lock)	
 			self.canvas.remove_group('lock')	
 		elif self.behavior_type == 'synthesis':
 			print('quit synthesis')
-			self.synthesis_event.cancel()
-			self.global_mouse_event.cancel()		
+			try:
+				self.synthesis_event.cancel()
+				self.global_mouse_event.cancel()		
+			except:
+				pass
 			self.canvas.remove_group('synthesis')
 			self.canvas.remove_group('synthesis1')
 		self.clear_text_on_screen()
@@ -1188,13 +1202,70 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	#TODO
 	def load_game(self):
-		self.next_round()
-		# if os.path.isfile('res/game_archive.json'):
-		# 	GM.load_game()
-		
-		
+		GM.load_game(self)
+
+		# pickle_list = ['0_0.pickle','0_1.pickle','0_2.pickle','0_3.pickle',\
+		# '1_0.pickle','1_1.pickle','1_2.pickle','1_3.pickle',\
+		# '2_0.pickle','2_1.pickle','2_2.pickle','2_3.pickle',\
+		# '3_0.pickle','3_1.pickle','3_2.pickle','3_3.pickle',\
+		# 'p0.pickle','p1.pickle','p2.pickle','p3.pickle','current_c_p.pickle']
+		# pickle_path = 'res/pickles/'
+
+		# if set(pickle_list) - set(os.listdir(pickle_path)) != set():#缺少記錄檔
+		# 	for f in os.listdir(pickle_path):
+		# 		if '.pickle' in f:
+		# 			os.remove(os.path.join(pickle_path,f))#reset
+		# 	self.next_round()
+		# 	return
+
+		# print('[*]Loading game records...')	 
+		# global GM
+		# for p in range(4):
+		# 	player = f'p{p}.pickle'
+		# 	p_ = open(os.path.join(pickle_path,player), 'rb')
+		# 	p_dict = pickle.load(p_)
+		# 	GM.players[p].item_list = p_dict['item_list']
+		# 	GM.players[p].achievement = p_dict['achievement']
+		# 	GM.players[p].GG = p_dict['GG']	
+		# 	print(f'Load {p}\'s p_dict:{p_dict}')
+		# 	for c in range(4):
+		# 		chapter = f'{p}_{c}.pickle' 
+		# 		c_ = open(os.path.join(pickle_path,chapter), 'rb')
+		# 		c_dict = pickle.load(c_) 
+		# 		print(f'Load {p}_{c}\'s c_dict:{c_dict}')
+		# 		GM.Chapters[p][c].chapter_maps = c_dict['chapter_maps']
+		# 		GM.Chapters[p][c].started = c_dict['started']
+		# p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'rb')	
+		# dict_p_c = pickle.load(p_c) 	
+		# print(f'Load dict_p_c:{dict_p_c}')
+		# GM.current_player_id = dict_p_c['current_player_id']
+		# GM.current_chapter = dict_p_c['current_chapter'] 
+		# self.current_player_id, self.current_chapter = GM.current_player_id, GM.current_chapter[GM.current_player_id]	
+		# self.auto_reload_chapter_info(self,[self.current_player_id, self.current_chapter])
+		# self.hp_per_round = 20
+		# self.current_map_id = -1
+		# self.current_map_id = self.chapter_info.chapter_default_map
+
 	def save_game(self):
-		GM.save_game()
+		GM.save_game()		
+		# pickle_path = 'res/pickles/'
+		# for p in range(4):
+		# 	player = f'p{p}.pickle'
+		# 	p_ = open(os.path.join(pickle_path,player), 'wb')
+		# 	p_dict = {'item_list':GM.players[p].item_list,'achievement':\
+		# 	GM.players[p].achievement,'GG':GM.players[p].GG}
+		# 	pickle.dump(p_dict,p_) 
+		# 	for c in range(4):		
+		# 		chapter = f'{p}_{c}.pickle' 
+		# 		c_ = open(os.path.join(pickle_path,chapter), 'wb')
+		# 		c_dict = {'chapter_maps':GM.Chapters[p][c].chapter_maps,\
+		# 		'started':GM.Chapters[p][c].started}
+		# 		pickle.dump(c_dict,c_) 
+		# p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'wb')	
+		# dict_p_c = {}
+		# dict_p_c['current_player_id'] = GM.current_player_id 
+		# dict_p_c['current_chapter'] = GM.current_chapter				
+		# pickle.dump(dict_p_c,p_c) 
 
 
 	@staticmethod

@@ -27,9 +27,11 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.behaviors import ButtonBehavior,DragBehavior  
 from kivy.uix.image import Image
-from  kivy.core.image import Image as coreImage
+from kivy.core.image import Image as coreImage
 from kivy.animation import Animation
 from kivy.input.motionevent import MotionEvent
+from kivy.core.audio import SoundLoader
+
 import platform
 import sys, datetime
 from sys import exit 
@@ -37,10 +39,12 @@ import json
 import numpy as np
 import math
 import os
+os.environ['KIVY_AUDIO'] = 'sdl2'
 from functools import partial
 import random
 #from PIL import Image as PILImage
 import time
+import pickle
 
 #global constant here
 final_chapter = 3#for release: 3

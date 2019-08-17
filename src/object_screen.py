@@ -101,7 +101,8 @@ class NTUPLE_Story(App):
         return sm
 
 if __name__ == '__main__':
-
+    if OS == "Windows":
+        Window.fullscreen = 'auto'
     Config.set('kivy','keyboard_mode','')
     NTUPLE_Story().run()
 

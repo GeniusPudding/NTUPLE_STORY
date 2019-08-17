@@ -7,6 +7,7 @@ from globals import *
 from subgames import *
 from dialog_utils import *
 from UI_utils import *
+
 #from manager.update_manager import *
 
 class ImageButton(ButtonBehavior, Image): #Behavior
@@ -53,20 +54,20 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.main_screen = self.manager.get_screen('story')
 		self.Chapters = self.init_chapters(self.main_screen)
 
-		#for testing
-		j = 0
-		c = 0
-		for i in range(4):
+		# #for testing
+		# j = 0
+		# c = 0
+		# for i in range(4):
 			
-			for str_id in self.object_table.keys():
-				item = self.object_table[str_id]
-				if item['source'] is not None:				
-					self.players[i].item_list.append(int(str_id))#for testing
-					c += 1
-					if c>=4:
-						break
-			c = 0			
-			self.players[i].GG = True
+		# 	for str_id in self.object_table.keys():
+		# 		item = self.object_table[str_id]
+		# 		if item['source'] is not None:				
+		# 			self.players[i].item_list.append(int(str_id))#for testing
+		# 			c += 1
+		# 			if c>=4:
+		# 				break
+		# 	c = 0			
+		# 	self.players[i].GG = True
 
 		self.main_screen.start_story(self)		
 
@@ -155,14 +156,68 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		return table
 	#TODO: the function of auto save/load game status
 
-	def load_game(self):
-		f = open('res/game_archive.json','r')
-		record_json = json.load(f)
-		#current_player, 
+	def load_game(self,main_screen):
+		pickle_list = ['0_0.pickle','0_1.pickle','0_2.pickle','0_3.pickle',\
+		'1_0.pickle','1_1.pickle','1_2.pickle','1_3.pickle',\
+		'2_0.pickle','2_1.pickle','2_2.pickle','2_3.pickle',\
+		'3_0.pickle','3_1.pickle','3_2.pickle','3_3.pickle',\
+		'p0.pickle','p1.pickle','p2.pickle','p3.pickle','current_c_p.pickle']
+		pickle_path = 'res/pickles/'
+		
+		if set(pickle_list) - set(os.listdir(pickle_path)) != set():#缺少記錄檔
+			for f in os.listdir(pickle_path):
+				if '.pickle' in f:
+					os.remove(os.path.join(pickle_path,f))#reset
+			main_screen.next_round()
+			return
+
+		print('[*]Loading game records...')	 
+		#global GM
+		for p in range(4):
+			player = f'p{p}.pickle'
+			p_ = open(os.path.join(pickle_path,player), 'rb')
+			p_dict = pickle.load(p_)
+			self.players[p].item_list = p_dict['item_list']
+			self.players[p].achievement = p_dict['achievement']
+			self.players[p].GG = p_dict['GG']	
+			print(f'Load {p}\'s p_dict:{p_dict}')
+			for c in range(4):
+				chapter = f'{p}_{c}.pickle' 
+				c_ = open(os.path.join(pickle_path,chapter), 'rb')
+				c_dict = pickle.load(c_) 
+				print(f'Load {p}_{c}\'s c_dict:{c_dict}')
+				self.Chapters[p][c].chapter_maps = c_dict['chapter_maps']
+				self.Chapters[p][c].started = c_dict['started']
+		p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'rb')	
+		dict_p_c = pickle.load(p_c) 	
+		print(f'Load dict_p_c:{dict_p_c}')
+		self.current_player_id = dict_p_c['current_player_id']
+		self.current_chapter = dict_p_c['current_chapter'] 
+		main_screen.current_player_id, main_screen.current_chapter = self.current_player_id, self.current_chapter[self.current_player_id]	
+		main_screen.auto_reload_chapter_info(self,[main_screen.current_player_id, main_screen.current_chapter])
+		main_screen.hp_per_round = 20
+		main_screen.current_map_id = -1
+		main_screen.current_map_id = main_screen.chapter_info.chapter_default_map
 		
 	def save_game(self):
-		f = open('res/game_archive.json','w')
-		#TODO
+		pickle_path = 'res/pickles/'
+		for p in range(4):
+			player = f'p{p}.pickle'
+			p_ = open(os.path.join(pickle_path,player), 'wb')
+			p_dict = {'item_list':self.players[p].item_list,'achievement':\
+			self.players[p].achievement,'GG':self.players[p].GG}
+			pickle.dump(p_dict,p_) 
+			for c in range(4):		
+				chapter = f'{p}_{c}.pickle' 
+				c_ = open(os.path.join(pickle_path,chapter), 'wb')
+				c_dict = {'chapter_maps':self.Chapters[p][c].chapter_maps,\
+				'started':self.Chapters[p][c].started}
+				pickle.dump(c_dict,c_) 
+		p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'wb')	
+		dict_p_c = {}
+		dict_p_c['current_player_id'] = self.current_player_id 
+		dict_p_c['current_chapter'] = self.current_chapter				
+		pickle.dump(dict_p_c,p_c) 
 
 
 
@@ -218,7 +273,7 @@ class Chapter(object):
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
 		self.chapter_pre_plot, self.chapter_plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
 		self.started = False
-		self.used_list = []#used objects' id
+		#self.used_list = []#used objects' id
 
 	def unlock_new_map(self,map_name):#DEBUG: 不需要重新載入所有地圖物件
 		for locked_img in os.listdir(self.locked_map_path):
