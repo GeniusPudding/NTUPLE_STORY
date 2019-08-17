@@ -78,7 +78,7 @@ N:那個人每天每夜對著淌血的傷口無助的嘆息，最終走向漠視
 					print('Skip the auto dialog')
 					for event in self.dialog_events:
 						event.cancel()
-					clear_dialogframe_text(self,self.displaying_character_labels)
+					clear_displayed_text(self,self.displaying_character_labels)
 					self.finish_auto = True
 			return True
 	def on_touch_down(self,touch):	

@@ -75,7 +75,6 @@ def custom_multisplit(string,split_list):
 
 def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
-	#print('Screen.dialog_events:',Screen.dialog_events)
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
 	if len(line) <= 20:
@@ -97,7 +96,7 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dial
 	print('len(displaying_character_labels)=',len(Screen.displaying_character_labels))
 	if len(Screen.displaying_character_labels)>0:
 		print('有字幕殘留')
-		clear_dialogframe_text(Screen,Screen.displaying_character_labels)
+		clear_displayed_text(Screen,Screen.displaying_character_labels)
 	print('start generate line:',line)
 	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
 	
@@ -124,13 +123,11 @@ def clock_display_characters(Screen,displaying_character_labels, char, char_id,*
 	if char != '\n':
 		Screen.add_widget(displaying_character_labels[char_id])
 	else:
-		clear_dialogframe_text(Screen,displaying_character_labels)
+		clear_displayed_text(Screen,displaying_character_labels)
 
 
-def clear_dialogframe_text(Screen,displaying_character_labels,*args):#must between the last line characters displayed and the next line be processed  
-	print('[*]clear_dialogframe_text!')
-	# for event in Screen.dialog_events:
-	# 	event.cancel()	
+def clear_displayed_text(Screen,displaying_character_labels,*args):#must between the last line characters displayed and the next line be processed  
+	print('[*]clear_displayed_text!')
 	for label in displaying_character_labels:
 		Screen.remove_widget(label)
 	Screen.displaying_character_labels = []
