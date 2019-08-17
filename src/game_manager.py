@@ -39,7 +39,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.current_player_id = 3
 		self.current_chapter = [0]*4
 		self.players_name = {0:'室友',1:'男友',2:'哥哥',3:'故人'}
-		self.Chapters = self.init_chapters()
+		#self.Chapters = self.init_chapters()
 		self.object_table = self.load_object_table()
 		self.unlock_table = self.load_unlock_table()
 		self.synthesis_table = self.load_synthesis_table()
@@ -51,6 +51,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 	def link_main_screen(self):
 		self.main_screen = self.manager.get_screen('story')
+		self.Chapters = self.init_chapters(self.main_screen)
 
 		#for testing
 		j = 0
@@ -119,12 +120,12 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.manager.get_screen('ending').load_ending(player_id,last_one)
 		self.manager.current = 'ending'
 
-	def init_chapters(self): #TODO: load game info
+	def init_chapters(self,main_screen): #TODO: load game info
 		Chapters = []
 		for p in range(4):
 			Chapters.append([])
 			for r in range(4):
-				Chapters[p].append(Chapter(player_id=p, chapter_id=r))
+				Chapters[p].append(Chapter(player_id=p, chapter_id=r,main_screen=main_screen))
 		return Chapters
 	def load_object_table(self):
 		#'id':{'name','source','pos_hint','size_hint','player','chapter','function_types','description','on_map_name'}
@@ -200,7 +201,7 @@ class Player(object):#player_id=player_id
 		#needed??
 
 class Chapter(object):
-	def __init__(self, player_id, chapter_id):
+	def __init__(self, player_id, chapter_id,main_screen):
 		self.object_path = f'res/chapters/{player_id}_{chapter_id}/objects/' #including a json and object images
 		self.map_path = f'res/chapters/{player_id}_{chapter_id}/maps/'  #including map images
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
@@ -210,7 +211,7 @@ class Chapter(object):
 		self.chapter_NPCs = [] #deprecated
 		self.chapter_maps = self.add_chapter_maps()
 		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
-		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
+		self.chapter_objects = self.load_chapter_objects_of_maps(main_screen) #objects_allocation[current_map] = list of MapObjects 
 		self.chapter_plot_scenes = self.load_plot_scenes()
 		self.chapter_scenes_table = self.load_scenes_table()
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
@@ -222,7 +223,7 @@ class Chapter(object):
 			if map_name in locked_img:
 				self.chapter_maps.append(os.path.join(self.locked_map_path,locked_img))
 				break
-		self.load_chapter_objects_of_maps()#load new objects info of unlocked map
+		self.load_chapter_objects_of_maps(main_screen)#load new objects info of unlocked map
 
 	def load_default_map(self,player_id, chapter_id):
 		# if (player_id==1 and chapter_id==2) or (player_id==2 and chapter_id==1):
@@ -275,7 +276,7 @@ class Chapter(object):
 	def load_chapter_title(self,player_id, chapter_id):
 		text = ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
 		return Label(text=text,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
-	def load_chapter_objects_of_maps(self):
+	def load_chapter_objects_of_maps(self,main_screen):
 		#TODO: load and init all MapObject here in existing map
 		#from self.object_path 
 		maps = self.chapter_maps
@@ -296,7 +297,7 @@ class Chapter(object):
 							#print('map_path...:',map_path.split('/')[-1].split('.')[0])
 							if obj['on_map_name'] == map_path.split('/')[-1].split('.')[0]:
 								print(f'map id:{map_id} allocate object id:{str_id}')
-								chapter_objects[map_id].append(MapObject(screen=self, object_id=int(str_id),object_content=obj,\
+								chapter_objects[map_id].append(MapObject(screen=main_screen, object_id=int(str_id),object_content=obj,\
 								size_hint=obj['size_hint'],pos_hint={'x':obj['pos_hint'][0],'y':obj['pos_hint'][1]}))
 								on_map = 1
 								break

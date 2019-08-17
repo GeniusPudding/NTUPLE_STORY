@@ -369,11 +369,21 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#self.dialog_view = 0
 			Clock.schedule_once(self.delay_switch_dialog_view,.8)
 
+			#start exploring mode, allocate objects on chapter's map 
+			self.map_objects_allocator(None,'deallocate')
+			for mapobject in self.objects_allocation[self.current_map_id]:#2D-list
+				print('mapobject info:',mapobject.object_id ,mapobject.map_name)
+				self.map_objects_allocator(mapobject,'allocate')
+					
+
+
+
 		elif mode == 2:#for banning some game functions in mode 1(exploring mode)
 			self.item_view = 1
 			#TODO配置一個小返回按鈕提示於角落，按下'b'回到mode 1
 
 		elif mode == 3:
+			self.map_objects_allocator(None,'deallocate')
 			self.item_view = 0
 			self.clear_text_on_screen()
 			self.dialog_view = 1#DEBUG 有時沒出來
@@ -487,11 +497,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			bg = Rectangle(source=self.chapter_maps[current_map_id], pos=(0,0), size=(self.w,self.h),group='bg')
 			self.bg_widget.load_bg(bg)
 
-			self.map_objects_allocator(None,'deallocate')
-			for mapobject in self.objects_allocation[current_map_id]:#2D-list
-				print('mapobject info:',mapobject.object_id ,mapobject.map_name)
-				self.map_objects_allocator(mapobject,'allocate')
-					
+			if self.current_mode == 1:
+				self.map_objects_allocator(None,'deallocate')
+				for mapobject in self.objects_allocation[current_map_id]:#2D-list
+					print('mapobject info:',mapobject.object_id ,mapobject.map_name)
+					self.map_objects_allocator(mapobject,'allocate')
+						
 
 
 	def auto_reload_item_list(self,instance, reload_item_list):#->auto_gen_items
