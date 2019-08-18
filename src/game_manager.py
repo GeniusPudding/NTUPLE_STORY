@@ -334,7 +334,6 @@ class Chapter(object):
 		return 0
 	def load_chapter_dialogs(self):#TODO: read ine of those 16 file
 
-		# max1 = 0
 		f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
 		pre =[line for line in f1.read().split('\n') if len(line)>0]
 		part1 = []
@@ -342,14 +341,9 @@ class Chapter(object):
 			line_list = line.split(':')
 			if len(line_list)>1:
 				part1.append([line_list[0],line_list[1]])
-				# if len(line_list[1]) > max1:
-				# 	max1 = len(line_list[1])
 			else:
 				part1.append(['',line])
-				# if len(line) > max1:
-				# 	max1 = len(line)
 
-		# max2 = 0
 		f2 = open(os.path.join(self.dialog_path,'2.txt'),'r',encoding='utf-16')
 		post = [line for line in f2.read().split('\n') if len(line)>0]
 		part2 = []
@@ -357,17 +351,10 @@ class Chapter(object):
 			line_list = line.split(':')
 			if len(line_list)>1:
 				part2.append([line_list[0],line_list[1]])
-				# if len(line_list[1]) > max2:
-				# 	max2 = len(line_list[1])
-				# 	print('max line:',line_list[1])
 			else:
 				part2.append(['',line])
-				# if len(line) > max2:
-				# 	max2 = len(line)
-				# 	print('max line:',line)
-		#print('part2:',part2)
-		#print(f'Line length MAX1:{max1},MAX2:{max2}')
 		return part1,part2#can be many dialog_parts?
+
 	def load_chapter_title(self,player_id, chapter_id):
 		text = ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
 		return Label(text=text,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
@@ -375,6 +362,7 @@ class Chapter(object):
 		#TODO: load and init all MapObject here in existing map
 		#from self.object_path 
 		maps = self.chapter_maps
+		print('load chapter maps:',maps)
 		chapter_objects = []
 		for i in range(len(maps)):
 			chapter_objects.append([])
@@ -389,7 +377,7 @@ class Chapter(object):
 						on_map = 0
 						for map_id,map_path in enumerate(maps):
 							#print('obj[\'on_map_name\']:',obj['on_map_name'])
-							#print('map_path...:',map_path.split('/')[-1].split('.')[0])
+							print('map_path...:',map_path.split('/')[-1].split('.')[0])
 							if obj['on_map_name'] == map_path.split('/')[-1].split('.')[0]:
 								print(f'map id:{map_id} allocate object id:{str_id}')
 								chapter_objects[map_id].append(MapObject(screen=main_screen, object_id=int(str_id),object_content=obj,\
@@ -397,8 +385,9 @@ class Chapter(object):
 								on_map = 1
 								break
 						if not on_map:
-							print(f'[*] Exception! Can\'t find object:{obj}\'s map!')
-
+							name = obj['on_map_name'] 
+							print(f'[*] Exception! Can\'t find object:{obj}, object[\'on_map_name\']:{name}\'s map!')
+							#可能是需要解鎖的場景圖
 					else:
 						print(f'[*] Exception! object:{obj} 資料不足') 
 

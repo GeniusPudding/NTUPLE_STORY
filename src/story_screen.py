@@ -334,7 +334,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.hp_per_round = 20#trigger event #auto save?
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
-		self.current_map_id = -1
+		self.current_map_id = -2
 		self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
 		#print("self.chapter_maps[self.current_map_id]:",self.chapter_maps[self.current_map_id])
 		#print('Restart test')
@@ -389,6 +389,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 3:
 			if self.item_view == 1:
 				self.item_view = 0#self.map_objects_allocator('deallocate')
+			else:
+				self.map_objects_allocator('deallocate')
 			self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
 			auto_prompt(self,'->',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='For next sentence...\n')
@@ -507,6 +509,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			if self.current_mode in [1,2] :#DEBUG
 				self.map_objects_allocator('reallocate')
 
+		#TODO:
+		#elif == -1: 
+		#	GM.unlock_new_map(self.new_map_name) 加入解鎖新場景的物件
 
 	def auto_reload_item_list(self,instance, reload_item_list):
 		if reload_item_list:
