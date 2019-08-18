@@ -20,7 +20,7 @@ name_to_id = {}
 # 	f.close()
 
 object_count = 0
-function_names = {'道具':'item','解碼':'puzzle','開鎖':'lock','合成':'synthesis','切換場景':'switching','觸發':'trigger','線索':'clue'}
+function_names = {'道具':'item','解碼':'puzzle','開鎖':'lock','合成':'synthesis','切換場景':'switching','觸發':'trigger','線索':'clue'}#'線索':改成道具
 chapter_code = {'一':0,'二':1,'三':2,'四':3}
 player = {'A':0,'B':1,'C':2,'D':3}
 #for testing
@@ -78,6 +78,11 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 				for chinese in func:
 					func_types.append(function_names[chinese])
 				content['function_types'] = func_types
+
+			# #testing
+			# if 'clue' in content['function_types']:
+			# 	 content['function_types'].remove('clue')
+			# 	 content['function_types'].append('item')
 
 			if set(['nothing','clue','switching']) & set(content['function_types']) == set():
 				for img in os.listdir('res/images/handpainting/') :

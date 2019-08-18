@@ -461,7 +461,7 @@ class MapObject(Widget):#ImageButton):#TODO:或是只繼承ButtonBehavior 然後
 	def probe_object_on_map(self,*args):
 		print(f'self:{self},args:{args}')
 		screen = self.screen#args[1]
-		
+		print(f'self.object_id:{self.object_id},self.object_types:{self.object_types}')
 		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0 and not screen.probing:
 			screen.probing = True
 			if 'item' in self.object_types:

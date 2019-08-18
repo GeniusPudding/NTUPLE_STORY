@@ -23,7 +23,6 @@ class NTUPLE_Story(App):
         sm.add_widget(StoryScreen(name='story'))
         sm.get_screen('gm').link_main_screen()
         sm.add_widget(CoverScreen(name='cover'))
-        sm.get_screen('cover').set_init_button()        
         sm.add_widget(IntroScreen(name='intro'))
         sm.add_widget(PrologueScreen(name='prologue'))   
         sm.add_widget(MemoryScreen(name='memory'))       
@@ -40,12 +39,15 @@ if __name__ == '__main__':
     # sys.stderr = open('debug/stderr.txt', 'a+')
     # sys.stderr.write('#####'+str(datetime.datetime.now())+'#####\n')
     print('#'*10, datetime.datetime.now(), '#'*10, '\n')
-    #disable the right click red dot
+    
+    # disable the left click red dot
     Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+    Config.set('graphics', 'fullscreen', '0')
     #Config.set('graphics', 'position', 'custom')
     #Config.set('graphics', 'left', 0)
     #Config.set('graphics', 'top',  0)
-    Config.set('kivy','exit_on_escape',0)
+
+    #Config.set('kivy','exit_on_escape',0)
     Config.set('kivy','keyboard_mode','')
 
 
