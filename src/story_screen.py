@@ -53,7 +53,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		d_len = min(.15*global_w,.2*global_h)
 	
 
-		#DEBUG:有時會無法加回主畫面
+		#DEBUG:有時會無法加回主畫面 
 		for ci in self.item_images :
 			self.screen.remove_widget(ci)
 		self.item_images = [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 	
@@ -389,8 +389,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 3:
 			if self.item_view == 1:
 				self.item_view = 0#self.map_objects_allocator('deallocate')
-			else:
-				self.map_objects_allocator('deallocate')
+			#else:#DEBUG
+			self.map_objects_allocator('deallocate')
 			self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
 			auto_prompt(self,'->',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='For next sentence...\n')
@@ -521,6 +521,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			print('after init self.itemframe.item_list:',self.itemframe.item_list)
 
 			print('reload items:',self.itemframe.item_list)	
+			self.auto_save_game()#TODO: 有增減道具再存
 			self.reload_item_list = False
 
 	def auto_focus_item(self, instance, focusing_object_id):#whenever open itemframe or switching , generate dragging object
@@ -659,6 +660,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			press_key_id = args[1]#args[1]:ASCII?
 
 			return True	
+	#DEBUG: 美工刀、鉛筆圖片出不來
 	def map_objects_allocator(self, action):#TODO: 按照物件種類分類做，線索和普通物件無圖片，配置選取框範圍於地圖上即可
 		if action not in ['allocate','deallocate','reallocate']:
 			raise ValueError(f'Action:{action} is not supported')
@@ -671,8 +673,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if action != 'deallocate':
 			if self.item_view == 0:
 				print('item_view closed, allocate!')
+				print('self.objects_allocation[self.current_map_id]:',self.objects_allocation[self.current_map_id])
 				for MapObject in self.objects_allocation[self.current_map_id]:#2D-list
-					print('MapObject info:',MapObject.object_id ,MapObject.map_name)
+					print('MapObject info:',MapObject.object_id,GM.object_table[str(MapObject.object_id)] ,MapObject.map_name,MapObject.pos_hint,MapObject.size_hint)
 					self.mapobjects_register.append(MapObject)
 					self.add_widget(MapObject)
 
@@ -838,7 +841,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.lock_handler(item)
 		elif behavior_type == 'synthesis': 
 			self.synthesis_handler(item)
-		
+		#Debug: 顯示被使用的物件敘述
+
+
 	def puzzle_handler(self, item):#TODO: 目前只有密碼鎖一種
 		self.puzzle_name = item['name']
 		if self.puzzle_name == '木製保險櫃(關)':
@@ -910,9 +915,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		judge_pos_hint, judge_size_hint = {'x':.35,'y':.35},(.3,.3)
 		if item['source'] is not None:
+			print('item[\'source\']:',item['source'])
+			self.canvas.add(Color(rgba=(1,1,1,1),group='lock'))
 			self.canvas.add(Rectangle(source=item['source'],pos=(.35*global_w,.35*global_h),size=(.3*global_w,.3*global_h),group='lock'))
 		else:
-			judge_pos_hint, judge_size_hint = item['pos_hint'], item['size_hint']
+			judge_pos_hint, judge_size_hint = {'x':item['pos_hint'][0],'y':item['pos_hint'][1]}, item['size_hint']
+		print('judge_pos_hint, judge_size_hint:',judge_pos_hint, judge_size_hint)
 		if self.itemframe.count > 0:
 			self.global_mouse_event = Clock.schedule_interval(global_mouse, 0.1)
 			self.lock_event = Clock.schedule_interval(partial(self.key_item_judge,lock_content,judge_pos_hint, judge_size_hint), 0.1)
@@ -920,7 +928,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def key_item_judge(self, lock_content, judge_pos_hint, judge_size_hint, *args):
 		expected_input = lock_content['input_item']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
-		if E2_distance(self.dragging.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range({'x':.4,'y':.4},(.2,.2)):
+		if E2_distance(self.dragging.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range(judge_pos_hint, judge_size_hint):
 			print('GM.object_table[str(dragging_object_id)][\'name\']:',GM.object_table[str(dragging_object_id)]['name'] )
 			print('expected_input:',expected_input)
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:#開鎖成功
@@ -929,7 +937,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				GM.players[self.current_player_id].spend_item(dragging_object_id)#->auto_reload_item_list->auto_gen_items	
 
 
-
+				#DEBUG: 對話框沒顯示
 				#lock_output: output item, new scene, trigger
 				if lock_content['output_item'] is not None:
 					print('開鎖成功...獲得新道具!')
@@ -945,7 +953,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					GM.Chapters[self.current_player_id][self.current_chapter].unlock_new_map(name)
 					self.current_map_id = len(self.chapter_maps) - 1 #unlock and go to new scene
 				if lock_content['trigger']:
-					print('開鎖成功...觸發劇情!')	
+					print('開鎖成功...觸發劇情!')#DEBUG: 對話框
 					self.quit_puzzle_mode(text='開鎖成功...觸發劇情!',turn_mode=3)
 
 			else:

@@ -43,6 +43,8 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 			if not (isinstance(lb, float) or isinstance(rt, float)):
 				[px,py] = lb[lb.find('(')+1:lb.find(')')].split(',')
 				[tx,ty] = rt[rt.find('(')+1:rt.find(')')].split(',')
+				# if object_name == '美工刀':
+				# 	print('object_name:美工刀')
 				print(lb,rt,i,px,py,tx,ty)
 				content['pos_hint'] = (float(px),float(py))
 				content['size_hint'] = (float(tx)-float(px),float(ty)-float(py))
@@ -98,7 +100,7 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 				content['description'] = ''
 			#'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description', on_map=True
 
-			print(f'final content:{content}')
+			#print(f'final content:{content}')
 
 			final_data_dict[object_count] = content
 			if object_name in name_to_id.keys():
@@ -114,12 +116,12 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 
 print(f'final data_dict:{final_data_dict}')
 print(f'final data_dict.keys():{final_data_dict.keys()}')
-for i in range(135):
-	if i not in final_data_dict.keys():
-		print('i:',i)
-	if 'puzzle' in  final_data_dict[i]['function_types']:
-		print(final_data_dict[i])
-print('m:',m)
+# for i in range(135):
+# 	if i not in final_data_dict.keys():
+# 		print('i:',i)
+# 	if 'puzzle' in  final_data_dict[i]['function_types']:
+# 		print(final_data_dict[i])
+# print('m:',m)
 
 # c = 0
 # less = []
@@ -129,16 +131,20 @@ print('m:',m)
 # 		less.append(content['name'])
 # print('缺少圖片張數:',c)
 # print(less)
-print()
-print(os.listdir('res/images/handpainting/'))
 
-print('max_len_description:',max_len_description)
+# print()
+# print(os.listdir('res/images/handpainting/'))
+
+# print('max_len_description:',max_len_description)
 with open('res/objects/final_objects_table.json','w') as f:
 	json.dump(final_data_dict, f)	
 
-print('name_to_id:',name_to_id)
-print('name_to_id.values():',name_to_id.values())
-print('len(name_to_id.values()):',len(name_to_id.values()))
+# print('name_to_id:',name_to_id)
+# print('name_to_id.values():',name_to_id.values())
+# print('len(name_to_id.values()):',len(name_to_id.values()))
 with open('res/objects/name_to_id_table.json','w') as f:
 	json.dump(name_to_id, f)	
 
+# df = pd.read_csv('res/objects/c.解謎物件總表 - A_李語蝶_.csv')  
+# print(df)
+# print(df['物件一覽表'])

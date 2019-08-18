@@ -32,3 +32,4 @@ for p in range(4):
 		with open(object_dir+'chapter_objects.json','w') as f:
 			json.dump(dicts[p][c], f)	
 		print(f'p:{p},c:{c},dicts[{p}][{c}]:{dicts[p][c]}')
+		

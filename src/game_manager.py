@@ -161,7 +161,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			player = f'p{p}.pickle'
 			p_ = open(os.path.join(pickle_path,player), 'rb')
 			p_dict = pickle.load(p_)
-			self.players[p].item_list = p_dict['item_list']
+			self.players[p].item_list = p_dict['item_list']#DEBUG: 地圖上還有重複載入
 			self.players[p].achievement = p_dict['achievement']
 			self.players[p].GG = p_dict['GG']	
 			print(f'Load {p}\'s p_dict:{p_dict}')
@@ -209,7 +209,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		main_screen.hp_per_round = 20#dict_main['hp_per_round']
 		main_screen.current_map_id = -1
 		main_screen.current_map_id = self.Chapters[self.current_player_id][self.current_chapter[self.current_player_id]].chapter_default_map#dict_main['current_map_id']
-			
+		main_screen.reload_item_list = True
 		main_screen.loading = False#考慮再加個封蓋?
 	def save_game(self,main_screen):
 		pickle_path = 'res/pickles/'
@@ -364,12 +364,13 @@ class Chapter(object):
 							#print('obj[\'on_map_name\']:',obj['on_map_name'])
 							print('map_path...:',map_path.split('/')[-1].split('.')[0])
 							if obj['on_map_name'] == map_path.split('/')[-1].split('.')[0]:
-								print(f'map id:{map_id} allocate object id:{str_id}')
+								objname = obj['name']
+								print(f'map id:{map_id}, name:{objname}  allocate object id:{str_id}')
 								chapter_objects[map_id].append(MapObject(screen=main_screen, object_id=int(str_id),object_content=obj,\
 								size_hint=obj['size_hint'],pos_hint={'x':obj['pos_hint'][0],'y':obj['pos_hint'][1]}))
 								on_map = 1
 								break
-						if not on_map:
+						if not on_map:#DEBUG
 							name = obj['on_map_name'] 
 							print(f'[*] Exception! Can\'t find object:{obj}, object[\'on_map_name\']:{name}\'s map!')
 							#可能是需要解鎖的場景圖
