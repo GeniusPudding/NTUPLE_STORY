@@ -23,6 +23,7 @@ class NTUPLE_Story(App):
         sm.add_widget(StoryScreen(name='story'))
         sm.get_screen('gm').link_main_screen()
         sm.add_widget(CoverScreen(name='cover'))
+        sm.get_screen('cover').set_init_button()        
         sm.add_widget(IntroScreen(name='intro'))
         sm.add_widget(PrologueScreen(name='prologue'))   
         sm.add_widget(MemoryScreen(name='memory'))       

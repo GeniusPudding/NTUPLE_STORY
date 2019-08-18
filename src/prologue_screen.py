@@ -42,7 +42,16 @@ N:但最終誰也無法在這片泥沼中待著，D面色厭煩地離開了會�
 N:只是，X的失蹤彷彿夢魘一般，在每個人的心頭盤據。\n\
 N:所有人都還沒注意到，自己曾經的一舉一動，都在另一人心上畫下傷痕，\n\
 N:那個人每天每夜對著淌血的傷口無助的嘆息，最終走向漠視。'.split('\n')]
-		print('self.auto_dialog:',self.auto_dialog)
+		replaced = []
+		for line in self.auto_dialog:
+			name = line[0]
+			dialog = line[1]
+			for k in speaker_name.keys():
+				dialog = dialog.replace(k,speaker_name[k])
+			replaced.append([name,dialog])
+
+		self.auto_dialog = replaced	
+		#print('self.auto_dialog:',self.auto_dialog)
 		Window.bind(on_key_down=self.key_action)
 		self.bind(start_autoplay=partial(auto_play_dialog,self,self.auto_dialog))
 		self.bind(current_speaker_name=partial(auto_display_speaker,self))
@@ -65,12 +74,14 @@ N:那個人每天每夜對著淌血的傷口無助的嘆息，最終走向漠視
 			#elif press_key_id == 110:#n:
 				elif self.finish_auto:
 					print('Go to story')
+					# print('self.manager.get_screen(\'story\').seal_on:',self.manager.get_screen('story').seal_on)
+					# print('self.manager.get_screen(\'story\').current_mode:',self.manager.get_screen('story').current_mode)
 					self.remove_widget(self.prompt_label)
 					self.manager.get_screen('story').seal_on = False
 					self.manager.current = 'story' #'seal'# 'story' 
 					self.manager.get_screen('story').seal_on = True
 					
-					print('self.manager.get_screen(\'story\').seal_on:',self.manager.get_screen('story').seal_on)
+					# print('self.manager.get_screen(\'story\').seal_on:',self.manager.get_screen('story').seal_on)
 					#return
 			#for testing
 			elif press_key_id == 115:#s

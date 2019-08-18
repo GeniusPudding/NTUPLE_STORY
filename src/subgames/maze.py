@@ -90,7 +90,7 @@ class MazeGame(Screen):# #RelativeLayout):#or inheritant to Screen#SubGame
 		# 	print([int(block) for block in list(self.cur_view[i])])
 
 		#self.monsters = [self.monster1_pos,self.monster2_pos,self.monster3_pos] #storeonly values, not references 	 
-		print("init maze")
+		#print("init maze")
 		
 
 		self.canvas.add(Color( 195/255, 191/255,195/255, .7))

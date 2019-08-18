@@ -8,7 +8,8 @@
 # from phone_screen import PhoneScreen   
 # from memory_screen import MemoryScreen   
 # from prologue_screen import PrologueScreen
-
+# from kivy.utils import *
+ 
 <CoverScreen>:
 	FloatLayout:
         canvas:
@@ -16,13 +17,79 @@
                 pos: self.pos
                 size: self.size
                 source: 'res/images/testing/title.jpg'
+
+
+            Color:
+                rgba: 45/255,32/255,58/255,.8
+            Mesh:
+                vertices:[.1*self.size[0], .2*self.size[1], 0, 0, .15*self.size[0], .1*self.size[1], 0, 0, .3*self.size[0], .1*self.size[1], 0, 0, .35*self.size[0], .2*self.size[1], 0, 0, .3*self.size[0], .3*self.size[1], 0, 0, .15*self.size[0], .3*self.size[1], 0, 0] 
+                indices: [0,1,2,3,4,5]
+                mode: 'triangle_fan'
+
+            Color:
+                rgba: 52/255,161/255,62/255,.5
+            Mesh:
+                vertices:[.107*self.size[0], .2*self.size[1], 0, 0, .153*self.size[0], .106*self.size[1], 0, 0, .297*self.size[0], .106*self.size[1], 0, 0, .343*self.size[0], .2*self.size[1], 0, 0, .297*self.size[0], .294*self.size[1], 0, 0, .153*self.size[0], .294*self.size[1], 0, 0] 
+                indices: [0,1,2,3,4,5]
+                mode: 'triangle_fan'
+
+
+            Color:
+                rgba: 45/255,32/255,58/255,.8
+            Mesh:
+                vertices:[.65*self.size[0], .2*self.size[1], 0, 0, .7*self.size[0], .1*self.size[1], 0, 0, .85*self.size[0], .1*self.size[1], 0, 0, .9*self.size[0], .2*self.size[1], 0, 0, .85*self.size[0], .3*self.size[1], 0, 0, .7*self.size[0], .3*self.size[1], 0, 0] 
+                indices: [0,1,2,3,4,5]
+                mode: 'triangle_fan'
+
+            Color:
+                rgba: 52/255,161/255,62/255,.5
+            Mesh:
+                vertices:[.657*self.size[0], .2*self.size[1], 0, 0, .703*self.size[0], .106*self.size[1], 0, 0, .847*self.size[0], .106*self.size[1], 0, 0, .893*self.size[0], .2*self.size[1], 0, 0, .847*self.size[0], .294*self.size[1], 0, 0, .703*self.size[0], .294*self.size[1], 0, 0] 
+                indices: [0,1,2,3,4,5]
+                mode: 'triangle_fan'
+               
         Label:
             text: '新   生'
             color: .1, .1, .2, .8
             font_name: 'res/HanyiSentyMeadow.ttf'
-            font_size: '600'
+            font_size: '660'
             size_hint: (.5, .4)
-            pos_hint: {'x': .25,'y':.35}
+            pos_hint: {'x': .25,'y':.5}
+
+               
+        Label:
+            text: root.load_game
+            color: 36/255, 22/255, 48/255, .7
+            font_name: 'res/HanyiSentyMeadow.ttf'
+            font_size: '100'
+            size_hint: (.2, .1)
+            pos_hint: {'x': .125,'y':.15}
+            markup: True
+               
+        Label:
+            text: root.new_game
+            color: 36/255, 22/255, 48/255, .7
+            font_name: 'res/HanyiSentyMeadow.ttf'
+            font_size: '100'
+            size_hint: (.2, .1)
+            pos_hint: {'x': .675,'y':.15}
+            markup: True
+
+        Button:
+            background_color: 1,1,1,0
+            size_hint: (.2, .1)
+            pos_hint: {'x': .125,'y':.15}
+            on_press:
+                root.on_press_load(self)                
+
+        Button:
+            background_color: 1,1,1,0
+            size_hint: (.2, .1)
+            pos_hint: {'x': .675,'y':.15}
+            on_press:
+                root.on_press_new(self)
+
+
 <SealScreen>:
     canvas:
         Color:

@@ -132,7 +132,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		#'id':{'name','source','pos_hint','size_hint','player','chapter','function_types','description','on_map_name'}
 		with open('res/objects/final_objects_table.json','r') as f:
 			table = json.load(f)
-			#print('load json object table:',table)
 	
 		return table
 
@@ -161,7 +160,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		'1_0.pickle','1_1.pickle','1_2.pickle','1_3.pickle',\
 		'2_0.pickle','2_1.pickle','2_2.pickle','2_3.pickle',\
 		'3_0.pickle','3_1.pickle','3_2.pickle','3_3.pickle',\
-		'p0.pickle','p1.pickle','p2.pickle','p3.pickle','current_c_p.pickle']
+		'p0.pickle','p1.pickle','p2.pickle','p3.pickle','current_c_p.pickle','main_screen.pickle']
 		pickle_path = 'res/pickles/'
 		
 		if set(pickle_list) - set(os.listdir(pickle_path)) != set():#缺少記錄檔
@@ -193,13 +192,41 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		print(f'Load dict_p_c:{dict_p_c}')
 		self.current_player_id = dict_p_c['current_player_id']
 		self.current_chapter = dict_p_c['current_chapter'] 
+
+		#main_screen.loading = True
 		main_screen.current_player_id, main_screen.current_chapter = self.current_player_id, self.current_chapter[self.current_player_id]	
 		main_screen.auto_reload_chapter_info(self,[main_screen.current_player_id, main_screen.current_chapter])
-		main_screen.hp_per_round = 20
+
+		main = open(os.path.join(pickle_path,'main_screen.pickle'), 'rb')	
+		dict_main = pickle.load(main)	
+		print(f'Load dict_main:{dict_main}')
+		# main_screen.finish_auto = True#auto_prompt
+		# main_screen.remove_widget(main_screen.prompt_label)
+		load_mode = dict_main['current_mode'] 
+		if load_mode == 0:
+			print('loading main_screen.seal_on:',main_screen.seal_on)
+			print('loading main_screen.finish_auto:',main_screen.finish_auto)
+			print('loading self.manager.current:',self.manager.current)
+			main_screen.current_mode = -1
+			main_screen.current_mode = load_mode
+		elif load_mode == 1:	
+			print('loading main_screen.seal_on:',main_screen.seal_on)
+			print('loading main_screen.finish_auto:',main_screen.finish_auto)
+			print('loading self.manager.current:',self.manager.current)
+			print('loading main_screen.dialog_view:',main_screen.dialog_view)
+			main_screen.current_mode = load_mode
+			print('loading main_screen.seal_on:',main_screen.seal_on)
+			print('loading main_screen.finish_auto:',main_screen.finish_auto)
+			print('loading self.manager.current:',self.manager.current)
+			print('loading main_screen.dialog_view:',main_screen.dialog_view)
+		else:
+			main_screen.current_mode = load_mode
+		main_screen.hp_per_round = 20#dict_main['hp_per_round']
 		main_screen.current_map_id = -1
-		main_screen.current_map_id = main_screen.chapter_info.chapter_default_map
-		
-	def save_game(self):
+		main_screen.current_map_id = self.Chapters[self.current_player_id][self.current_chapter[self.current_player_id]].chapter_default_map#dict_main['current_map_id']
+			
+		main_screen.loading = False#考慮再加個封蓋?
+	def save_game(self,main_screen):
 		pickle_path = 'res/pickles/'
 		for p in range(4):
 			player = f'p{p}.pickle'
@@ -207,19 +234,29 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			p_dict = {'item_list':self.players[p].item_list,'achievement':\
 			self.players[p].achievement,'GG':self.players[p].GG}
 			pickle.dump(p_dict,p_) 
+			print('auto save p_dict:',p_dict)
 			for c in range(4):		
 				chapter = f'{p}_{c}.pickle' 
 				c_ = open(os.path.join(pickle_path,chapter), 'wb')
 				c_dict = {'chapter_maps':self.Chapters[p][c].chapter_maps,\
 				'started':self.Chapters[p][c].started}
 				pickle.dump(c_dict,c_) 
+				print('auto save c_dict:',c_dict)
 		p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'wb')	
 		dict_p_c = {}
 		dict_p_c['current_player_id'] = self.current_player_id 
 		dict_p_c['current_chapter'] = self.current_chapter				
 		pickle.dump(dict_p_c,p_c) 
-
-
+		print('auto save dict_p_c:',dict_p_c)
+		main = open(os.path.join(pickle_path,'main_screen.pickle'), 'wb')	
+		dict_main = {}	
+		dict_main['current_mode'] = main_screen.current_mode
+		if main_screen.current_mode == 2:
+			dict_main['current_mode'] = 1
+		# dict_main['current_map_id'] = main_screen.current_map_id
+		# dict_main['hp_per_round'] = main_screen.hp_per_round	
+		print('auto save dict_main:',dict_main)
+		pickle.dump(dict_main,main) 
 
 class Player(object):#player_id=player_id
 	def __init__(self, player_id, GM):

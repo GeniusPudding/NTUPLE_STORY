@@ -121,15 +121,16 @@ class CodedLock(Screen):
 		self.manager.current = 'colorcoded'
 
 	def key_action(self,*args):
-		#if self.manager.current == 'coded':
-		if args[1]==276:
-			self.move_view('l')
-		elif args[1]==275:
-			self.move_view('r')
-		elif args[1]==274:
-			self.select_number('d')
-		elif args[1]==273:
-			self.select_number('u')
+		if self.manager is not None:
+			if self.manager.current == 'coded':
+				if args[1]==276:
+					self.move_view('l')
+				elif args[1]==275:
+					self.move_view('r')
+				elif args[1]==274:
+					self.select_number('d')
+				elif args[1]==273:
+					self.select_number('u')
 	def move_view(self, direction):
 
 		#control part:

@@ -31,6 +31,7 @@ from kivy.core.image import Image as coreImage
 from kivy.animation import Animation
 from kivy.input.motionevent import MotionEvent
 from kivy.core.audio import SoundLoader
+from kivy.utils import escape_markup
 
 import platform
 import sys, datetime

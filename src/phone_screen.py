@@ -45,7 +45,8 @@ class TaskStack(Widget):
 		#self.current_view_id = len(self.opened_list)-1
 		self.center_view_id = -1
 	def test(self):
-		print(f"while test, self.pos:{self.pos},self.size:{self.size},self.pos_hint:{self.pos_hint},self.size_hint:{self.size_hint},self.parent.pos:{self.parent.pos},self.parent.size:{self.parent.size},self.parent.pos_hint:{self.parent.pos_hint},self.parent.size_hint:{self.parent.size_hint},self.parent:{self.parent}")
+		pass
+		#print(f"while test, self.pos:{self.pos},self.size:{self.size},self.pos_hint:{self.pos_hint},self.size_hint:{self.size_hint},self.parent.pos:{self.parent.pos},self.parent.size:{self.parent.size},self.parent.pos_hint:{self.parent.pos_hint},self.parent.size_hint:{self.parent.size_hint},self.parent:{self.parent}")
 		
 
 
@@ -169,7 +170,7 @@ class IPhoneXR(Image):#emulate Ipone XR gestures
 		self.start_touch_pos_hint = (0,0)
 		self.end_touch_pos_hint = (0,0)
 
-		print(f"in phone, pos_hint:{self.pos_hint},size_hint:{self.size_hint}")
+		#print(f"in phone, pos_hint:{self.pos_hint},size_hint:{self.size_hint}")
 	#TODO:實做所有的觸控功能在此類別:
 	def on_touch_down(self, touch):
 		print("phone on_touch_down touch.pos,touch.spos: ",touch.pos,touch.spos)
@@ -260,7 +261,7 @@ class PhoneScreen(Screen):#TODO: set a restart phone button
 		self.tasks_stack = TaskStack()
 		self.add_widget(self.tasks_stack)
 		self.tasks_stack.test()
-		print(f"init PhoneScreen, self.pos:{self.pos},self.size:{self.size},self.pos_hint:{self.pos_hint},self.size_hint:{self.size_hint},self.screen_x:{self.screen_x},self.screen_y:{self.screen_y}")
+		#print(f"init PhoneScreen, self.pos:{self.pos},self.size:{self.size},self.pos_hint:{self.pos_hint},self.size_hint:{self.size_hint},self.screen_x:{self.screen_x},self.screen_y:{self.screen_y}")
 		#self.canvas.add(Color(1, 1, 1, .9))#source='res/images/phone/phone.jpg',
 		#print("phone:",self.phone_pos,self.phone_size)
 		#self.canvas.add(Rectangle(pos=self.phone_pos, size= self.phone_size)) 
