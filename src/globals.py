@@ -69,12 +69,12 @@ def get_screen_size():#TODO:
 		
 		#TODO: study GetWindowRect
 		hwin = win32gui.GetDesktopWindow()
-		print('hwin:',hwin)
+		#print('hwin:',hwin)
 		dt_l, dt_t, dt_r, dt_b = win32gui.GetWindowRect(hwin)
-		print(dt_l, dt_t, dt_r, dt_b )
+		#print(dt_l, dt_t, dt_r, dt_b )
 		from win32api import GetSystemMetrics
-		print("Width =", GetSystemMetrics(0))
-		print("Height =", GetSystemMetrics(1))
+		#print("Width =", GetSystemMetrics(0))
+		#print("Height =", GetSystemMetrics(1))
 		w, h = (dt_r, dt_b)
 	return (w, h)
 

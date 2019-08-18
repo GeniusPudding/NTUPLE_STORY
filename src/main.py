@@ -40,14 +40,12 @@ if __name__ == '__main__':
     # sys.stderr = open('debug/stderr.txt', 'a+')
     # sys.stderr.write('#####'+str(datetime.datetime.now())+'#####\n')
     print('#'*10, datetime.datetime.now(), '#'*10, '\n')
-    # disable the left click red dot
-    #Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
-    #Config.set('graphics', 'fullscreen', '0')
+    #disable the right click red dot
+    Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
     #Config.set('graphics', 'position', 'custom')
     #Config.set('graphics', 'left', 0)
     #Config.set('graphics', 'top',  0)
-
-    #Config.set('kivy','exit_on_escape',0)
+    Config.set('kivy','exit_on_escape',0)
     Config.set('kivy','keyboard_mode','')
 
 

@@ -289,7 +289,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bind(complete_chapter=self.auto_end_chapter)
 		self.bind(seal_on=self.auto_seal)
 		self.bind(current_mode=self.auto_switch_mode)
-		self.bind(current_mode=self.auto_save_game)
+		#self.bind(current_mode=self.auto_save_game)
 		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.25,'y':.4}))
 		self.bind(finish_auto=self.auto_start_chapter)
 		self.bind(reload_item_list=self.auto_reload_item_list)
@@ -379,10 +379,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			Clock.schedule_once(self.try_close_dialog_view,.8)
 
 			#start exploring mode, allocate objects on chapter's map 
-			self.map_objects_allocator('reallocate')
-			# if self.item_view == 0:
-			# 	self.map_objects_allocator('allocate')
-						
+			self.map_objects_allocator('reallocate')				
 
 
 		elif mode == 2:#for banning some game functions in mode 1(exploring mode)
@@ -390,9 +387,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#TODO配置一個小返回按鈕提示於角落，按下'b'回到mode 1
 
 		elif mode == 3:
-			self.map_objects_allocator('deallocate')
 			if self.item_view == 1:
-				self.item_view = 0
+				self.item_view = 0#self.map_objects_allocator('deallocate')
 			self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
 			auto_prompt(self,'->',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='For next sentence...\n')
@@ -508,9 +504,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.bg_widget.load_bg(bg)
 			if self.item_view == 1:
 				self.item_view == 0
-			if self.current_mode == 1 :#DEBUG
+			if self.current_mode in [1,2] :#DEBUG
 				self.map_objects_allocator('reallocate')
-				#self.map_objects_allocator('allocate')
+
 
 	def auto_reload_item_list(self,instance, reload_item_list):
 		if reload_item_list:
@@ -555,7 +551,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						if self.displaying_character_labels == [] and self.dialog_events == []:
 							self.exploring_maps(press_key_id)
 					elif self.item_view == 1:
-						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0:
+						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0 and self.itemframe.count > 1:
 							self.item_box_canvas_controller('show',direction=press_key_id) 
 						else:
 							print('Wait for item canvas finish')
@@ -620,7 +616,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				self.dialog_view ^= 1
 
 			elif press_key_id == 115:#s
-				if self.current_mode == 0 and not self.seal_on:
+				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
 					print('Skip the auto dialog')
 					self.clear_text_on_screen()
 					self.finish_auto = True
@@ -661,13 +657,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def map_objects_allocator(self, action):#TODO: 按照物件種類分類做，線索和普通物件無圖片，配置選取框範圍於地圖上即可
 		if action not in ['allocate','deallocate','reallocate']:
 			raise ValueError(f'Action:{action} is not supported')
-
+		print('[*]map_objects_allocator action:',action)
 		if action != 'allocate':
+			print('deallocate!')
 			for MapObject in self.mapobjects_register:
 				self.remove_widget(MapObject)
-
-		elif action != 'deallocate':
+			self.mapobjects_register = []	
+		if action != 'deallocate':
 			if self.item_view == 0:
+				print('item_view closed, allocate!')
 				for MapObject in self.objects_allocation[self.current_map_id]:#2D-list
 					print('MapObject info:',MapObject.object_id ,MapObject.map_name)
 					self.mapobjects_register.append(MapObject)
@@ -949,7 +947,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				self.dragging.reset(self,2)
 
 			#self.hp_per_round -= 1
-		elif not self.mouse_in_range({'x':.4,'y':.4},(.2,.2)) and self.dragging.free == 1:#DEBUG
+		elif not self.mouse_in_range({'x':.4,'y':.4},(.2,.2)) and self.dragging.free == 1:#DEBUG: 會扣血
 			print('開鎖超出範圍，返回原位')		
 			self.dragging.reset(self,2)
 
