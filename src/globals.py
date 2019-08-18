@@ -46,7 +46,7 @@ import random
 #from PIL import Image as PILImage
 import time
 import pickle
-
+import shutil
 #global constant here
 final_chapter = 3#for release: 3
 OS = platform.system()

@@ -259,14 +259,14 @@ class Player(object):#player_id=player_id
 			self.item_list.append(object_id)#key:object_id,value:(name,source,location,pos,player,chapter,function_types,description)
 			self.GM.manager.get_screen('story').reload_item_list = True 
 		else:
-			print('[*]Exception! Cannot get an item again!')
+			print('[*] Exception! Cannot get an item again!')
 	def spend_item(self, object_id):
 		if object_id in self.item_list:
 			print('spend_item:',object_id)
 			self.item_list.remove(object_id)#key:object_id,value:(name,source,location,pos,player,chapter,function_types,description)
 			self.GM.manager.get_screen('story').reload_item_list = True 
 		else:
-			print('[*]Exception! Cannot spend an item that not in item list!')
+			print('[*] Exception! Cannot spend an item that not in item list!')
 	def get_achievement(self,achievement):
 		pass #TODO:思考內容要放啥
 
@@ -281,14 +281,16 @@ class Chapter(object):
 	def __init__(self, player_id, chapter_id,main_screen):
 		self.object_path = f'res/chapters/{player_id}_{chapter_id}/objects/' #including a json and object images
 		self.map_path = f'res/chapters/{player_id}_{chapter_id}/maps/'  #including map images
+		self.unlocked_map_path = f'res/chapters/{player_id}_{chapter_id}/unlocked_maps/'  #including unlocked map images
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
 		self.scene_path = f'res/chapters/{player_id}_{chapter_id}/scenes/' #including scene images for the plot mode
-		self.locked_map_path = 'res/images/locked/'
+		#self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)
 		self.chapter_NPCs = [] #deprecated
 		self.chapter_maps = self.add_chapter_maps()
 		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
-		self.chapter_objects = self.load_chapter_objects_of_maps(main_screen) #objects_allocation[current_map] = list of MapObjects 
+		self.main_screen = main_screen
+		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
 		#self.picked_item = []
 		self.chapter_plot_scenes = self.load_plot_scenes()
 		self.chapter_scenes_table = self.load_scenes_table()
@@ -298,13 +300,16 @@ class Chapter(object):
 		#self.used_list = []#used objects' id
 
 	def unlock_new_map(self,map_name):#DEBUG: 不需要重新載入所有地圖物件
-		for locked_img in os.listdir(self.locked_map_path):
-			if map_name in locked_img:
-				self.chapter_maps.append(os.path.join(self.locked_map_path,locked_img))
+		for locked_img in os.listdir('res/images/handpainting'):#self.locked_map_path
+			if map_name == locked_img.split('.')[0]:
+				shutil.copy(os.path.join('res/images/handpainting/',locked_img),self.unlocked_map_path)
+				self.chapter_maps.append(os.path.join(self.unlocked_map_path,locked_img))
 				break
+		
 		#TODO
-		self.load_chapter_objects_of_maps(main_screen)#load new objects info of unlocked map
-
+		self.chapter_objects = self.load_chapter_objects_of_maps()#load new objects info of unlocked map
+		self.main_screen.chapter_maps = self.chapter_maps#reload main screen's info
+		self.main_screen.objects_allocation = self.chapter_objects
 	def load_default_map(self,player_id, chapter_id):
 		# if (player_id==1 and chapter_id==2) or (player_id==2 and chapter_id==1):
 		# 	return -1 #TODO
@@ -343,10 +348,12 @@ class Chapter(object):
 	def load_chapter_title(self,player_id, chapter_id):
 		text = ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
 		return Label(text=text,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
-	def load_chapter_objects_of_maps(self,main_screen):
+	def load_chapter_objects_of_maps(self):
 		#TODO: load and init all MapObject here in existing map
 		#from self.object_path 
 		maps = self.chapter_maps
+
+
 		print('load chapter maps:',maps)
 		chapter_objects = []
 		for i in range(len(maps)):
@@ -366,7 +373,7 @@ class Chapter(object):
 							if obj['on_map_name'] == map_path.split('/')[-1].split('.')[0]:
 								objname = obj['name']
 								print(f'map id:{map_id}, name:{objname}  allocate object id:{str_id}')
-								chapter_objects[map_id].append(MapObject(screen=main_screen, object_id=int(str_id),object_content=obj,\
+								chapter_objects[map_id].append(MapObject(screen=self.main_screen, object_id=int(str_id),object_content=obj,\
 								size_hint=obj['size_hint'],pos_hint={'x':obj['pos_hint'][0],'y':obj['pos_hint'][1]}))
 								on_map = 1
 								break
@@ -431,6 +438,7 @@ class MapObject(Widget):#ImageButton):#TODO:或是只繼承ButtonBehavior 然後
 			self.canvas.add(Rectangle(pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
 				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='mapobject'))
 		else:
+			self.canvas.add(Color(rgba=(1,1,1,1),group='mapobject'))
 			self.canvas.add(Rectangle(source=self.source,pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
 				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='mapobject'))
 
@@ -440,14 +448,15 @@ class MapObject(Widget):#ImageButton):#TODO:或是只繼承ButtonBehavior 然後
 			self.touch_range = touch_range
 
 	def on_touch_down(self,touch):
-		print(f"Map object on_touch_down touch.pos:{touch.pos}")
+		
 		if self.collide_point(*touch.pos):
+			print(f"Map object on_touch_down touch.pos:{touch.pos}")
 			self.probe_object_on_map()
 
 	def probe_object_on_map(self,*args):
 		print(f'self:{self},args:{args}')
 		screen = self.screen#args[1]
-		print(f'self.object_id:{self.object_id},self.object_types:{self.object_types}')
+		print(f'probe self.object_id:{self.object_id},self.object_types:{self.object_types}')
 		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0 and not screen.probing:
 			screen.probing = True
 			if 'item' in self.object_types:

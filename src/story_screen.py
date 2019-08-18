@@ -351,6 +351,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		# test4 = MapObject(screen=self, object_id=6,object_content=GM.object_table[str(6)],size_hint=(.15,.15),pos_hint={'x':.3,'y':.5})
 		# test5 = MapObject(screen=self, object_id=58,object_content=GM.object_table[str(58)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.3})
 		# test6 = MapObject(screen=self, object_id=66,object_content=GM.object_table[str(66)],size_hint=(.15,.15),pos_hint={'x':.1,'y':.5})
+		# test7 = MapObject(screen=self, object_id=18,object_content=GM.object_table[str(18)],size_hint=(.1,.1),pos_hint={'x':.1367,'y':.2888888})
+		# self.remove_widget(test7)
+		# self.add_widget(test7)
 		# self.remove_widget(test1)#lock 
 		# self.remove_widget(test2)#lock input item  
 		# self.remove_widget(test3)#nothing
@@ -389,7 +392,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 3:
 			if self.item_view == 1:
 				self.item_view = 0#self.map_objects_allocator('deallocate')
-			#else:#DEBUG
+			else: 
+				if self.dialog_view == 1:
+					self.dialog_view = 0
 			self.map_objects_allocator('deallocate')
 			self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
@@ -425,7 +430,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.current_mode = 1
 		self.chapter_maps = chapter_info.chapter_maps
 		self.NPCs_allocation = chapter_info.chapter_NPCs#deprecated
-		self.objects_allocation = chapter_info.chapter_objects#DEBUG:疑似蓋掉原本的canvas圖片
+		self.objects_allocation = chapter_info.chapter_objects
 		self.auto_dialog = self.chapter_info.chapter_pre_plot 
 		self.manual_dialog = self.chapter_info.chapter_plot
 		self.scenes = self.chapter_info.chapter_plot_scenes
@@ -435,7 +440,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.itemframe = ItemFrame(screen = self,pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
 		self.reload_item_list = True
 		self.generate_item_tag()
-		#print('chapter_info:', chapter_info,'self.itemframe:',self.itemframe)
 		
 		print(f'chapter_maps:{self.chapter_maps},objects_allocation:{self.objects_allocation}')#,current_dialog:{self.auto_dialog}')
 
@@ -613,6 +617,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						self.clear_text_on_screen()		
 						self.complete_chapter = True
 
+			elif press_key_id == 113:#q		
+				if self.current_mode == 2:	
+					self.remove_widget(self.prompt_label)
+					self.current_mode = 3
 
 			#for testing
 			elif press_key_id == 112:#p
@@ -939,23 +947,29 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 				#DEBUG: 對話框沒顯示
 				#lock_output: output item, new scene, trigger
+				quit_text = '開鎖成功...'
 				if lock_content['output_item'] is not None:
 					print('開鎖成功...獲得新道具!')
-					self.quit_puzzle_mode(text='開鎖成功...獲得新道具!')
+					quit_text += '獲得新道具! '
+					#self.quit_puzzle_mode(text='開鎖成功...獲得新道具!')
 					#WARNING: name_to_id可能重複
 					output_id = GM.name_to_id_table[lock_content['output_item']]
 					GM.players[self.current_player_id].get_item(output_id)#->auto_reload_item_list->auto_gen_items	
 				if lock_content['new_scene'] is not None:
 					print('開鎖成功...解鎖新場景!')
-					self.quit_puzzle_mode(text='開鎖成功...解鎖新場景!')
+					quit_text += '解鎖新場景! '
+					#self.quit_puzzle_mode(text='開鎖成功...解鎖新場景!')
 
 					name = lock_content['new_scene'].split('\'')[1]
 					GM.Chapters[self.current_player_id][self.current_chapter].unlock_new_map(name)
 					self.current_map_id = len(self.chapter_maps) - 1 #unlock and go to new scene
 				if lock_content['trigger']:
 					print('開鎖成功...觸發劇情!')#DEBUG: 對話框
-					self.quit_puzzle_mode(text='開鎖成功...觸發劇情!',turn_mode=3)
-
+					quit_text += '觸發劇情! '
+					self.quit_puzzle_mode(text=quit_text,turn_mode=3)
+				else:
+					self.quit_puzzle_mode(text=quit_text)
+					
 			else:
 				print('開鎖失敗!')#DEBUG:沒顯示
 				self.clear_text_on_screen()
@@ -1002,20 +1016,28 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				pass
 			self.canvas.remove_group('synthesis')
 			self.canvas.remove_group('synthesis1')
+
+		self.dialog_view = 1
 		self.clear_text_on_screen()
 		spent_time = line_display_scheduler(self,text,False,special_char_time,next_line_time,common_char_time)
 		#Clock.schedule_once(self.clear_text_on_screen,spent_time+.5)
 		#self.clear_text_on_screen(delay_time=spent_time+.5)
 		self.remove_widget(self.dragging)
 
-		self.current_mode = turn_mode
-		if self.item_view == 1:
-			Clock.schedule_once(self.try_close_item_view,spent_time+.5)
-		else:
-			self.try_close_dialog_view()
+
+		if turn_mode == 1:
+			if self.item_view == 1:
+				Clock.schedule_once(self.try_close_item_view,spent_time+.5)
+			# else
+			# 	self.try_close_dialog_view()
+
 			# if self.dialog_view == 1:
 			# 	self.dialog_view = 0
+			self.current_mode = turn_mode 
 
+		elif turn_mode == 3:#mode == 3	
+			print('self.current_mode:',self.current_mode )	
+			auto_prompt(self,'q',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='Enter plot mode!\n')
 	#TODO: implement object functions here, btn must be an instance of MapObject
 	def on_press_item(self, btn):
 		self.hp_per_round -= 1
@@ -1034,8 +1056,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				print('picked_item:',picked_item.object_id)
 				break
 
-		GM.Chapters[self.current_player_id][self.current_chapter].chapter_objects[self.current_map_id].remove(picked_item)#
-		#self.objects_allocation[self.current_map_id].remove(picked_item)
+		print('Before picked:',GM.Chapters[self.current_player_id][self.current_chapter].chapter_objects[self.current_map_id])
+		#GM.Chapters[self.current_player_id][self.current_chapter].chapter_objects[self.current_map_id].remove(picked_item)#
+		self.objects_allocation[self.current_map_id].remove(picked_item)
+		print('After picked:',GM.Chapters[self.current_player_id][self.current_chapter].chapter_objects[self.current_map_id])
 		if action == 'to_bag':
 			GM.players[self.current_player_id].get_item(object_id)
 		self.remove_widget(btn) 

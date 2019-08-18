@@ -51,7 +51,7 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 
 			content['name'] = object_name
 
-			content['on_map_name'] = False#True
+			content['on_map_name'] = None#True
 			loc = df['所在地點'][i]#.split('\'')
 			if len(loc.split('\'')) > 1:
 			# 	print(f'特殊地點:{loc}，需另外配置')

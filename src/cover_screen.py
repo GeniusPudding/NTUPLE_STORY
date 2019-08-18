@@ -21,12 +21,14 @@ class CoverScreen(Screen):
 
 			return True
 
-	def set_init_button(self):
-
-		pass
-
 	def on_press_new(self,btn):
 		print('新遊戲!')
+		for p in range(4):
+			for c in range(4):
+				clear_path = f'res/chapters/{player_id}_{chapter_id}/unlocked_maps/'
+				for f in os.listdir(clear_path):
+					if '.png' in f or '.jpg' in f:
+						os.remove(os.path.join(clear_path,f))
 		self.manager.current = 'intro'
 	def on_press_load(self,btn):	
 		print('載入遊戲!')
