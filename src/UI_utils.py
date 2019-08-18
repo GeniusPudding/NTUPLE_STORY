@@ -19,7 +19,7 @@ def auto_display_speaker(Screen, instance, name):#name is Chinese here   #a Scre
 	Screen.remove_widget(Screen.nametag)
 	Screen.canvas.remove_group('speaker')
 	if name not in ['','N']:
-		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(.2,0,1,1),font_size=40,size_hint=(.1,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
+		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(.2,0,1,1),font_size=40,size_hint=(.26,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.nametag)
 		source = 'res/images/players/' + name + '.png'
 		if os.path.isfile(source):

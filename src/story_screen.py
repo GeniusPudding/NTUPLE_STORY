@@ -89,7 +89,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 
 	def display_item_name(self,object_id,screen):
 		#screen.remove_widget(self.item_name)
-		self.item_name = Label(text= GM.object_table[str(object_id)]['name'],pos_hint={'x':0,'y':.2},color=(.7,1,.4,1),font_size=30,size_hint=(.1,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
+		self.item_name = Label(text= GM.object_table[str(object_id)]['name'],pos_hint={'x':0,'y':.2},color=(.7,1,.4,1),font_size=30,size_hint=(.26,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 		screen.add_widget(self.item_name)
 	def display_item_info(self,object_id,screen):
 		print('auto_display_item_info object_id:',object_id)
@@ -457,7 +457,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		
 		if dialog_view == 1:
 			print("load dialog view")
-			self.canvas.add(Rectangle(source='res/images/origin_dialogframe.png',pos=(0,0),size=(self.w*self.dialogframe_width,self.h*(self.dialogframe_height+.07)),group='dialogframe'))
+			self.canvas.add(Rectangle(source='res/images/new_dialogframe.png',pos=(0,0),size=(self.w*self.dialogframe_width,self.h*(self.dialogframe_height+.07)),group='dialogframe'))
 		elif dialog_view == 0:
 			print("hide dialog view")	
 			self.current_speaker_name = 'N'

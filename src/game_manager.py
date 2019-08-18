@@ -54,21 +54,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.main_screen = self.manager.get_screen('story')
 		self.Chapters = self.init_chapters(self.main_screen)
 
-		# #for testing
-		# j = 0
-		# c = 0
-		# for i in range(4):
-			
-		# 	for str_id in self.object_table.keys():
-		# 		item = self.object_table[str_id]
-		# 		if item['source'] is not None:				
-		# 			self.players[i].item_list.append(int(str_id))#for testing
-		# 			c += 1
-		# 			if c>=4:
-		# 				break
-		# 	c = 0			
-		# 	self.players[i].GG = True
-
 		self.main_screen.start_story(self)		
 
 	def start_chapter(self):
