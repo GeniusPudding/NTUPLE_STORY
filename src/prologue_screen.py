@@ -1,5 +1,5 @@
 ###################################################
-# Prologue appeared before the main screen        #
+# The prologue displayed before the main story    #
 ###################################################
 from game_manager import *
 

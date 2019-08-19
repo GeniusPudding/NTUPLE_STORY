@@ -73,7 +73,7 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,*args):#or chars_of_row = 15,rows = 3
+def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
@@ -92,11 +92,15 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dial
 	else:
 		print('Text Line is too long!! Not supported')
 		return
-
+		
+	clear_displayed_text(Screen,Screen.displaying_character_labels)
+	if uncontinuous:
+		for event in Screen.dialog_events:
+			event.cancel()
 	print('len(displaying_character_labels)=',len(Screen.displaying_character_labels))
-	if len(Screen.displaying_character_labels)>0:
+	if len(Screen.displaying_character_labels) > 0:#testing
 		print('有字幕殘留')
-		clear_displayed_text(Screen,Screen.displaying_character_labels)
+	
 	print('start generate line:',line)
 	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
 	

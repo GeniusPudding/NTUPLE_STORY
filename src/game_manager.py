@@ -45,7 +45,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.unlock_table = self.load_unlock_table()
 		self.synthesis_table = self.load_synthesis_table()
 		self.name_to_id_table = self.load_name_to_id_table() #有些不同id的名稱會重複，重複時查總表
-		self.NPC_table = self.load_NPC_table()
+		#self.NPC_table = self.load_NPC_table()無需總表
 
 		print("global_w,global_h:",global_w,global_h)
 
@@ -62,8 +62,9 @@ class GameManagerScreen(Screen):#main control class of the whole game
 	def change_turn(self):
 		print('turns:',turns)
 		print('self.current_chapter:',self.current_chapter)
-		if len(turns) == 0:
-			self.to_ending(self.current_player_id)
+		if len(turns) == 0:#test
+			self.ready_to_ending()
+			return self.current_player_id, self.current_chapter[self.current_player_id]
 		
 		self.current_player_id = turns[self.current_player_id]
 		return self.current_player_id, self.current_chapter[self.current_player_id] #(self.current_player_id, self.current_chapter[self.current_player_id])	
@@ -71,7 +72,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 	def change_chapter(self):
 		if self.current_chapter[self.current_player_id] == final_chapter:
 			self.players[self.current_player_id].GG = True
-			self.to_ending(self.current_player_id)
+			#self.ready_to_ending(self.current_player_id)
 			self.exclude_from_turns(self.current_player_id)#set current_player_id to last player, for the change_turn
 			
 		else:
@@ -99,12 +100,16 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 		turns = new_link
 
-	def to_ending(self, player_id):
+	def ready_to_ending(self):#, player_id
 		last_one = False
 		if self.p0.GG and self.p1.GG and self.p2.GG and self.p3.GG:
 			last_one = True
-		self.manager.get_screen('ending').load_ending(player_id,last_one)
-		self.manager.current = 'ending'
+
+			self.manager.get_screen('ending').load_ending()
+			self.manager.current = 'ending'
+		else:
+			print(self.p0.GG,self.p1.GG,self.p2.GG,self.p3.GG)
+			print('[*] Exception! Should not get to ending!')
 
 	def init_chapters(self,main_screen): #TODO: load game info
 		Chapters = []
@@ -135,9 +140,9 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			table = json.load(f)
 		return table 	
 
-	def load_NPC_table(self):
-		table = {0:{'name':'艾爾莎','source':'res/images/testing/Erza.png','map_name':'','pos_hint':'','size_hint':'','player':1,'chapter':0,'function_types':'','description':'妖精的尾巴'}}##key:NPC_id,value:(name,source,location,pos,player,chapter,function_types,description)		return table		
-		return table
+	# def load_NPC_table(self):
+	# 	table = {0:{'name':'艾爾莎','source':'res/images/testing/Erza.png','map_name':'','pos_hint':'','size_hint':'','player':1,'chapter':0,'function_types':'','description':'妖精的尾巴'}}##key:NPC_id,value:(name,source,location,pos,player,chapter,function_types,description)		return table		
+	# 	return table
 	#TODO: the function of auto save/load game status
 
 	def load_game(self,main_screen):
@@ -284,13 +289,14 @@ class Chapter(object):
 		self.unlocked_map_path = f'res/chapters/{player_id}_{chapter_id}/unlocked_maps/'  #including unlocked map images
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
 		self.scene_path = f'res/chapters/{player_id}_{chapter_id}/scenes/' #including scene images for the plot mode
+		self.npc_path = f'res/chapters/{player_id}_{chapter_id}/NPCs/' #including json of NPC info
 		#self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)
-		self.chapter_NPCs = [] #deprecated
+		self.main_screen = main_screen
 		self.chapter_maps = self.add_chapter_maps()
 		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
-		self.main_screen = main_screen
-		self.chapter_objects = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
+		self.chapter_NPCs_of_maps = self.load_chapter_NPCs_of_maps()#list of ImageButton
+		self.chapter_objects_of_maps = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
 		#self.picked_item = []
 		self.chapter_plot_scenes = self.load_plot_scenes()
 		self.chapter_scenes_table = self.load_scenes_table()
@@ -307,9 +313,10 @@ class Chapter(object):
 				break
 		
 		#TODO
-		self.chapter_objects = self.load_chapter_objects_of_maps()#load new objects info of unlocked map
 		self.main_screen.chapter_maps = self.chapter_maps#reload main screen's info
-		self.main_screen.objects_allocation = self.chapter_objects
+		self.main_screen.objects_allocation = self.chapter_objects_of_maps\
+		 = self.load_chapter_objects_of_maps()#load new objects info of unlocked map
+		
 	def load_default_map(self,player_id, chapter_id):
 		# if (player_id==1 and chapter_id==2) or (player_id==2 and chapter_id==1):
 		# 	return -1 #TODO
@@ -352,8 +359,6 @@ class Chapter(object):
 		#TODO: load and init all MapObject here in existing map
 		#from self.object_path 
 		maps = self.chapter_maps
-
-
 		print('load chapter maps:',maps)
 		chapter_objects = []
 		for i in range(len(maps)):
@@ -388,6 +393,29 @@ class Chapter(object):
 		print('chapter_objects:',chapter_objects)
 		return chapter_objects
 	
+	def load_chapter_NPCs_of_maps(self):
+		maps = self.chapter_maps
+		print('load chapter maps:',maps)
+		npc_buttons = []
+		for i in range(len(maps)):
+			npc_buttons.append([])
+		if not os.path.isfile(os.path.join(self.npc_path,'npc_info.json')):
+			return npc_buttons
+		count = 0
+		with open(os.path.join(self.npc_path,'npc_info.json'),'r') as f:
+			table = json.load(f)
+			print('npc_info:',table)
+			for map_id,map_path in enumerate(self.chapter_maps):
+				for i in table.keys():
+					if table[i]['map_name'] == map_path.split('/')[-1].split('.')[0]:
+						npc_buttons[map_id].append(NPCButton(self.main_screen,table[i]['dialog'],self.player_chapter[0],table[i]['get_item'],\
+							pos_hint={'x':.375,'y':.3+.2*count},size_hint=(.25,.1),text=table[i]['npc_name'],font_size=40,color=(0,0,0,1),font_name= 'res/HuaKangTiFan-CuTi-1.otf' ))
+						count += 1
+				count = 0
+
+		print('create npc_buttons:',npc_buttons)
+		return npc_buttons		
+
 	def load_plot_scenes(self):
 		s = []
 		for img in os.listdir(self.scene_path):
@@ -409,18 +437,43 @@ class Chapter(object):
 		print('chapter_maps:',chapter_maps)
 		return chapter_maps
 
+class NPCButton(Button):#text = npc_name
+	def __init__(self,main_screen,dialog,player_id,get_item,**kargs):
+		super(NPCButton, self).__init__(**kargs)
+		self.main_screen = main_screen
+		self.dialog = dialog
+		self.get_item = get_item
+		self.player_id = player_id
+		self.bind(parent=self.on_add_and_remove)
+		#self.label = Label(text=self.text,size_hint=self.size_hint,pos_hint=self.pos_hint,font_size=30,color=(0,0,0,1),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
+	def delay_release_NPC(self,*args):
+		self.main_screen.NPC_talking = False
+	def on_press(self):	
+		if not self.main_screen.NPC_talking:
+			self.main_screen.NPC_talking = True
+			self.main_screen.clear_text_on_screen()
+			spent_time = line_display_scheduler(self.main_screen,self.dialog,False,special_char_time,next_line_time,common_char_time,uncontinuous=True)
+			self.main_screen.clear_text_on_screen(delay_time=spent_time)
+			if self.get_item  is not None:
+				self.main_screen.get_item_from_NPC(self.get_item)
+			self.main_screen.hp_per_round -= 1
+			Clock.schedule_once(self.delay_release_NPC,spent_time)
 
-	def add_chapter_NPCs(self,NPC_id):
-		#TODO: load and init all MapObject here
-		self.chapter_NPCs.append(NPC_id)
-		#return chapter_NPCs
 
-	def get_NPCimage_path(self):
-		#TODO: load NPC images
-		return 'res/images/testing/Erza.png'
+	def on_add_and_remove(self,isinstance,parent):
+		if parent is not None:
+			print(f'Add NPCButton:{self.text} on main screen!')
+			self.main_screen.canvas.add(Color(rbga=(1,1,1,1),group='npc'))
+			self.main_screen.canvas.add(Rectangle(source='res/images/npc.png',pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
+				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='npc'))
+			#self.main_screen.add_widget(self.label)
+		else:
+			print(f'Remove NPCButton:{self.text} on main screen!')	
+			#self.main_screen.remove_widget(self.label)		 
+			self.main_screen.canvas.remove_group('npc')
 
 
-class MapObject(Widget):#ImageButton):#TODO:或是只繼承ButtonBehavior 然後用canvas區分是否有source圖片
+class MapObject(Widget):#自定義按紐
 	def __init__(self,object_id,object_content,screen,touch_range='default', **kargs):
 		#依照是否有source圖片區分
 		#self.callback = partial(self.probe_object_on_map,self,screen)#()

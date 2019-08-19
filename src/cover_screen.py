@@ -1,3 +1,6 @@
+###################################################
+# The fisry screen of this game 				  #
+###################################################
 from game_manager import *
 
 class CoverScreen(Screen):
@@ -17,7 +20,8 @@ class CoverScreen(Screen):
 			press_key_id = args[1]
 			print("press_key_id:",press_key_id)
 			if press_key_id == 13:
-				self.manager.current = 'intro'
+				self.on_press_new(Button())
+				#self.manager.current = 'intro'
 
 			return True
 
@@ -25,7 +29,7 @@ class CoverScreen(Screen):
 		print('新遊戲!')
 		for p in range(4):
 			for c in range(4):
-				clear_path = f'res/chapters/{player_id}_{chapter_id}/unlocked_maps/'
+				clear_path = f'res/chapters/{p}_{c}/unlocked_maps/'
 				for f in os.listdir(clear_path):
 					if '.png' in f or '.jpg' in f:
 						os.remove(os.path.join(clear_path,f))
