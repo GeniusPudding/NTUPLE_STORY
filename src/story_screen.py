@@ -325,6 +325,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def next_round(self,*args):
 		print("Enter function: next_round")
 		#<clear the last round status>: 清除前一位玩家回合狀態 	
+		self.map_objects_allocator('deallocate')
 		self.end_round = False#TODO: if true, 出現輪下一位玩家的按鈕或按鍵提示
 		self.complete_chapter = False
 		#for testing
@@ -704,13 +705,13 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					pass
 
 			return True
-	def key_release(self, *args):
-		if self.manager.current == 'story':	
-			#print('story key release: ',args)
-			press_key_id = args[1]#args[1]:ASCII?
 
-			return True	
-	#DEBUG: 美工刀、鉛筆圖片出不來
+	# def key_release(self, *args):
+	# 	if self.manager.current == 'story':	
+	# 		#print('story key release: ',args)
+	# 		press_key_id = args[1]#args[1]:ASCII?
+	# 		return True	
+
 	def map_objects_allocator(self, action):
 		if action not in ['allocate','deallocate','reallocate']:
 			raise ValueError(f'Action:{action} is not supported')
@@ -728,8 +729,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					print('MapObject info:',MapObject.object_id,GM.object_table[str(MapObject.object_id)] ,MapObject.map_name,MapObject.pos_hint,MapObject.size_hint)
 					self.mapobjects_register.append(MapObject)
 					self.add_widget(MapObject)
-
-		#self.map_NPCs_allocator(action)#testing
 
 	def map_NPCs_allocator(self, action):
 		if action not in ['allocate','deallocate','reallocate']:

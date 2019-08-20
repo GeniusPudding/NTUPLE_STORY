@@ -409,7 +409,8 @@ class Chapter(object):
 				for i in table.keys():
 					if table[i]['map_name'] == map_path.split('/')[-1].split('.')[0]:
 						npc_buttons[map_id].append(NPCButton(self.main_screen,table[i]['dialog'],self.player_chapter[0],table[i]['get_item'],\
-							pos_hint={'x':.375,'y':.3+.2*count},size_hint=(.25,.1),text=table[i]['npc_name'],font_size=40,color=(0,0,0,1),font_name= 'res/HuaKangTiFan-CuTi-1.otf' ))
+							pos_hint={'x':.375,'y':.3+.2*count},size_hint=(.25,.1),text=table[i]['npc_name'],font_size=40,color=(0,0,0,1),\
+							background_color=(1,1,1,0),font_name= 'res/HuaKangTiFan-CuTi-1.otf' ))
 						count += 1
 				count = 0
 
