@@ -5,9 +5,9 @@
 from game_manager import *
 #'A':'李語蝶(室友)','B':'司馬熏(男友)','C':'孟亦寒(哥哥)','D':'亓官楓(故友)'
 speaker_name = {'A':'李語蝶','B':'司馬熏','C':'孟亦寒','D':'亓官楓','X':'孟亦安','M':'媽媽','F':'爸爸','N':'','L':'何品謙','P':'闕子婷','R':'社長'}
-special_char_time = .25
-common_char_time = .12
-next_line_time = .5
+special_char_time = .27
+common_char_time = .115
+next_line_time = .45
 #TODO:將對話中的英文代稱改成人名帶入
 #TODO: 自動撥放一鍵加速功能
 #Auto-dialog tools part:
@@ -75,6 +75,7 @@ def custom_multisplit(string,split_list):
 
 def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
+	Screen.text_cleared = False
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
 	if len(line) <= 20:
@@ -92,7 +93,7 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dial
 	else:
 		print('Text Line is too long!! Not supported')
 		return
-		
+
 	clear_displayed_text(Screen,Screen.displaying_character_labels)
 	if uncontinuous:
 		for event in Screen.dialog_events:
@@ -135,6 +136,7 @@ def clear_displayed_text(Screen,displaying_character_labels,*args):#must between
 	for label in displaying_character_labels:
 		Screen.remove_widget(label)
 	Screen.displaying_character_labels = []
+	Screen.text_cleared = True
 def line_to_labels(line,chars_of_row,rows):
 	labels = []
 	page_char_count = 0

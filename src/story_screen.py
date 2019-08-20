@@ -13,7 +13,6 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 	parent_h = NumericProperty()
 	focusing_frame_id = NumericProperty(-1)
 	item_list = ListProperty([])
-	#offset = ListProperty((0,0))
 	switchable = BooleanProperty(True)
 	playing_anim_num = NumericProperty()
 	def __init__(self,screen,**kwargs):
@@ -258,17 +257,19 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	current_mode = NumericProperty(-1)#0:precursor mode, 1:exploring mode, 2: puzzle mode, 3:plot mode
 	finish_auto = BooleanProperty(False)
 	nametag = ObjectProperty(Label())
-	dialog_events = ListProperty()
+	dialog_events = ListProperty([])
 	reload_item_list = BooleanProperty(False)
 	focusing_object_id = NumericProperty(-1)
 	dragging = ObjectProperty(FreeDraggableItem(source=''))
 	puzzling = BooleanProperty(False)
+	answer_code = ListProperty([])
 	current_scene = StringProperty('')
 	behavior_type = StringProperty('')
 	probing = BooleanProperty(False)
 	loading = BooleanProperty(True)
 	NPC_talking = BooleanProperty(False) 
 	text_cleared = BooleanProperty(False) 
+
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -300,7 +301,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bind(focusing_object_id=self.auto_focus_item)
 		self.bind(NPC_talking=self.auto_listen)
 		Window.bind(on_key_down=self.key_action)
-		Window.bind(on_key_up=self.key_release)
 		self.hp_widgets = []
 		self.displaying_character_labels = []
 		self.lock = Image()
@@ -610,7 +610,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			elif press_key_id in [274,273]:
 				if self.puzzling:
-					puzzle_select_number(self,press_key_id)		
+					puzzle_select_number(self,GM,press_key_id,self.answer_code,self.puzzle_name)		
 
 			elif press_key_id == 98:#b:
 				if self.current_mode == 2:
@@ -630,6 +630,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 							self.NPC_view = 0
 
 			elif press_key_id == 105:#i:
+				print('text_cleared:',self.text_cleared)
 				if self.current_mode == 1 and self.NPC_view == 0:
 					self.item_view ^= 1
 
@@ -698,11 +699,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					if self.item_view == 0: 
 						self.next_round()
 
-			elif press_key_id in [274,273]:
-				# if self.cur_unsafed:
-				# 	self.testing_modify_object_size(press_key_id)
-				if self.current_mode == 1: 
-					pass
+			# elif press_key_id in [274,273]:
+			# 	# if self.cur_unsafed:
+			# 	# 	self.testing_modify_object_size(press_key_id)
+			# 	if self.current_mode == 1: 
+			# 		pass
 
 			return True
 
@@ -778,14 +779,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def display_itemframe(self,*args):
 		print('Enter function: display_itemframe')
-
+		self.clear_text_on_screen()
 		self.remove_widget(self.item_tag)
 		if self.itemframe not in self.children: #for exceptions
 			self.add_widget(self.itemframe)
 		else:
 			print('[*]Exceptions: self.itemframe is already added')
 
-		self.dialog_view = 1
+		self.try_open_dialog_view()
+
 			
 		self.item_box_canvas_controller('show')
 
@@ -871,6 +873,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	
 	def next_dialog(self,*args):
 		table = self.plot_scenes_table
+		print('test table:',table)
 		for i in table.keys():
 			print(f'table[{i}][\'line\']:',table[i]['line'])
 			print('self.manual_node.text_line:',self.manual_node.text_line)
@@ -920,6 +923,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def puzzle_handler(self, item):#TODO: 目前只有密碼鎖一種
 		self.puzzle_name = item['name']
 		if self.puzzle_name == '木製保險櫃(關)':
+			self.answer_code = [3,1,5,8]
+			self.puzzling = True
+			build_CodedLock(self,item)#TODO:item source
+		elif self.puzzle_name == '孟亦安的手機':
+			self.answer_code = [0,7,3,0]
 			self.puzzling = True
 			build_CodedLock(self,item)#TODO:item source
 
@@ -940,18 +948,21 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def material_item_judge(self,item,synthesis_content,*args):
 
-		def try_synthesis(screen,expected_input,dragging_object_id,*args):
+		def try_synthesis(screen,item,expected_input,dragging_object_id,*args):
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:
 				print('取消前 screen.synthesis_event:',screen.synthesis_event)
 				screen.synthesis_event.cancel()
 				print('取消後 screen.synthesis_event:',screen.synthesis_event)
 				screen.global_mouse_event.cancel()
+				synthesizer_id = GM.name_to_id_table[item['name']]
+				GM.players[screen.current_player_id].spend_item(synthesizer_id)
 				GM.players[screen.current_player_id].spend_item(dragging_object_id)
 				print('合成成功...獲得新道具!')
-				screen.quit_puzzle_mode(text='合成成功...獲得新道具!')
+				screen.quit_puzzle_mode(text='合成成功...獲得新道具!\n')
 				#WARNING: name_to_id可能重複
 				output_id = GM.name_to_id_table[synthesis_content['output']]
-				synthesis_canvas(self,item,2,GM.object_table[str(output_id)]['source'])
+				#DEBUG: 消不掉
+				#synthesis_canvas(self,item,2,GM.object_table[str(output_id)]['source'])
 				GM.players[screen.current_player_id].get_item(output_id)
 
 			else:
@@ -972,7 +983,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#synthesis_canvas(self,item,1,self.dragging.source)
 			Clock.schedule_once(partial(synthesis_canvas,self,item,1,self.dragging.source),.1)
 			#Clock.schedule_once(partial(synthesis_canvas,self,item,stage=2),1)
-			Clock.schedule_once(partial(try_synthesis,self,expected_input,dragging_object_id),1)
+			Clock.schedule_once(partial(try_synthesis,self,item,expected_input,dragging_object_id),1)
 		elif not self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)) and self.dragging.free == 1 :
 
 			print('合成超出範圍，返回原位')		
@@ -1025,8 +1036,13 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					quit_text += '獲得新道具! '
 					#self.quit_puzzle_mode(text='開鎖成功...獲得新道具!')
 					#WARNING: name_to_id可能重複
-					output_id = GM.name_to_id_table[lock_content['output_item']]
-					GM.players[self.current_player_id].get_item(output_id)#->auto_reload_item_list->auto_gen_items	
+					if isinstance(lock_content['output_item'],list):
+						for out in lock_content['output_item']:
+							output_id = GM.name_to_id_table[out]
+							GM.players[self.current_player_id].get_item(output_id)
+					else:
+						output_id = GM.name_to_id_table[lock_content['output_item']]
+						GM.players[self.current_player_id].get_item(output_id)#->auto_reload_item_list->auto_gen_items	
 				if lock_content['new_scene'] is not None:
 					print('開鎖成功...解鎖新場景!')
 					quit_text += '解鎖新場景! '
@@ -1037,9 +1053,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.current_map_id = len(self.chapter_maps) - 1 #unlock and go to new scene
 				if lock_content['trigger']:
 					print('開鎖成功...觸發劇情!')#DEBUG: 對話框
-					quit_text += '觸發劇情! '
+					quit_text += '觸發劇情!\n'
 					self.quit_puzzle_mode(text=quit_text,turn_mode=3)
 				else:
+					quit_text += '\n'
 					self.quit_puzzle_mode(text=quit_text)
 					
 			else:
@@ -1088,6 +1105,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				pass
 			self.canvas.remove_group('synthesis')
 			self.canvas.remove_group('synthesis1')
+			self.canvas.remove_group('synthesis2')
+			print('stage == 2 removed')
 
 		self.dialog_view = 1
 		self.clear_text_on_screen()
@@ -1158,7 +1177,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.delay_hide_dialogframe(.5+spent_time)
 
 		#獲得敘述中道具
-		item_name = text_line[text_line.find('C')+1:text_line.find(')')].split(':')[1]
+		item_name = text_line[text_line.find('(')+1:text_line.find(')')].split(':')[1]
 		print('獲得敘述中道具:',btn,item_name)
 		item_id = GM.name_to_id_table[item_name]
 		GM.players[self.current_player_id].get_item(item_id)
@@ -1228,7 +1247,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def to_phone_screen(self,*args):
 		if self.current_mode == 1:
-			self.manager.current = 'phone'
+			self.manager.current = 'ntuphone'
 
 	#for testing: 	
 	def to_game_screen(self,*args):

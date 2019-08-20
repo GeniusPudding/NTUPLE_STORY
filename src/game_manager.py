@@ -513,6 +513,7 @@ class MapObject(Widget):#自定義按紐
 		print(f'probe self.object_id:{self.object_id},self.object_types:{self.object_types}')
 		if isinstance(self,MapObject) and screen.current_mode == 1 and screen.item_view == 0 and not screen.probing:
 			screen.probing = True
+			screen.clear_text_on_screen()
 			if 'item' in self.object_types:
 				#定義: 可以收進"道具欄"
 				screen.on_press_item(self)
