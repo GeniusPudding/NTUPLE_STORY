@@ -301,10 +301,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bind(focusing_object_id=self.auto_focus_item)
 		self.bind(NPC_talking=self.auto_listen)
 		Window.bind(on_key_down=self.key_action)
-<<<<<<< HEAD
-		#Window.bind(on_key_up=self.key_release)
-=======
->>>>>>> e4751b1ce0be24bd890b32af1a96dd86b0431a0b
 		self.hp_widgets = []
 		self.displaying_character_labels = []
 		self.lock = Image()

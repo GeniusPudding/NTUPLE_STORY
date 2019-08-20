@@ -9,13 +9,8 @@ from story_screen import StoryScreen
 from ending_screen import EndingScreen
 from info_screen import InfoScreen 
 from subgame_screen import SubgameManager
-<<<<<<< HEAD
 #from phone_screen import PhoneScreen   
 from ntuphone_screen import NTUPhoneScreen
-=======
-#from phone_screen import PhoneScreen  
-from ntuphone_screen import NTUPhoneScreen   
->>>>>>> e4751b1ce0be24bd890b32af1a96dd86b0431a0b
 from memory_screen import MemoryScreen   
 from prologue_screen import PrologueScreen
 from seal_screen import SealScreen
