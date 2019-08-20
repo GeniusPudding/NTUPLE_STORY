@@ -11,6 +11,7 @@ class NTUPhoneScreen(Screen):#TODO: set a restart phone button
 		self.chapter_id = chapter_id
 		self.size = (self.screen_x,self.screen_y) = get_screen_size()
 		print('NTUPhoneScreen.size:',self.size)
+<<<<<<< HEAD
 		self.phone_pos_hint = {'x':.35,'y':.025}#(.35*self.screen_x,.025*self.screen_y)
 		self.phone_size_hint = (.3,.95)#(.3*self.screen_x,.95*self.screen_y) 
 		# self.canvas.add(Color(.718, .831, .941, 1))
@@ -21,6 +22,30 @@ class NTUPhoneScreen(Screen):#TODO: set a restart phone button
 		self.phone = NTUPhone(screen= self,source='res/images/phone/phone_messege.png',pos_hint=self.phone_pos_hint , size_hint=self.phone_size_hint,allow_stretch=True,keep_ratio=False )
 		self.add_widget(self.phone)
 
+=======
+
+		self.phone_pos_hint = {'x':.35,'y':.025}#(.35*self.screen_x,.025*self.screen_y)
+		self.phone_size_hint = (.3,.95)#(.3*self.screen_x,.95*self.screen_y) 
+		self.canvas.add(Color(.718, .831, .941, 1))
+		self.canvas.add(Rectangle(pos=self.pos, size=self.size))
+
+		self.phone = NTUPhone(screen= self,source='res/images/phone/phone_messege.png',pos_hint=self.phone_pos_hint , size_hint=self.phone_size_hint,allow_stretch=True,keep_ratio=False )
+		self.add_widget(self.phone)
+
+		btn_len = min(.1*global_w, .2*global_h)
+		self.canvas.add(Color(0, 0, 0, .9))
+		self.canvas.add(Ellipse(pos=(.2*global_w, .2*global_h), size=(btn_len,btn_len)))
+		self.canvas.add(Color(1, 1, 1, .8))
+		self.canvas.add(Ellipse(pos=(.2*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len)))
+		self.add_widget(Label(text='Back!',font_size=100,pos=(.2*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len)))
+		self.add_widget(Button(on_press=self.back_to_story,background_color=(1,1,1,0),pos_hint={'x':.2,'y':.2},\
+			size_hint=(btn_len/global_w,btn_len/global_h)))
+
+
+	def back_to_story(self,btn):
+		self.manager.current = 'story'
+
+>>>>>>> e4751b1ce0be24bd890b32af1a96dd86b0431a0b
 class NTUPhone(Image):
 	executing_function = StringProperty('messege')
 	def __init__(self,screen, **kwargs):

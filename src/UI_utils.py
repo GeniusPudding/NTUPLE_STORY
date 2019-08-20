@@ -19,7 +19,7 @@ def auto_display_speaker(Screen, instance, name):#name is Chinese here   #a Scre
 	Screen.remove_widget(Screen.nametag)
 	Screen.canvas.remove_group('speaker')
 	if name not in ['','N']:
-		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(.2,0,1,1),font_size=40,size_hint=(.26,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
+		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(0,0,0,1),font_size=40,size_hint=(.26,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.nametag)
 		source = 'res/images/players/' + name + '.png'
 		if os.path.isfile(source):
@@ -212,7 +212,7 @@ def select_code_block_canvas(screen, code_id):
 	screen.canvas.add(Color(.1,.1,.1,.5))
 	screen.canvas.add(Line(points=[lb_pos[0], lb_pos[1], rb_pos[0], rb_pos[1], rt_pos[0], rt_pos[1], lt_pos[0], lt_pos[1]],cap=None,joint='round',close=True, width=wid,group='block'))
 		
-def puzzle_select_number(screen, press_key_id):
+def puzzle_select_number(screen,GM, press_key_id,answer_code,puzzle_name):
 
 	if press_key_id == 273:
 		screen.cur_code[screen.code_id] = num_up[screen.cur_code[screen.code_id]]
@@ -221,14 +221,19 @@ def puzzle_select_number(screen, press_key_id):
 	screen.code_labels[screen.code_id].text = str(screen.cur_code[screen.code_id])
 	print(f'select screen.cur_code[{screen.code_id}]:{screen.cur_code[screen.code_id]}')
 
-	if screen.cur_code == [5,4,8,7]:
+	if screen.cur_code == answer_code:#[3,1,5,8]:
 		screen.puzzling = False
-		clear_CodedLock(screen)
-		screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!')
-		#TODO:加入新場景到章節地圖中
-		name = '女主家裡房間二'
-		screen.GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
-		screen.current_map = len(screen.chapter_maps) - 1 
+		#clear_CodedLock(screen)
+
+		if puzzle_name == '木製保險櫃(關)':
+			screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!\n')
+			#TODO:加入新場景到章節地圖中
+			name = '女主家裡房間二'
+			GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
+			screen.current_map_id = len(screen.chapter_maps) - 1 
+
+		elif puzzle_name == '孟亦安的手機':
+			screen.quit_puzzle_mode(text='解碼成功...觸發劇情!\n',turn_mode = 3) 
 
 def clear_CodedLock(screen):
 	try:
@@ -285,7 +290,8 @@ def synthesis_canvas(screen,item,stage,*args):
 		screen.canvas.add(Rectangle(source='res/images/testing/synthesis.png',pos=(2*space_x+bx+operator_x/2-.125*global_w, base_y-.375*global_h) ,size=(.25*global_w,.45*global_h),group='synthesis1'))
 
 	elif stage == 2:#output
-		screen.canvas.add(Ellipse(source=args[0],pos=(5*space_x+2*bx+2*operator_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis'))
+		screen.canvas.add(Ellipse(source=args[0],pos=(5*space_x+2*bx+2*operator_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis2'))
+		print('stage == 2 added')
 	else:
 		print(f'synthesis stage {stage} not supported')
 
