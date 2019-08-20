@@ -300,7 +300,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bind(focusing_object_id=self.auto_focus_item)
 		self.bind(NPC_talking=self.auto_listen)
 		Window.bind(on_key_down=self.key_action)
-		Window.bind(on_key_up=self.key_release)
+		#Window.bind(on_key_up=self.key_release)
 		self.hp_widgets = []
 		self.displaying_character_labels = []
 		self.lock = Image()
@@ -1228,7 +1228,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def to_phone_screen(self,*args):
 		if self.current_mode == 1:
-			self.manager.current = 'phone'
+			self.manager.current = 'ntuphone'
 
 	#for testing: 	
 	def to_game_screen(self,*args):
