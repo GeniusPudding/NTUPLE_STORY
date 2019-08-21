@@ -11,7 +11,6 @@ class NTUPhoneScreen(Screen):#TODO: set a restart phone button
 		self.chapter_id = chapter_id
 		self.size = (self.screen_x,self.screen_y) = get_screen_size()
 		print('NTUPhoneScreen.size:',self.size)
-<<<<<<< HEAD
 		self.phone_pos_hint = {'x':.35,'y':.025}#(.35*self.screen_x,.025*self.screen_y)
 		self.phone_size_hint = (.3,.95)#(.3*self.screen_x,.95*self.screen_y) 
 		# self.canvas.add(Color(.718, .831, .941, 1))
@@ -21,8 +20,6 @@ class NTUPhoneScreen(Screen):#TODO: set a restart phone button
 		#  size=(.3*self.size[0],.95*self.size[1]),source='res/images/phone/phone.png'))
 		self.phone = NTUPhone(screen= self,source='res/images/phone/phone_messege.png',pos_hint=self.phone_pos_hint , size_hint=self.phone_size_hint,allow_stretch=True,keep_ratio=False )
 		self.add_widget(self.phone)
-
-=======
 
 		self.phone_pos_hint = {'x':.35,'y':.025}#(.35*self.screen_x,.025*self.screen_y)
 		self.phone_size_hint = (.3,.95)#(.3*self.screen_x,.95*self.screen_y) 
@@ -45,7 +42,6 @@ class NTUPhoneScreen(Screen):#TODO: set a restart phone button
 	def back_to_story(self,btn):
 		self.manager.current = 'story'
 
->>>>>>> e4751b1ce0be24bd890b32af1a96dd86b0431a0b
 class NTUPhone(Image):
 	executing_function = StringProperty('messege')
 	def __init__(self,screen, **kwargs):

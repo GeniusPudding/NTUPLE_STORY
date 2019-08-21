@@ -309,7 +309,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.mapNPC_register = []
 		self.objects_allocation = [[]]
 		self.NPCs_allocation = [[]]
-
+		self.prompt_label = Label()
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
@@ -401,12 +401,17 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif mode == 3:
 			if self.item_view == 1:
 				self.item_view = 0#self.map_objects_allocator('deallocate')
-			else: 
-				if self.dialog_view == 1:
-					self.dialog_view = 0
-			self.map_objects_allocator('deallocate')
-			self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
+				self.map_objects_allocator('deallocate')
+				#self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
+			self.try_open_dialog_view()	
+			print('try_open_dialog_view')
+			# else: 
+			# 	self.try_close_dialog_view()
+			# self.map_objects_allocator('deallocate')
+			# self.dialog_view = 1#DEBUG 檢查同步機制，小心被canvas上其它東西蓋到
+
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
+			self.remove_widget(self.prompt_label)#for exception!
 			auto_prompt(self,'->',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='For next sentence...\n')
 
 		self.auto_save_game()	
@@ -577,8 +582,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		else:
 			self.clear_text_on_screen()
 			self.text_cleared = True
-		# 	auto_prompt(self,'d',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='')
-		# 	self.try_close_dialog_view()
+
 
 	def key_action(self, *args):#TODO:盡量統一按鍵、做好遊戲按鍵提示介面
 		if self.manager.current == 'story':	
@@ -586,6 +590,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			press_key_id = args[1]#args[1]:ASCII
 			press_key = args[3]
 			if press_key_id in [276,275]:#<-,->
+				print('press_key_id in [276,275] self.current_mode:',self.current_mode)
 
 				if self.current_mode == 1:	
 					if self.item_view == 0 and self.NPC_view == 0:
@@ -605,6 +610,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						puzzle_move_view(self,press_key_id)
 
 				elif self.current_mode == 3:
+
 					self.remove_widget(self.prompt_label)	
 					self.exploring_dialog(press_key_id)
 
@@ -682,9 +688,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					print('Skip the auto dialog')
 					self.clear_text_on_screen()
 					self.finish_auto = True
-					#for testing
-				if self.current_mode == 1: #DEBUG
-					self.enter_puzzle_mode(65, 'synthesis')
+				# 	#for testing
+				# if self.current_mode == 1: #DEBUG
+				# 	self.enter_puzzle_mode(65, 'synthesis')
 
 			elif  press_key_id == 114:#r:
 				if self.current_mode == 1:	
@@ -807,6 +813,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def item_box_canvas_controller(self,action,*args,direction=None):#all canvas things about itemframe on the screen
 		if action == 'show':
+			print('item_box_canvas_controller show')
 			self.canvas.remove_group('cap')
 
 			self.canvas_under_item_images()
@@ -941,6 +948,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.try_close_item_view()
 		# if self.item_view == 0:
 		# 	self.item_view = 1
+		
+		#testing 對話框顯示物件敘述
+		self.clear_text_on_screen()
+		print('item[\'description\']:',item['description'])
+		spent_time = line_display_scheduler(self,item['description'],False,special_char_time,next_line_time,common_char_time)
+
+
+
+
 		synthesis_canvas(self,item,0)
 		if self.itemframe.count > 0:
 			self.global_mouse_event = Clock.schedule_interval(global_mouse, 0.1)
@@ -1001,6 +1017,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		#testing 對話框顯示物件敘述
 		self.clear_text_on_screen()
+		print('item[\'description\']:',item['description'])
 		spent_time = line_display_scheduler(self,item['description'],False,special_char_time,next_line_time,common_char_time)
 
 
@@ -1115,7 +1132,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#self.clear_text_on_screen(delay_time=spent_time+.5)
 		self.remove_widget(self.dragging)
 
-
+		print('puzzle mode turn to:',turn_mode)
 		if turn_mode == 1:
 			if self.item_view == 1:
 				Clock.schedule_once(self.try_close_item_view,spent_time+.5)
@@ -1126,11 +1143,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			# 	self.dialog_view = 0
 			self.current_mode = turn_mode 
 
-		elif turn_mode == 3:#mode == 3	
+		elif turn_mode == 3:
 			print('self.current_mode:',self.current_mode )	
 			auto_prompt(self,'q',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='Enter plot mode!\n')
 	#TODO: implement object functions here, btn must be an instance of MapObject
 	def on_press_item(self, btn):
+
+		#TODO: 撿起後刪除章節地圖物件
+
 		self.hp_per_round -= 1
 		object_id = btn.object_id
 		self.pickup_chapter_objects(object_id,btn)
@@ -1190,7 +1210,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print('new_scene_name:',new_scene_name)
 		print('self.chapter_maps:',self.chapter_maps)
 		for i,img in enumerate(self.chapter_maps):
-			if new_scene_name in img:
+			if new_scene_name in img:#TODO:
 				self.current_map_id = i
 
 	def on_press_nothing(self, btn):

@@ -171,7 +171,7 @@ class IPhoneXR(Image):#emulate Ipone XR gestures
 		self.end_touch_pos_hint = (0,0)
 
 		#print(f"in phone, pos_hint:{self.pos_hint},size_hint:{self.size_hint}")
-	#TODO:實做所有的觸控功能在此類別:
+		
 	def on_touch_down(self, touch):
 		print("phone on_touch_down touch.pos,touch.spos: ",touch.pos,touch.spos)
 		#print("phone's parent:",self.parent)
@@ -197,10 +197,6 @@ class IPhoneXR(Image):#emulate Ipone XR gestures
 		#app.size_hint = (.2,.95*.72) (pausing view)
 		#phone: pos_hint={'x':.35,'y':.025} ,size_hint=(.3,.95)
 		
-		#TODO: Exception handle before release
-		#try:
-
-
 		#For gestures 1, 2		
 		if abs(self.start_touch_pos_hint[1]-(self.pos_hint['y']+0.025*self.size_hint[1]))< 0.025*self.size_hint[1]: 
 			if self.end_touch_pos_hint[1]-self.start_touch_pos_hint[1]>0.15:	#gesture type 1: back to desktop
