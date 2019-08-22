@@ -177,6 +177,9 @@ def line_to_labels(line,chars_of_row,rows):
 	(tx,ty) = total_use = (.79,.17)
 	(dx,dy) = char_distance = (.01,.01)
 	(cx,cy) = char_size_hint = ((tx+dx)/chars_of_row - dx,(ty+dy)/rows - dy)#default (.07,.08)
+	
+	font_size = int(round(96/rows))
+
 	#print('cx,cy:',cx,cy)
 	#print('chars_of_row,rows:',chars_of_row,rows)
 	for char in line:
@@ -184,7 +187,7 @@ def line_to_labels(line,chars_of_row,rows):
 			col = page_char_count % chars_of_row#page_char_count % 10
 			row = rows - 1 - page_char_count // chars_of_row#1 - page_char_count // 10
 			#print(f'pos_hint:{.03+(cx+dx)*col}, {(cy+dy)*row}, col:{col}, row:{row}')
-			labels.append(Label(text=char,pos_hint={'x':.03+(cx+dx)*col,'y':(cy+dy)*row},color=(1,1,1,1),font_size=48,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
+			labels.append(Label(text=char,pos_hint={'x':.03+(cx+dx)*col,'y':(cy+dy)*row},color=(1,1,1,1),font_size=font_size,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
 			page_char_count += 1
 		else:#won't be displayed
 			labels.append(Label(text=char,pos_hint={'x':0,'y':0},color=(1,1,1,1),font_size=36,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
