@@ -19,9 +19,13 @@ def auto_display_speaker(Screen, instance, name):#name is Chinese here   #a Scre
 	Screen.remove_widget(Screen.nametag)
 	Screen.canvas.remove_group('speaker')
 	if name not in ['','N']:
+		source = 'res/images/players/' + name + '.png'
+		print('displaying speaker source :',source)
+		if len(name.split('_')) > 1:
+			name = name.split('_')[0]
 		Screen.nametag = Label(text=name,pos_hint={'x':0,'y':.2},color=(0,0,0,1),font_size=40,size_hint=(.26,.07),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.nametag)
-		source = 'res/images/players/' + name + '.png'
+		
 		if os.path.isfile(source):
 			Screen.canvas.add(Rectangle(source=source,pos=(0,.27*global_h),size=(.15*global_w,.35*global_h),group='speaker'))
 
@@ -30,7 +34,8 @@ class BG_widget(Widget):
 		super(BG_widget, self).__init__()
 		print(f'init bg, self.parent:{self.parent}')		
 
-	def load_bg(self,bg):
+	def load_bg(self,source,*args):
+		bg = Rectangle(source=source, pos=(0,0), size=(global_w,global_h),group='bg')
 		self.parent.canvas.before.add(bg)
 
 	def on_touch_down(self, touch): #For the flexibility to implement some user interaction functions on the whole screen

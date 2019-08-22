@@ -309,6 +309,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.mapNPC_register = []
 		self.objects_allocation = [[]]
 		self.NPCs_allocation = [[]]
+		
 
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
@@ -328,6 +329,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.map_objects_allocator('deallocate')
 		self.end_round = False#TODO: if true, 出現輪下一位玩家的按鈕或按鍵提示
 		self.complete_chapter = False
+		self.switch_id = 0
 		#for testing
 		#self.remove_widget(self.subgame_button)
 
@@ -391,7 +393,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			Clock.schedule_once(self.try_close_dialog_view,.8)
 
 			#start exploring mode, allocate objects on chapter's map 
-			self.map_objects_allocator('reallocate')				
+			#testing
+			Clock.schedule_once(partial(self.map_objects_allocator,'reallocate'),.8)			
 
 
 		elif mode == 2:#for banning some game functions in mode 1(exploring mode)
@@ -439,7 +442,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.current_mode = 1
 		self.chapter_maps = chapter_info.chapter_maps
 		self.objects_allocation = chapter_info.chapter_objects_of_maps
-		self.NPCs_allocation = chapter_info.chapter_NPCs_of_maps#Mostly empty
+		self.NPCs_allocation = chapter_info.chapter_NPCs_of_maps#Mostly empty #TODO: if not empty, add a prompt tag 
 		self.auto_dialog = self.chapter_info.chapter_pre_plot 
 		self.manual_dialog = self.chapter_info.chapter_plot
 		self.scenes = self.chapter_info.chapter_plot_scenes
@@ -526,8 +529,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			print("self.chapter_maps:",self.chapter_maps)
 			#self.canvas.before.remove_group('bg')
 			print("self.chapter_maps[current_map_id]:",self.chapter_maps[current_map_id])
-			bg = Rectangle(source=self.chapter_maps[current_map_id], pos=(0,0), size=(self.w,self.h),group='bg')
-			self.bg_widget.load_bg(bg)
+			#bg = Rectangle(source=self.chapter_maps[current_map_id], pos=(0,0), size=(self.w,self.h),group='bg')
+			self.bg_widget.load_bg(self.chapter_maps[current_map_id])
 			if self.item_view == 1:
 				self.item_view == 0
 			if self.current_mode in [1,2] :#DEBUG
@@ -682,9 +685,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					print('Skip the auto dialog')
 					self.clear_text_on_screen()
 					self.finish_auto = True
-					#for testing
-				if self.current_mode == 1: #DEBUG
-					self.enter_puzzle_mode(65, 'synthesis')
+				# 	#for testing
+				# if self.current_mode == 1: #DEBUG
+				# 	self.enter_puzzle_mode(65, 'synthesis')
 
 			elif  press_key_id == 114:#r:
 				if self.current_mode == 1:	
@@ -713,7 +716,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	# 		press_key_id = args[1]#args[1]:ASCII?
 	# 		return True	
 
-	def map_objects_allocator(self, action):
+	def map_objects_allocator(self, action,*args):
 		if action not in ['allocate','deallocate','reallocate']:
 			raise ValueError(f'Action:{action} is not supported')
 		print('[*]map_objects_allocator action:',action)
@@ -874,18 +877,20 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def next_dialog(self,*args):
 		table = self.plot_scenes_table
 		print('test table:',table)
-		for i in table.keys():
-			print(f'table[{i}][\'line\']:',table[i]['line'])
+		#for i in table.keys():
+		i = self.switch_id
+		if i < len(table.keys()):
+			print(f'table[{i}][\'line\']:',table[str(i)]['line'])
 			print('self.manual_node.text_line:',self.manual_node.text_line)
-			if len(table[i]['line'].split(':')) > 1:
-				table_line =  table[i]['line'].split(':')[1]
+			if len(table[str(i)]['line'].split(':')) > 1:
+				table_line =  table[str(i)]['line'].split(':')[1]
 			else:
-				table_line = table[i]['line']
+				table_line = table[str(i)]['line']
 			if table_line == self.manual_node.text_line.strip('\n'):
-				print('Switch bg to:',table[i]['source'])
-				bg = Rectangle(source=table[i]['source'], pos=(0,0), size=(self.w,self.h),group='bg')
-				self.bg_widget.load_bg(bg)
-				break
+				print('Switch bg to:',table[str(i)]['source'])
+				#bg = Rectangle(source=table[str(i)]['source'], pos=(0,0), size=(self.w,self.h),group='bg')
+				self.bg_widget.load_bg(table[str(i)]['source'])
+				self.switch_id += 1
 
 		if self.manual_node.type != 'tail':
 			self.clear_text_on_screen()

@@ -30,7 +30,8 @@ for i,scene_name in enumerate(df['場景']):
 
 		p,c = int(df['玩家章節'][i][0])-1,int(df['玩家章節'][i][2])-1
 		#print('i:',i)
-		scene_dicts[p][c][i] = content
+		switch_id = len(scene_dicts[p][c].keys())
+		scene_dicts[p][c][switch_id] = content
 		#print('scene_dicts[p][c][i]:',scene_dicts[p][c][i])
 	except:
 		print('[*]Exception i,scene_name:',i,scene_name)
@@ -62,3 +63,44 @@ for p in range(4):
 		with open(scene_dir+'plot_scenes.json','w') as f:
 			json.dump(d, f)	
 		print(f'p:{p},c:{c},scene_dicts[{p}][{c}]:{d}')
+
+
+
+
+path = 'res/m.2_3前導 - 工作表1.csv'
+hp = 'res/images/handpainting/'
+map_dict = {}
+df = pd.read_csv(path)
+print(df)
+print(df.keys())
+for i, line in enumerate(df['對話']):
+	map_dict[i] = {'scene':df['場景'][i],'line':line}
+		
+	for img in os.listdir(hp) :
+		if ('.png' in img or '.jpg' in img):
+			if map_dict[i]['scene'] == img.split('.')[0]:
+				shutil.copy(os.path.join(hp,img), 'res/chapters/1_2/dialogs/')
+				map_dict[i]['source'] = os.path.join('res/chapters/1_2/dialogs/',img)	
+
+with open('res/chapters/1_2/dialogs/switch_scenes.json','w') as f:
+	json.dump(map_dict, f)	
+print(map_dict)
+
+path = 'res/n. 3_2前導 - 工作表1.csv'
+
+map_dict = {}
+df = pd.read_csv(path)
+print(df)
+print(df.keys())
+for i, line in enumerate(df['對話']):
+	map_dict[i] = {'scene':df['場景'][i],'line':line}
+
+	for img in os.listdir(hp) :
+		if ('.png' in img or '.jpg' in img):
+			if map_dict[i]['scene'] == img.split('.')[0]:
+				shutil.copy(os.path.join(hp,img), 'res/chapters/2_1/dialogs/')
+				map_dict[i]['source'] = os.path.join('res/chapters/2_1/dialogs/',img)	
+	
+with open('res/chapters/2_1/dialogs/switch_scenes.json','w') as f:
+	json.dump(map_dict, f)	
+print(map_dict)

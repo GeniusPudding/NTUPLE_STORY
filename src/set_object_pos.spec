@@ -4,11 +4,11 @@ from PyInstaller.utils.hooks import collect_submodules
 block_cipher = None
 
 excludekivy = get_deps_minimal(video=None, window=True, audio=['gstplayer', 'ffpyplayer', 'sdl2'], spelling='enchant',camera=None)['excludes']
-a = Analysis(['object_screen.py'],
+a = Analysis(['object_allocator.py'],
              pathex=['C:\\Users\\user\\Desktop\\NTUPLE_STORY\\src'],
              binaries=[],
              datas=[],
-             hiddenimports=(collect_submodules('kivy')+collect_submodules('kivy.garden')),
+             hiddenimports=(collect_submodules('kivy')+collect_submodules('kivy.garden')+collect_submodules('pygame')),
              hookspath=[],
              runtime_hooks=[],
              excludes=excludekivy,

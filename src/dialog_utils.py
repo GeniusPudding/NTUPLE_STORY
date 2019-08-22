@@ -8,26 +8,60 @@ speaker_name = {'A':'李語蝶','B':'司馬熏','C':'孟亦寒','D':'亓官楓',
 special_char_time = .27
 common_char_time = .115
 next_line_time = .45
-#TODO:將對話中的英文代稱改成人名帶入
+
 #TODO: 自動撥放一鍵加速功能
 #Auto-dialog tools part:
 def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-bind function
 	print('[*] Start auto play dialog')
-	start_line_clock_time, auto_dialog = auto_dialog_preprocess(auto_dialog)
+	start_line_clock_time = auto_dialog_preprocess(auto_dialog)#, auto_dialog 
 	clock_time_accu = 0
-	for i,(name,line)  in enumerate(auto_dialog):#displaying
-		clock_time_accu += start_line_clock_time[i]
-		event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
-		Screen.dialog_events.append(event)
+	p = Screen.current_player_id
+	c = Screen.current_chapter
+	print('p,c:',p,c)
+	if (p == 2 and c == 1) or (p == 1 and c == 2):
+		with open(f'res/chapters/{p}_{c}/dialogs/switch_scenes.json','r') as f:
+			table = json.load(f)
+			print('table:',table)
+		last_line = ''#for switching scene
+		switch_id = 0
+		for i,(name,line)  in enumerate(auto_dialog):#displaying
+			clock_time_accu += start_line_clock_time[i]
+
+			print('last_line:',last_line)
+			if switch_id < len(table.keys()):
+				if len(table[str(switch_id)]['line'].split(':')) > 1:
+					table_line =  table[str(switch_id)]['line'].split(':')[1]
+				else:
+					table_line = table[str(switch_id)]['line']
+				print(f'table_line:',table_line)	
+
+				if last_line == table_line:
+					source = table[str(switch_id)]['source']
+					print('Switch bg to:',source)
+					Clock.schedule_once(partial(Screen.bg_widget.load_bg,source),i*.5+clock_time_accu)
+					switch_id += 1
+
+			
+			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
+			Screen.dialog_events.append(event)		
+
+			last_line = line.strip('\n')
+
+	else:
+		for i,(name,line)  in enumerate(auto_dialog):#displaying
+			clock_time_accu += start_line_clock_time[i]
+			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
+			Screen.dialog_events.append(event)
 def auto_dialog_preprocess(auto_dialog):
 	#preprocessing:
-	new_auto_dialog= dialog_segmentation(auto_dialog,20)
+	#new_auto_dialog= dialog_segmentation(auto_dialog,20)#deprecated for displaying flexible length text line 
+
 	start_line_clock_time = [0]#display time for each line
-	for _,line in new_auto_dialog:#for i,(_,line) in enumerate(auto_dialog):
+	for _,line in auto_dialog:#for i,(_,line) in enumerate(auto_dialog):
 		time = cal_line_time_accu(line)#new_auto_dialog,line,i,start_line_clock_time)#start_line_clock_time = 
 		start_line_clock_time.append(time)	
 	#print('after preprocessing, new_auto_dialog:',new_auto_dialog,'start_line_clock_time:',start_line_clock_time)	
-	return start_line_clock_time,new_auto_dialog#auto_dialog
+	return start_line_clock_time #,new_auto_dialog
 def dialog_segmentation(dialog,max_count):
 	new_dialog = []
 	for name,line in dialog:
@@ -162,9 +196,7 @@ def semi_manual_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
 	print('[*] Start manual play dialog')	
 	first_line_node = semi_manual_dialog_preprocess(dialog,'flexable')
 
-	# if first_line_node.switch_map is not None:
-	# 	bg = Rectangle(source=first_line_node.switch_map, pos=(0,0), size=(self.w,self.h),group='plot_bg')
-	# 	Screen.bg_widget.load_bg(bg)
+
 	print('first_line_node.text_line:',first_line_node.text_line)
 	line_display_scheduler(Screen,first_line_node.text_line,False,special_char_time,next_line_time,common_char_time,name=first_line_node.speaker)
 	#screen_auto_display_node(first_line_node)

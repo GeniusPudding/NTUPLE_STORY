@@ -22,14 +22,14 @@
             Color:
                 rgba: 45/255,32/255,58/255,.8
             Mesh:
-                vertices:[.1*self.size[0], .2*self.size[1], 0, 0, .15*self.size[0], .1*self.size[1], 0, 0, .3*self.size[0], .1*self.size[1], 0, 0, .35*self.size[0], .2*self.size[1], 0, 0, .3*self.size[0], .3*self.size[1], 0, 0, .15*self.size[0], .3*self.size[1], 0, 0] 
+                vertices:[.1*self.size[0], .2*self.size[1], 0, 0, .15*self.size[0], .1*self.size[1], 0, 0, .4*self.size[0], .1*self.size[1], 0, 0, .45*self.size[0], .2*self.size[1], 0, 0, .4*self.size[0], .3*self.size[1], 0, 0, .15*self.size[0], .3*self.size[1], 0, 0] 
                 indices: [0,1,2,3,4,5]
                 mode: 'triangle_fan'
 
             Color:
                 rgba: 52/255,161/255,62/255,.5
             Mesh:
-                vertices:[.107*self.size[0], .2*self.size[1], 0, 0, .153*self.size[0], .106*self.size[1], 0, 0, .297*self.size[0], .106*self.size[1], 0, 0, .343*self.size[0], .2*self.size[1], 0, 0, .297*self.size[0], .294*self.size[1], 0, 0, .153*self.size[0], .294*self.size[1], 0, 0] 
+                vertices:[.107*self.size[0], .2*self.size[1], 0, 0, .153*self.size[0], .106*self.size[1], 0, 0, .397*self.size[0], .106*self.size[1], 0, 0, .443*self.size[0], .2*self.size[1], 0, 0, .397*self.size[0], .294*self.size[1], 0, 0, .153*self.size[0], .294*self.size[1], 0, 0] 
                 indices: [0,1,2,3,4,5]
                 mode: 'triangle_fan'
 
@@ -37,14 +37,14 @@
             Color:
                 rgba: 45/255,32/255,58/255,.8
             Mesh:
-                vertices:[.65*self.size[0], .2*self.size[1], 0, 0, .7*self.size[0], .1*self.size[1], 0, 0, .85*self.size[0], .1*self.size[1], 0, 0, .9*self.size[0], .2*self.size[1], 0, 0, .85*self.size[0], .3*self.size[1], 0, 0, .7*self.size[0], .3*self.size[1], 0, 0] 
+                vertices:[.55*self.size[0], .2*self.size[1], 0, 0, .6*self.size[0], .1*self.size[1], 0, 0, .85*self.size[0], .1*self.size[1], 0, 0, .9*self.size[0], .2*self.size[1], 0, 0, .85*self.size[0], .3*self.size[1], 0, 0, .6*self.size[0], .3*self.size[1], 0, 0] 
                 indices: [0,1,2,3,4,5]
                 mode: 'triangle_fan'
 
             Color:
                 rgba: 52/255,161/255,62/255,.5
             Mesh:
-                vertices:[.657*self.size[0], .2*self.size[1], 0, 0, .703*self.size[0], .106*self.size[1], 0, 0, .847*self.size[0], .106*self.size[1], 0, 0, .893*self.size[0], .2*self.size[1], 0, 0, .847*self.size[0], .294*self.size[1], 0, 0, .703*self.size[0], .294*self.size[1], 0, 0] 
+                vertices:[.557*self.size[0], .2*self.size[1], 0, 0, .603*self.size[0], .106*self.size[1], 0, 0, .847*self.size[0], .106*self.size[1], 0, 0, .893*self.size[0], .2*self.size[1], 0, 0, .847*self.size[0], .294*self.size[1], 0, 0, .603*self.size[0], .294*self.size[1], 0, 0] 
                 indices: [0,1,2,3,4,5]
                 mode: 'triangle_fan'
                
@@ -62,7 +62,7 @@
             color: 36/255, 22/255, 48/255, .7
             font_name: 'res/HanyiSentyMeadow.ttf'
             font_size: '100'
-            size_hint: (.2, .1)
+            size_hint: (.3, .1)
             pos_hint: {'x': .125,'y':.15}
             markup: True
                
@@ -71,13 +71,13 @@
             color: 36/255, 22/255, 48/255, .7
             font_name: 'res/HanyiSentyMeadow.ttf'
             font_size: '100'
-            size_hint: (.2, .1)
-            pos_hint: {'x': .675,'y':.15}
+            size_hint: (.3, .1)
+            pos_hint: {'x': .575,'y':.15}
             markup: True
 
         Button:
             background_color: 1,1,1,0
-            size_hint: (.2, .1)
+            size_hint: (.3, .1)
             pos_hint: {'x': .125,'y':.15}
             on_press:
                 root.on_press_load(self)                
@@ -85,7 +85,7 @@
         Button:
             background_color: 1,1,1,0
             size_hint: (.2, .1)
-            pos_hint: {'x': .675,'y':.15}
+            pos_hint: {'x': .575,'y':.15}
             on_press:
                 root.on_press_new(self)
 
@@ -136,20 +136,6 @@
         # self.canvas.add(Color(.2,.2,.2,.4))
         # self.canvas.add(Rectangle(pos=(0,0),size=(global_w,global_h),group='seal'))
 
-<PhoneScreen>:
-    FloatLayout:
-        # canvas:
-        #     Color:
-        #         rgba: .718, .831, .941, .9
-        #     Rectangle:
-        #         pos: self.pos
-        #         size: self.size   
-        #     Color:
-        #         rgba: 1, 1, 1, .6
-        #     Rectangle:
-        #         source: 'res/images/testing/phone.jpg'
-        #         pos: (.3*self.size[0],.1*self.size[1])
-        #         size: (.4*self.size[0],.8*self.size[1]) 
 
 <FreeDraggableItem>:
     # canvas.before:

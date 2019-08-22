@@ -72,7 +72,7 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 					content['chapter'].append(chapter_code[chap])
 				
 			func = df['功能'][i]
-			if len(func) <= 1:
+			if isinstance(func,float) or len(func) <= 1:
 				content['function_types'] = ['nothing']
 			else:
 				func = df['功能'][i].split('、')
