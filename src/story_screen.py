@@ -309,12 +309,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.mapNPC_register = []
 		self.objects_allocation = [[]]
 		self.NPCs_allocation = [[]]
-<<<<<<< HEAD
-		
-
-=======
 		self.prompt_label = Label()
->>>>>>> 49e3c07e2d6e1400e2d2cdad2d298ba149fc01b1
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))

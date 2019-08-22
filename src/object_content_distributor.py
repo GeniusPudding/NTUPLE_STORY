@@ -29,7 +29,7 @@ for p in range(4):
 			for f in os.listdir(object_dir):
 				os.remove(os.path.join(object_dir, f))	
 
-		with open(object_dir+'chapter_objects.json','w') as f:
+		with open(object_dir+'chapter_objects.json','w',encoding='utf-16') as f:
 			json.dump(dicts[p][c], f)	
 		print(f'p:{p},c:{c},dicts[{p}][{c}]:{dicts[p][c]}')
 		

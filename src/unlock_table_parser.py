@@ -42,5 +42,5 @@ for i, object_name in enumerate(df['開鎖之物件']):
 
 
 print(f'final data_dict:{final_data_dict}')
-with open('res/objects/unlock_table.json','w') as f:
+with open('res/objects/unlock_table.json','w',encoding='utf-16') as f:
 	json.dump(final_data_dict, f)	
