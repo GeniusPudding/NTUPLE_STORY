@@ -2,11 +2,18 @@
 # Object screen for object allocating             #
 ###################################################
 from game_manager import *
-# import pygame
-from kivy.core.audio import SoundLoader
+import pygame
+
 turns = {1:2,2:3,3:0,0:1}
+import os
+# os.environ["KIVY_AUDIO"] = 'ffpyplayer'
+# os.environ["KIVY_VIDEO"] = 'ffpyplayer'
+import kivy
+# from kivy.core.audio import SoundLoader
 
-
+# from kivy.uix.videoplayer import VideoPlayer
+# from ffpyplayer.player import MediaPlayer
+# import time
 class ObjectScreen(Screen):
 	current_player_id = NumericProperty(1)
 	current_chapter = NumericProperty(1)
@@ -28,17 +35,28 @@ class ObjectScreen(Screen):
 		self.current_chapter = 0		
 		self.current_map = 0
 
-		# pygame.mixer.pre_init(44100,16,2,4096)
-		# pygame.init()
-		# pygame.mixer.music.load('res/login.mp3')
-		# pygame.mixer.music.play(-1)
+
+
+
+		
+		# val = ''
+		# while val != 'eof':
+		#     frame, val = player.get_frame()
+		#     if val != 'eof' and frame is not None:
+		#         img, t = frame
+		        # display img
+
+		#self.video = VideoBase(filename='video.mp4')
+		#VideoPlayer(source='video.mp4',  state='play', options={'allow_stretch': True})
+
+
 		
 
-		sound = SoundLoader.load('res/login.mp3')
-		if sound:
-		    print("Sound found at %s" % sound.source)
-		    print("Sound is %.3f seconds" % sound.length)
-		    sound.play()
+		# sound = SoundLoader.load('res/login.mp3')
+		# if sound:
+		#     print("Sound found at %s" % sound.source)
+		#     print("Sound is %.3f seconds" % sound.length)
+		#     sound.play()
 		    	
 	def auto_load_maps(self, instance, current_player_chapter):
 		print('[*]current_player_chapter:', current_player_chapter)
@@ -68,6 +86,18 @@ class ObjectScreen(Screen):
 			self.current_chapter = turns[self.current_chapter]
 		elif  press_key_id == 110:#n:
 			self.current_player_id = turns[self.current_player_id]
+
+		elif press_key_id == 111:#o:
+			#self.player = MediaPlayer('login.mp4')
+			pygame.mixer.pre_init(44100,16,2,4096)
+			pygame.init()
+			pygame.mixer.music.load('res/login.mp3')
+			pygame.mixer.music.play(-1)
+			# val = ''
+			# while val != 'eof':
+			#     frame, val = self.player.get_frame()
+			#     if val != 'eof' and frame is not None:
+			#         img, t = frame			
 
 	def exploring_maps(self, press_key_id):
 

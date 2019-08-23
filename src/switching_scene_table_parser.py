@@ -44,7 +44,8 @@ for p in range(4):
 			for f in os.listdir(scene_dir):
 				os.remove(os.path.join(scene_dir, f))	
 
-		d = scene_dicts[p][c]		
+		d = scene_dicts[p][c]	
+		print('d:',d)	
 		hp = 'res/images/handpainting/'
 		for i in d.keys():
 			for img in os.listdir(hp) :

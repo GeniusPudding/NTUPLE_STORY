@@ -94,7 +94,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		print('auto_display_item_info object_id:',object_id)
 		text_line = GM.object_table[str(object_id)]['description']
 		if len(text_line) == 0:
-			text_line = '不明道具...不知道可以用來做什麼'
+			text_line = '不明道具...不知道可以用來做什麼\n'
 		print('text_line:',text_line)
 		spent_time = line_display_scheduler(screen,text_line,False,.2,.5,.15)
 		# Clock.schedule_once(screen.clear_text_on_screen,.2+spent_time)
@@ -196,7 +196,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 			else:
 				print("普通道具，無法單獨使用!")#DEBUG:clear
 				screen.clear_text_on_screen()
-				spent_time = line_display_scheduler(screen,'普通道具，無法單獨使用!',False,special_char_time,next_line_time,common_char_time)
+				spent_time = line_display_scheduler(screen,'普通道具，無法單獨使用!\n',False,special_char_time,next_line_time,common_char_time)
 				#Clock.schedule_once(screen.clear_text_on_screen,spent_time+.5)
 				#screen.clear_text_on_screen(delay_time=spent_time+.5)
 		else :#type:trigger, lock, puzzle, synthesis 原則上剩一種
@@ -269,7 +269,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	loading = BooleanProperty(True)
 	NPC_talking = BooleanProperty(False) 
 	text_cleared = BooleanProperty(False) 
-
+	judgable = BooleanProperty(True) #避免重複判定扣血
+	in_judge_range = BooleanProperty(False) 
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -949,17 +950,13 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		material = item['name']  
 		synthesis_content = GM.synthesis_table[material]
 		expected_input = synthesis_content['input']
-		self.try_close_item_view()
-		# if self.item_view == 0:
-		# 	self.item_view = 1
+		#self.try_close_item_view()
+		self.try_open_item_view()
 		
 		#testing 對話框顯示物件敘述
 		self.clear_text_on_screen()
 		print('item[\'description\']:',item['description'])
 		spent_time = line_display_scheduler(self,item['description'],False,special_char_time,next_line_time,common_char_time)
-
-
-
 
 		synthesis_canvas(self,item,0)
 		if self.itemframe.count > 0:
@@ -967,12 +964,16 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.synthesis_event = Clock.schedule_interval(partial(self.material_item_judge,item,synthesis_content), 0.1)
 
 	def material_item_judge(self,item,synthesis_content,*args):
-
+		print('material_item_judge...')
+		print('in_judge_range:',self.in_judge_range)
 		def try_synthesis(screen,item,expected_input,dragging_object_id,*args):
+			print('self.judgable:',self.judgable)
+			if self.judgable:
+				self.judgable = False
+			else:
+				return
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:
-				print('取消前 screen.synthesis_event:',screen.synthesis_event)
 				screen.synthesis_event.cancel()
-				print('取消後 screen.synthesis_event:',screen.synthesis_event)
 				screen.global_mouse_event.cancel()
 				synthesizer_id = GM.name_to_id_table[item['name']]
 				GM.players[screen.current_player_id].spend_item(synthesizer_id)
@@ -988,12 +989,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			else:
 				print('合成失敗!')#DEBUG
 				screen.clear_text_on_screen()
-				spent_time = line_display_scheduler(screen,'合成失敗...',False,special_char_time,next_line_time,common_char_time)
+				spent_time = line_display_scheduler(screen,'合成失敗...\n',False,special_char_time,next_line_time,common_char_time)
 				#Clock.schedule_once(screen.clear_text_on_screen,spent_time+.5)
 				#screen.clear_text_on_screen(delay_time=spent_time+.5)
-				Clock.schedule_once(partial(screen.dragging.reset,screen,2),spent_time+.5) 		
+				Clock.schedule_once(partial(screen.dragging.reset,screen,2),spent_time+1.5) 
+				Clock.schedule_once(screen.set_judgable,spent_time+1.6) #testing		
 				self.canvas.remove_group('synthesis1')
-			#screen.hp_per_round -= 1#DEBUG: 連續扣血問題
+				self.hp_per_round -= 1
+				#screen.hp_per_round -= 1#DEBUG: 連續扣血問題
 
 		expected_input = synthesis_content['input']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
@@ -1003,7 +1006,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			#synthesis_canvas(self,item,1,self.dragging.source)
 			Clock.schedule_once(partial(synthesis_canvas,self,item,1,self.dragging.source),.1)
 			#Clock.schedule_once(partial(synthesis_canvas,self,item,stage=2),1)
-			Clock.schedule_once(partial(try_synthesis,self,item,expected_input,dragging_object_id),1)
+			Clock.schedule_once(partial(try_synthesis,self,item,expected_input,dragging_object_id),1.1)
 		elif not self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)) and self.dragging.free == 1 :
 
 			print('合成超出範圍，返回原位')		
@@ -1016,8 +1019,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		# self.lock = Image(source=item['source'],pos_hint ={'x':.4,'y':.4},size_hint=(.2,.2) ,allow_stretch=True,keep_ratio=False)
 		# self.add_widget(self.lock)
 		self.try_open_item_view()
-		# if self.item_view == 0:
-		# 	self.item_view = 1
 
 		#testing 對話框顯示物件敘述
 		self.clear_text_on_screen()
@@ -1038,16 +1039,23 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.lock_event = Clock.schedule_interval(partial(self.key_item_judge,lock_content,judge_pos_hint, judge_size_hint), 0.1)
 
 	def key_item_judge(self, lock_content, judge_pos_hint, judge_size_hint, *args):
+		print('self.judgable:',self.judgable)
+		print('self.in_judge_range:',self.in_judge_range)
 		expected_input = lock_content['input_item']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
 		if E2_distance(self.dragging.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range(judge_pos_hint, judge_size_hint):
+			# if self.judgable:
+			# 	self.judgable = False
+			# else:
+			# 	return
+
 			print('GM.object_table[str(dragging_object_id)][\'name\']:',GM.object_table[str(dragging_object_id)]['name'] )
 			print('expected_input:',expected_input)
-			if GM.object_table[str(dragging_object_id)]['name'] == expected_input:#開鎖成功
+			if GM.object_table[str(dragging_object_id)]['name'] == expected_input and self.judgable:#開鎖成功
+				self.judgable = False
 				self.lock_event.cancel()
 				self.global_mouse_event.cancel()
 				GM.players[self.current_player_id].spend_item(dragging_object_id)#->auto_reload_item_list->auto_gen_items	
-
 
 				#DEBUG: 對話框沒顯示
 				#lock_output: output item, new scene, trigger
@@ -1079,16 +1087,21 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				else:
 					quit_text += '\n'
 					self.quit_puzzle_mode(text=quit_text)
-					
-			else:
+						
+			elif self.judgable:
+				self.judgable = False
 				print('開鎖失敗!')#DEBUG:沒顯示
 				self.clear_text_on_screen()
-				spent_time = line_display_scheduler(self,'開鎖失敗...',False,special_char_time,next_line_time,common_char_time)
+				self.try_open_dialog_view()
+				spent_time = line_display_scheduler(self,'開鎖失敗...\n',False,special_char_time,next_line_time,common_char_time)
+				# print('self.dialog_events:',self.dialog_events)
+				# print('self.displaying_character_labels:',self.displaying_character_labels)
 				#Clock.schedule_once(self.clear_text_on_screen,spent_time+.3)
 				#self.clear_text_on_screen(delay_time=spent_time+.3)	
-				self.dragging.reset(self,2)
-
-			#self.hp_per_round -= 1
+				Clock.schedule_once(partial(self.dragging.reset,self,2),spent_time+1) 	
+				Clock.schedule_once(self.set_judgable,spent_time+1.1)
+				#self.dragging.reset(self,2)
+				self.hp_per_round -= 1
 		elif not self.mouse_in_range(judge_pos_hint, judge_size_hint) and self.dragging.free == 1:#DEBUG: 會扣血
 			print('開鎖超出範圍，返回原位')		
 			self.dragging.reset(self,2)
@@ -1099,8 +1112,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		yh = global_y/global_h
 		if xh >= pos_hint['x'] and xh <= pos_hint['x']+size_hint[0] and \
 		yh >= pos_hint['y']	and yh <= pos_hint['y']+size_hint[1]:
+			print('mouse in range')
+			self.in_judge_range = True
 			return True
 		else:
+			print('mouse not in range')
+			self.in_judge_range = False
 			return False
 
 	def quit_puzzle_mode(self,text='再試試看吧...',turn_mode=1):
@@ -1132,14 +1149,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.dialog_view = 1
 		self.clear_text_on_screen()
 		spent_time = line_display_scheduler(self,text,False,special_char_time,next_line_time,common_char_time)
-		#Clock.schedule_once(self.clear_text_on_screen,spent_time+.5)
+		Clock.schedule_once(self.set_judgable,spent_time)
 		#self.clear_text_on_screen(delay_time=spent_time+.5)
 		self.remove_widget(self.dragging)
 
 		print('puzzle mode turn to:',turn_mode)
 		if turn_mode == 1:
 			if self.item_view == 1:
-				Clock.schedule_once(self.try_close_item_view,spent_time+.5)
+				Clock.schedule_once(self.try_close_item_view,spent_time+.1)
 			# else
 			# 	self.try_close_dialog_view()
 
@@ -1160,7 +1177,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.pickup_chapter_objects(object_id,btn)
 
 		self.dialog_view = 1
-		spent_time = line_display_scheduler(self,'好像撿到有用的道具了呦',False,special_char_time,next_line_time,common_char_time)
+		spent_time = line_display_scheduler(self,'好像撿到有用的道具了呦\n',False,special_char_time,next_line_time,common_char_time)
 		self.delay_hide_dialogframe(spent_time)
 
 	def pickup_chapter_objects(self, object_id,btn,action='to_bag'):
@@ -1222,7 +1239,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.dialog_view = 1
 		text_line = btn.object_content['description']
 		if len(text_line) == 0:
-			text_line = '不太清楚這有什麼用...'
+			text_line = '不太清楚這有什麼用...\n'
 		spent_time = line_display_scheduler(self,text_line,False,special_char_time,next_line_time,common_char_time)
 		self.delay_hide_dialogframe(spent_time)
 
@@ -1236,6 +1253,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		# def npc_free(screen,*args):
 		# 	self.NPC_talking = False
 		Clock.schedule_once(partial(probing_free,self),delay_time+.2)
+
+	def set_judgable(self,*args):
+		print('[*] set judgable')
+		if not self.judgable:
+			self.judgable = True
 
 	def try_close_dialog_view(self,*args):
 		if self.dialog_view == 1:

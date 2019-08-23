@@ -459,7 +459,7 @@ class NPCButton(Button):#text = npc_name
 			for l in self.main_screen.displaying_character_labels:
 				print('after l.text:',l.text)
 			if self.get_item  is not None:
-				self.main_screen.get_item_from_NPC()
+				self.main_screen.get_item_from_NPC(self.get_item)
 			self.main_screen.hp_per_round -= 1
 			Clock.schedule_once(self.delay_release_NPC,spent_time)
 

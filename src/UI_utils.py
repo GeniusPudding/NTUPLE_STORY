@@ -146,15 +146,17 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 			screen = self.screen
 			if screen.current_mode == 1:
 				self.reset(screen,1)
-			elif screen.current_mode == 2: 
-				screen.hp_per_round -= 1#DEBUG
-			# 	self.reset(screen,2)
+			#elif screen.current_mode == 2 and not screen.in_judge_range: 
+			# 	#screen.hp_per_round -= 1#DEBUG
+				#print('不在判定範圍')
+				#screen.judgable = True
+				#self.reset(screen,2) #不在判定範圍時直接重置，判定範圍內時需要延遲
 	def reset(self,screen,mode,*args):
 		#print('reset dragging!')
 		self.stopped_pos = self.pos = self.origin_pos
 		screen.remove_widget(screen.dragging)	
 		#if mode == 1:
-		screen.item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
+		screen.try_open_item_view()# item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
 		
 			
 
@@ -294,7 +296,7 @@ def synthesis_canvas(screen,item,stage,*args):
 		#magic card
 		screen.canvas.add(Rectangle(source='res/images/testing/synthesis.png',pos=(2*space_x+bx+operator_x/2-.125*global_w, base_y-.375*global_h) ,size=(.25*global_w,.45*global_h),group='synthesis1'))
 
-	elif stage == 2:#output
+	elif stage == 2:#TODO: 正確的延遲顯示以及消除
 		screen.canvas.add(Ellipse(source=args[0],pos=(5*space_x+2*bx+2*operator_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis2'))
 		print('stage == 2 added')
 	else:
