@@ -21,7 +21,6 @@ class ImageButton(ButtonBehavior, Image): #Behavior
 
 turns = {1:2,2:3,3:0,0:1}
 class GameManagerScreen(Screen):#main control class of the whole game
-	#TODO: 自動存檔功能及記錄檔 防止意外關閉遊戲
 	#TODO: Exceptions
 	#TODO: 用計時器跟體力控制做出不同難度模式，預設為easy，不限時
 	p0 = ObjectProperty()
@@ -111,7 +110,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			print(self.p0.GG,self.p1.GG,self.p2.GG,self.p3.GG)
 			print('[*] Exception! Should not get to ending!')
 
-	def init_chapters(self,main_screen): #TODO: load game info
+	def init_chapters(self,main_screen):
 		Chapters = []
 		for p in range(4):
 			Chapters.append([])
@@ -143,7 +142,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 	# def load_NPC_table(self):
 	# 	table = {0:{'name':'艾爾莎','source':'res/images/testing/Erza.png','map_name':'','pos_hint':'','size_hint':'','player':1,'chapter':0,'function_types':'','description':'妖精的尾巴'}}##key:NPC_id,value:(name,source,location,pos,player,chapter,function_types,description)		return table		
 	# 	return table
-	#TODO: the function of auto save/load game status
+
 
 	def load_game(self,main_screen):
 		pickle_list = ['0_0.pickle','0_1.pickle','0_2.pickle','0_3.pickle',\
@@ -312,7 +311,6 @@ class Chapter(object):
 				self.chapter_maps.append(os.path.join(self.unlocked_map_path,locked_img))
 				break
 		
-		#TODO
 		self.main_screen.chapter_maps = self.chapter_maps#reload main screen's info
 		self.main_screen.objects_allocation = self.chapter_objects_of_maps\
 		 = self.load_chapter_objects_of_maps()#load new objects info of unlocked map
@@ -329,7 +327,7 @@ class Chapter(object):
 			if default_maps[player_id*4+chapter_id] in m:
 				return i
 		return 0
-	def load_chapter_dialogs(self):#TODO: read ine of those 16 file
+	def load_chapter_dialogs(self):
 
 		f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
 		pre =[line for line in f1.read().split('\n') if len(line)>0]
@@ -356,7 +354,7 @@ class Chapter(object):
 		text = ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
 		return Label(text=text,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
 	def load_chapter_objects_of_maps(self):
-		#TODO: load and init all MapObject here in existing map
+
 		#from self.object_path 
 		maps = self.chapter_maps
 		print('load chapter maps:',maps)

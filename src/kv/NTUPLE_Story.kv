@@ -130,7 +130,7 @@
         size_hint:(.5,.3)
         halign:'center'
         valign:'center'
-        font_size: 184
+        font_size: 150
         font_name: 'res/HuaKangTiFan-CuTi-1.otf'  
        
         # self.canvas.add(Color(.2,.2,.2,.4))
@@ -207,7 +207,7 @@
             Color:
                 rgba: 1,1,1,1
             Rectangle:
-                source:'res/images/phone/phone_messege.png'#the small image of phone screen
+                source:'res/images/players/' + root.current_player + '.png'#the small image of phone screen
                 pos:(root.w*root.dialogframe_width,0)
                 size:(root.w*root.button_width,root.h*root.button_height*2)#height*2
                 group: 'fixed'

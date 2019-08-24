@@ -85,19 +85,24 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 			# if 'clue' in content['function_types']:
 			# 	 content['function_types'].remove('clue')
 			# 	 content['function_types'].append('item')
-
-			if set(['nothing','clue','switching']) & set(content['function_types']) == set():
-				for img in os.listdir('res/images/handpainting/') :
-					if ('.png' in img or '.jpg' in img) and object_name == img.split('.')[0]:
-						content['source'] = os.path.join('res/images/handpainting/',img)
-						break
-
 			if not isinstance(df['文字說明'][i], float):
 				content['description'] = df['文字說明'][i]
 				if len(content['description']) > max_len_description:
 					max_len_description = len(content['description'])
 			else:
 				content['description'] = ''
+
+
+			if set(['nothing','clue','switching']) & set(content['function_types']) == set():
+				for img in os.listdir('res/images/handpainting/') :#TODO: 似乎都不用掃整包圖片可以直接給路徑
+					if ('.png' in img or '.jpg' in img) and object_name == img.split('.')[0]:
+						content['source'] = os.path.join('res/images/handpainting/',img)
+						break
+			if 'switching' == content['function_types'][0]:
+				if content['description'] != content['name']:
+					content['source'] = 'res/images/handpainting/返回按鈕.png'
+
+
 			#'name','source','map_name','pos_hint','size_hint','player','chapter','function_types','description', on_map=True
 
 			#print(f'final content:{content}')

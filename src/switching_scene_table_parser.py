@@ -85,7 +85,7 @@ for i, line in enumerate(df['對話']):
 
 with open('res/chapters/1_2/dialogs/switch_scenes.json','w') as f:
 	json.dump(map_dict, f)	
-print(map_dict)
+print('map_dict:',map_dict)
 
 path = 'res/n. 3_2前導 - 工作表1.csv'
 
@@ -104,4 +104,4 @@ for i, line in enumerate(df['對話']):
 	
 with open('res/chapters/2_1/dialogs/switch_scenes.json','w') as f:
 	json.dump(map_dict, f)	
-print(map_dict)
+print('map_dict:',map_dict)

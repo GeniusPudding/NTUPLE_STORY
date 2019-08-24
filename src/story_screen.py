@@ -7,6 +7,7 @@ GM = GameManagerScreen()
 global_x = 0
 global_y = 0
 
+player_name = {0:'李語蝶',1:'司馬熏',2:'孟亦寒',3:'亓官楓'}
 class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式的功能
 
 	parent_w = NumericProperty()
@@ -252,6 +253,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	dialog_view = NumericProperty(0)#0:background view(exploring maps), 1:dialog view
 	item_view = NumericProperty(0)#0:background view(exploring maps), 1:item view
 	NPC_view = NumericProperty(0)#0:background view(exploring maps), 1:item view
+	mutex_view_list = ReferenceListProperty(item_view,NPC_view)#TODO: mutex lock
 	chapter_info = ObjectProperty()#rebind=True
 	seal_on = BooleanProperty(False)
 	current_mode = NumericProperty(-1)#0:precursor mode, 1:exploring mode, 2: puzzle mode, 3:plot mode
@@ -271,6 +273,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	text_cleared = BooleanProperty(False) 
 	judgable = BooleanProperty(True) #避免重複判定扣血
 	in_judge_range = BooleanProperty(False) 
+	current_player = StringProperty()
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -314,7 +317,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
-
+		self.banned_map_list = ['女主書桌','A女書桌','女主書桌抽屜','女主家裡房間保險箱']#skip when switching maps 
 
 		self.bg_widget = BG_widget(parent =self)
 		self.add_widget(self.bg_widget) 
@@ -338,7 +341,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#陷阱!!!有先後順序 會auto_reload_chapter_info兩次 
 		print("player:{}, chapter:{} ,self.size:{}".format(self.current_player_id, self.current_chapter,self.size))		
 		self.auto_reload_chapter_info(self,[self.current_player_id, self.current_chapter])
-
+		self.current_player = player_name[self.current_player_id]
 
 		#round-binding canvas: 
 		#self.hp_per_round = 1
@@ -596,9 +599,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				print('press_key_id in [276,275] self.current_mode:',self.current_mode)
 
 				if self.current_mode == 1:	
-					if self.item_view == 0 and self.NPC_view == 0:
-						if self.displaying_character_labels == [] and self.dialog_events == []:
+					if self.item_view == 0 and self.NPC_view == 0 :
+						if self.displaying_character_labels == [] and self.dialog_events == [] and \
+							not self.chapter_maps[self.current_map_id].split('/')[-1].split('.')[0] in self.banned_map_list:
 							self.exploring_maps(press_key_id)
+						else:
+							pass#TODO:加速撥放功能?
 
 					elif self.item_view == 1:
 						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0 and self.itemframe.count > 1:
@@ -763,14 +769,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 
 	def exploring_maps(self, press_key_id):
-
-
+		
+		print('[*] exploring maps')
 		num = len(self.chapter_maps)
 
 		if press_key_id==276:
 			print ("key action left")
 			if self.current_map_id <= 0:
-				self.current_map_id = num - 1
+				self.current_map_id = num - 1			
 			else:
 				self.current_map_id -= 1				
 		elif press_key_id==275:
@@ -780,6 +786,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			else:
 				self.current_map_id += 1
 
+		if self.chapter_maps[self.current_map_id].split('/')[-1].split('.')[0] in self.banned_map_list:
+			print('繼續輪轉!')
+
+			self.exploring_maps(press_key_id)		
 	def generate_item_tag(self):
 		print("Enter function: generate_item_tag")
 		#RGB (0,182,237)
@@ -915,7 +925,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.lastline_time = line_display_scheduler(self,node.text_line,False,special_char_time,next_line_time,common_char_time,name=node.speaker)
 
 	#TODO: 計時器功能
-	def enter_puzzle_mode(self, object_id, behavior_type):#TODO: 原本在地圖上的會有自己的判定範圍
+	def enter_puzzle_mode(self, object_id, behavior_type):
 		self.probing = False
 		self.current_mode = 2#open item view
 		self.canvas.add(Color(rgba=(.2,.2,.2,.2),group='puzzle_mode'))
@@ -932,7 +942,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#Debug: 顯示被使用的物件敘述
 
 
-	def puzzle_handler(self, item):#TODO: 目前只有密碼鎖一種
+	def puzzle_handler(self, item):#目前只有密碼鎖一種
 		self.puzzle_name = item['name']
 		if self.puzzle_name == '木製保險櫃(關)':
 			self.answer_code = [3,1,5,8]
@@ -1026,11 +1036,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		spent_time = line_display_scheduler(self,item['description'],False,special_char_time,next_line_time,common_char_time)
 
 
-		judge_pos_hint, judge_size_hint = {'x':.35,'y':.35},(.3,.3)
+		judge_pos_hint, judge_size_hint = {'x':.35,'y':((global_h-.3*global_w)/2)/global_h},(.3,.3*global_w/global_h)
 		if item['source'] is not None:
 			print('item[\'source\']:',item['source'])
 			self.canvas.add(Color(rgba=(1,1,1,1),group='lock'))
-			self.canvas.add(Rectangle(source=item['source'],pos=(.35*global_w,.35*global_h),size=(.3*global_w,.3*global_h),group='lock'))
+			self.canvas.add(Rectangle(source=item['source'],pos=(.35*global_w,(global_h-.3*global_w)/2),size=(.3*global_w,.3*global_w),group='lock'))
+			#self.canvas.add(Rectangle(source=item['source'],pos=(.35*global_w,.35*global_h),size=(.3*global_w,.3*global_h),group='lock'))
 		else:
 			judge_pos_hint, judge_size_hint = {'x':item['pos_hint'][0],'y':item['pos_hint'][1]}, item['size_hint']
 		print('judge_pos_hint, judge_size_hint:',judge_pos_hint, judge_size_hint)
@@ -1228,6 +1239,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def on_press_switching(self,btn):
 		self.probing = False
 		new_scene_name = btn.object_content['name']
+		print('new_scene_name:',new_scene_name)
+		if new_scene_name == '返回按鈕':
+			new_scene_name = btn.object_content['description'] 
 		print('new_scene_name:',new_scene_name)
 		print('self.chapter_maps:',self.chapter_maps)
 		for i,img in enumerate(self.chapter_maps):

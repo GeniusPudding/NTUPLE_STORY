@@ -8,7 +8,7 @@ from game_manager import *
 def auto_prompt(Screen,press_key,pos_hint,instance, prompt,extra_info=''):#a Screen-bind function
 	if prompt:
 		print(f'[*] Auto prompt to press {press_key}!')
-		Screen.prompt_label = Label(text=extra_info+f'press \'{press_key}\' to continue...',color=(.5,.5,.1,.8),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
+		Screen.prompt_label = Label(text=extra_info+f'請按\'{press_key}\'鍵繼續遊戲...',color=(1,1,1,1),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.prompt_label)			
 		#MUST set remove_widget in Screen's key_action function
 
@@ -17,7 +17,7 @@ def auto_display_speaker(Screen, instance, name):#name is Chinese here   #a Scre
 	print('[*] Display speaker: ',name)
 	#name = speaker_name[speaker]
 	Screen.remove_widget(Screen.nametag)
-	Screen.canvas.remove_group('speaker')
+	Screen.canvas.before.remove_group('speaker')
 	if name not in ['','N']:
 		source = 'res/images/players/' + name + '.png'
 		print('displaying speaker source :',source)
@@ -27,7 +27,8 @@ def auto_display_speaker(Screen, instance, name):#name is Chinese here   #a Scre
 		Screen.add_widget(Screen.nametag)
 		
 		if os.path.isfile(source):
-			Screen.canvas.add(Rectangle(source=source,pos=(0,.27*global_h),size=(.15*global_w,.35*global_h),group='speaker'))
+			#Screen.canvas.add(Rectangle(source=source,pos=(0,.27*global_h),size=(.15*global_w,.35*global_h),group='speaker'))
+			Screen.canvas.before.add(Rectangle(source=source,pos=(.3*global_w,.05*global_h),size=(.4*global_w,.8*global_h),group='speaker'))
 
 class BG_widget(Widget):
 	def __init__(self,**kwargs):#, bg_size, bg_pos, bg_source):
