@@ -8,5 +8,8 @@ for p in range(4):
 			os.remove(os.path.join(d_path,f))
 		for f in os.listdir('res/dialogs/'):
 			if '.txt' in f:
-				if int(f[0])-1 == p and int(f[2])-1 == c:
-					shutil.copy(os.path.join('res/dialogs/',f),os.path.join(d_path,str(f[4])+'.txt'))
+				try:
+					if int(f[0])-1 == p and int(f[2])-1 == c:
+						shutil.copy(os.path.join('res/dialogs/',f),os.path.join(d_path,str(f[4])+'.txt'))
+				except:
+					print('[*] Exception f:',f)

@@ -192,11 +192,14 @@ num_down = {2:1,3:2,4:3,5:4,6:5,7:6,8:7,9:8,0:9,1:0}
 select_left = {2:1,3:2,0:3,1:0}
 select_right = {1:2,2:3,3:0,0:1}
 def build_CodedLock(screen,item):
-	screen.canvas.add(Rectangle(pos=screen.pos,size=screen.size,source=item['source'],group='puzzle'))
+	screen.canvas.add(Color(rgba=(1,1,1,1),group='puzzle')) 
+	screen.canvas.add(Rectangle(pos=(.35*global_w,.4*global_h),size=(.3*global_w,.5*global_h),source=item['source'],group='puzzle'))
 	screen.cur_code = [1,3,1,4]
 	screen.code_id = 0
 	code_pos_hint = [{'x':.35+i*.075,'y':.3} for i in range(4)] 	
-	screen.code_labels = [Label(color=(.4,.4,.4,.6),text = str(screen.cur_code[i]), size_hint = (.075,.1),pos_hint=code_pos_hint[i],font_size=144 ) for i in range(4)]   
+	screen.code_labels = [Label(color=(.7,.7,.7,.6),text = str(screen.cur_code[i]), size_hint = (.075,.1),pos_hint=code_pos_hint[i],font_size=144 ) for i in range(4)]   
+	screen.code_instructions = Label(color=(1,1,1,1),text = '用方向鍵控制彼此心靈的數字輪盤', size_hint = (.3,.1),pos_hint={'x':.35,'y':.2},font_size=50,font_name='res/HuaKangTiFan-CuTi-1.otf' )
+	screen.add_widget(screen.code_instructions)
 	for i in range(4):
 		screen.add_widget(screen.code_labels[i])
 	select_code_block_canvas(screen, 0)
@@ -248,6 +251,7 @@ def clear_CodedLock(screen):
 	try:
 		for i in range(4):
 			screen.remove_widget(screen.code_labels[i])
+		screen.remove_widget(screen.code_instructions)
 		screen.canvas.remove_group('block')
 	except:
 		print('No opened Coded Lock')	

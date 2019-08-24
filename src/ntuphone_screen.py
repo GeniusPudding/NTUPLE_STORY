@@ -34,7 +34,7 @@ class NTUPhoneScreen(Screen):#TODO: set a restart phone button
 		self.canvas.add(Ellipse(pos=(.2*global_w, .2*global_h), size=(btn_len,btn_len)))
 		self.canvas.add(Color(1, 1, 1, .8))
 		self.canvas.add(Ellipse(pos=(.2*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len)))
-		self.add_widget(Label(text='Back!',font_size=100,pos=(.2*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len)))
+		self.add_widget(Label(text='Back!',color=(.2,.2,.2,1),font_size=40,pos=(.2*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len), size_hint=(None,None)))
 		self.add_widget(Button(on_press=self.back_to_story,background_color=(1,1,1,0),pos_hint={'x':.2,'y':.2},\
 			size_hint=(btn_len/global_w,btn_len/global_h)))
 

@@ -1,3 +1,6 @@
+###################################################
+# The last screen of this game                    #
+###################################################
 from game_manager import *
 
 def redraw_widget(self,*args):
@@ -9,8 +12,11 @@ class EndingScreen(Screen):
         print('init end self.size_hint:',self.size_hint)
         self.size = (global_w,global_h)
         print('init end self.size:',self.size)
-        self.label = Label(text='ABCDEFGH\nIJKLM\nNOPQRSTUVW\nXYZ0123456789\n'\
-            ,font_size=80,pos=(.25*self.size[0],-.3*self.size[1]),size=(.5*self.size[0],.4*self.size[1]),size_hint=(None,None))
+        f = open('res/dialogs/終章.txt','r')#,encoding='utf-8')
+        r = f.read()
+        print(r)#'ABCDEFGH\nIJKLM\nNOPQRSTUVW\nXYZ0123456789\n'
+        self.label = Label(text=r,font_size=36,pos=(.2*self.size[0],-1.9*self.size[1]),\
+            size=(.6*self.size[0],2*self.size[1]),size_hint=(None,None),font_name='res/HuaKangTiFan-CuTi-1.otf')
         #self.label.pos = ()
         print('init end label.pos:',self.label.pos)
         self.bind(pos=redraw_widget, size=redraw_widget)

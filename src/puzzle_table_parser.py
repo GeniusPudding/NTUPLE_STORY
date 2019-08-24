@@ -36,10 +36,10 @@ for i, object_name in enumerate(df['解碼之物件']):
 	else:
 		content['new_scene'] = df['解鎖新場景'][i]
 
-	if isinstance(df['更換場景'][i], float):
-		content['switch_scene'] = None
-	else:
-		content['switch_scene'] = df['更換場景'][i]			
+	# if isinstance(df['更換場景'][i], float):
+	# 	content['switch_scene'] = None
+	# else:
+	# 	content['switch_scene'] = df['更換場景'][i]			
 
 	if isinstance(df['是否觸發'][i], float):
 		content['trigger'] = False

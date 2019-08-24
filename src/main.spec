@@ -33,4 +33,4 @@ exe = EXE(pyz,
           upx=True,
           runtime_tmpdir=None,
           console=True, 
-          icon= 'C:\\Users\\user\\Desktop\\NTUPLE_STORY\\src\\China.ico')
+          icon= 'C:\\Users\\user\\Desktop\\NTUPLE_STORY\\src\\rpgicon.ico')

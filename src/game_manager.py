@@ -302,7 +302,7 @@ class Chapter(object):
 		#self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)
 		self.main_screen = main_screen
-		self.chapter_maps = self.add_chapter_maps()
+		self.chapter_maps = self.load_chapter_maps()
 		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
 		self.chapter_NPCs_of_maps = self.load_chapter_NPCs_of_maps()#list of ImageButton
 		self.chapter_objects_of_maps = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
@@ -324,7 +324,9 @@ class Chapter(object):
 		self.main_screen.chapter_maps = self.chapter_maps#reload main screen's info
 		self.main_screen.objects_allocation = self.chapter_objects_of_maps\
 		 = self.load_chapter_objects_of_maps()#load new objects info of unlocked map
-		
+		self.main_screen.NPCs_allocation = self.chapter_NPCs_of_maps\
+		 = self.load_chapter_NPCs_of_maps()#load new objects info of unlocked map
+				
 	def load_default_map(self,player_id, chapter_id):
 		# if (player_id==1 and chapter_id==2) or (player_id==2 and chapter_id==1):
 		# 	return -1 #TODO
@@ -361,7 +363,8 @@ class Chapter(object):
 		return part1,part2#can be many dialog_parts?
 
 	def load_chapter_title(self,player_id, chapter_id):
-		text = ['紊亂的書房','曾經的約定','妹妹的男友','隱藏的崇拜','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的卡片','哭泣的女孩','紀念的贈禮','手機的密碼','補全的卡片','渴望的支持','遺失的過往'][4*chapter_id+player_id]
+
+		text = ['紊亂的書房','曾經的約定','蜷曲的背影','生日的禮物','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的日記','哭泣的玩偶','遺失的過往','手機的密碼','補全的卡片','渴望的支持','友誼的結尾'][4*chapter_id+player_id]
 		return Label(text=text,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
 	def load_chapter_objects_of_maps(self):
 
@@ -436,7 +439,7 @@ class Chapter(object):
 			table = json.load(f)
 		return table
 
-	def add_chapter_maps(self):
+	def load_chapter_maps(self):
 
 		chapter_maps = []
 		for f in os.listdir(self.map_path):

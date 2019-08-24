@@ -87,12 +87,12 @@ class ObjectScreen(Screen):
 		elif  press_key_id == 110:#n:
 			self.current_player_id = turns[self.current_player_id]
 
-		elif press_key_id == 111:#o:
-			#self.player = MediaPlayer('login.mp4')
-			pygame.mixer.pre_init(44100,16,2,4096)
-			pygame.init()
-			pygame.mixer.music.load('res/login.mp3')
-			pygame.mixer.music.play(-1)
+		# elif press_key_id == 111:#o:
+		# 	#self.player = MediaPlayer('login.mp4')
+		# 	pygame.mixer.pre_init(44100,16,2,4096)
+		# 	pygame.init()
+		# 	pygame.mixer.music.load('res/login.mp3')
+		# 	pygame.mixer.music.play(-1)
 			# val = ''
 			# while val != 'eof':
 			#     frame, val = self.player.get_frame()

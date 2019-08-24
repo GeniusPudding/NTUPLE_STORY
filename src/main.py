@@ -13,14 +13,14 @@ from subgame_screen import SubgameManager
 from ntuphone_screen import NTUPhoneScreen
 from memory_screen import MemoryScreen   
 from prologue_screen import PrologueScreen
-from seal_screen import SealScreen
+#from seal_screen import SealScreen
 class NTUPLE_Story(App):
     
     def build(self):
         sm = ScreenManager()
         sm.add_widget(GameManagerScreen(name='gm')) 
         print("global_w,global_h:",global_w,global_h)
-        sm.add_widget(SealScreen(name='seal'))  
+        #sm.add_widget(SealScreen(name='seal'))  
         sm.add_widget(StoryScreen(name='story'))
         sm.get_screen('gm').link_main_screen()
         sm.add_widget(CoverScreen(name='cover'))

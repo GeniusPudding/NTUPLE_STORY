@@ -285,7 +285,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print(f"global_w:{global_w},global_h:{global_h}")	
 		self.button_height = self.dialogframe_height/2
 		print("init pos={},size={},self={},type(self)={},(w,h)={},Window.size={}".format(self.pos,self.size,self,type(self),(self.w,self.h),Window.size))
-		self.bind(hp_per_round=self.auto_hp_canvas)
+		#self.bind(hp_per_round=self.auto_hp_canvas)
 		#self.bind(hp_per_round=self.auto_save_game)
 		self.bind(current_speaker_name=partial(auto_display_speaker,self))
 		self.bind(current_map_id=self.auto_switch_maps)
@@ -318,6 +318,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
 		self.banned_map_list = ['女主書桌','A女書桌','女主書桌抽屜','女主家裡房間保險箱']#skip when switching maps 
+		self.NPC_tag = Image(pos_hint={'x':.96,'y':.6},size_hint=(.04,.1),source='res/images/NPC_tag.png',allow_stretch=True,keep_ratio=False)
 
 		self.bg_widget = BG_widget(parent =self)
 		self.add_widget(self.bg_widget) 
@@ -348,13 +349,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.hp_per_round = 20#trigger event #auto save?
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
-		self.current_map_id = -2
-		self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
-		#print("self.chapter_maps[self.current_map_id]:",self.chapter_maps[self.current_map_id])
-		#print('Restart test')
-		#for testing, load subgame button 
-		#self.add_widget(self.subgame_button)
-
+		# self.current_map_id = -2
+		# self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
+		# #print("self.chapter_maps[self.current_map_id]:",self.chapter_maps[self.current_map_id])
+		# print('testing self.chapter_maps:',self.chapter_maps)
+		# print('testing self.NPCs_allocation:',self.NPCs_allocation)
+		# if self.NPCs_allocation[self.current_map_id] != []:
+		# 	self.add_widget(self.NPC_tag)
+		# else:
+		# 	self.remove_widget(self.NPC_tag)
 		#for testing
 		#self.testing_objects_path_init()
 
@@ -460,7 +463,13 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.itemframe = ItemFrame(screen = self,pos_hint = {'x':.8,'y':.25},size_hint = (.2,.6))#(pos_hint = {'x':.15,'y':.33},size_hint = (.85,.5))#parent_w=self.w,parent_h=self.h
 		self.reload_item_list = True
 		self.generate_item_tag()
-		
+	
+		self.current_map_id = -2
+		self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
+		#print("self.chapter_maps[self.current_map_id]:",self.chapter_maps[self.current_map_id])
+
+
+
 		print(f'chapter_maps:{self.chapter_maps},objects_allocation:{self.objects_allocation}')#,current_dialog:{self.auto_dialog}')
 
 	def auto_start_chapter(self, instance, finish_auto):
@@ -515,18 +524,18 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		print('[*]current_player_chapter: ', c_p)
 		self.chapter_info = GM.Chapters[self.current_player_id][self.current_chapter]#load chapter info at each round starts
 		print("chapter_info reloaded:",self.chapter_info)
-	def auto_hp_canvas(self,instance, hp):#if hp = 0, end this round
-		print('[*]hp:', hp)#TODO:hp-1 動畫 
-		for hp in self.hp_widgets:
-			self.remove_widget(hp)
-		for i in range(self.hp_per_round):#TODO: 換圖片(希望跟台大有關), 改成canvas繪圖
-			hp = Image(source='res/images/testing/HP.png',pos_hint={'x':.94-.04*i,'y':.85},size_hint=(.03,.1))
-			self.add_widget(hp)
-			self.hp_widgets.append(hp)
-		if self.hp_per_round <= 0:
-			self.quit_puzzle_mode()
-			#TODO:check if there is any status not be cleared
-			auto_prompt(self,'Enter',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='體力耗盡!\n')
+	# def auto_hp_canvas(self,instance, hp):#if hp = 0, end this round
+	# 	print('[*]hp:', hp)#TODO:hp-1 動畫 
+	# 	for hp in self.hp_widgets:
+	# 		self.remove_widget(hp)
+	# 	for i in range(self.hp_per_round):#TODO: 換圖片(希望跟台大有關), 改成canvas繪圖
+	# 		hp = Image(source='res/images/testing/HP.png',pos_hint={'x':.94-.04*i,'y':.85},size_hint=(.03,.1))
+	# 		self.add_widget(hp)
+	# 		self.hp_widgets.append(hp)
+	# 	if self.hp_per_round <= 0:
+	# 		self.quit_puzzle_mode()
+	# 		#TODO:check if there is any status not be cleared
+	# 		auto_prompt(self,'Enter',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='體力耗盡!\n')
 
 			                         
 
@@ -543,6 +552,13 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				self.item_view == 0
 			if self.current_mode in [1,2] :#DEBUG
 				self.map_objects_allocator('reallocate')
+
+			print('testing self.chapter_maps:',self.chapter_maps)
+			print('testing self.NPCs_allocation:',self.NPCs_allocation)
+			if self.NPCs_allocation[self.current_map_id] != []:
+				self.add_widget(self.NPC_tag)
+			else:
+				self.remove_widget(self.NPC_tag)	
 
 		#TODO:
 		#elif == -1: 
@@ -634,15 +650,18 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			elif press_key_id == 99:#c:
 				print('self.NPC_talking:',self.NPC_talking,'self.text_cleared:',self.text_cleared)
 				print('self.NPCs_allocation:',self.NPCs_allocation)
-				if len(self.NPCs_allocation[self.current_map_id]) == 0:
+				if self.NPCs_allocation[self.current_map_id] == []:
 					return True
 
 				if self.current_mode == 1 and self.item_view == 0:
 					if self.NPC_view == 0:
+						self.remove_widget(self.NPC_tag)
 						self.NPC_view = 1
+
 					elif self.NPC_view == 1:
 						if self.text_cleared or not self.NPC_talking:
 							self.NPC_view = 0
+							self.add_widget(self.NPC_tag)
 
 			elif press_key_id == 105:#i:
 				print('text_cleared:',self.text_cleared)
@@ -798,7 +817,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def generate_item_tag(self):
 		print("Enter function: generate_item_tag")
 		#RGB (0,182,237)
-		self.item_tag = Image(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)#ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
+		self.item_tag = Image(pos_hint={'x':.96,'y':.75},size_hint=(.04,.1),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)#ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
 		self.add_widget(self.item_tag)
 
 	def display_itemframe(self,*args):
@@ -815,7 +834,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 		self.item_box_canvas_controller('show')
 
-		self.item_tag = ImageButton(pos_hint={'x':.77,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.hide_itemframe,allow_stretch=True,keep_ratio=False)
+		self.item_tag = ImageButton(pos_hint={'x':.76,'y':.75},size_hint=(.04,.1),source='res/images/itemtag.png',callback=self.hide_itemframe,allow_stretch=True,keep_ratio=False)
 
 		self.add_widget(self.item_tag)	
 	def hide_itemframe(self,*args):
@@ -912,6 +931,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				print('Switch bg to:',table[str(i)]['source'])
 				#bg = Rectangle(source=table[str(i)]['source'], pos=(0,0), size=(self.w,self.h),group='bg')
 				self.bg_widget.load_bg(table[str(i)]['source'])
+				self.map_objects_allocator('deallocate')
 				self.switch_id += 1
 
 		if self.manual_node.type != 'tail':
@@ -1002,9 +1022,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				name = self.puzzle_content['new_scene']
 				GM.Chapters[self.current_player_id][self.current_chapter].unlock_new_map(name)
 				self.current_map_id = len(self.chapter_maps) - 1 #unlock and go to new scene
-			if self.puzzle_content['switch_scene'] is not None:
-				print('解碼成功...更換場景!')
-				self.current_map_id = self.chapter_maps.index(self.puzzle_content['switch_scene'])
 			if self.puzzle_content['trigger']:
 				print('解碼成功...觸發劇情!')
 				quit_text += '觸發劇情!\n'
@@ -1129,6 +1146,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				#DEBUG: 對話框沒顯示
 				#lock_output: output item, new scene, trigger
 				quit_text = '開鎖成功...'
+
+				print('testing lock_content:',lock_content)
 				if lock_content['output_item'] is not None:
 					print('開鎖成功...獲得新道具!')
 					quit_text += '獲得新道具! '
