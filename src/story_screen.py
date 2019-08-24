@@ -962,15 +962,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		# else:
 		# 	print('目前不支援')
-	def puzzle_select_number(press_key_id):
+	def puzzle_select_number(self,press_key_id):
 
 		if press_key_id == 273:
 			self.cur_code[self.code_id] = num_up[self.cur_code[self.code_id]]
 		elif press_key_id == 274:
-			self.cur_code[screen.code_id] = num_down[self.cur_code[self.code_id]]
-		self.code_labels[screen.code_id].text = str(self.cur_code[self.code_id])
+			self.cur_code[self.code_id] = num_down[self.cur_code[self.code_id]]
+		self.code_labels[self.code_id].text = str(self.cur_code[self.code_id])
 
-		if self.cur_code == answer_code:#[3,1,5,8]:
+		if self.cur_code == self.answer_code:#[3,1,5,8]:
 			self.puzzling = False
 			#clear_CodedLock(screen)
 
