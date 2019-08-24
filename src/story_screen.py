@@ -1315,10 +1315,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		#map_objects_a
 	def on_press_switching(self,btn):
 		self.probing = False
-		new_scene_name = btn.object_content['name']
-		print('new_scene_name:',new_scene_name)
-		if new_scene_name == '返回按鈕':
-			new_scene_name = btn.object_content['description'] 
+		# new_scene_name = btn.object_content['name']
+		# print('new_scene_name:',new_scene_name)
+		# if new_scene_name == '返回按鈕':
+		new_scene_name = btn.object_content['description'] 
 		print('new_scene_name:',new_scene_name)
 		print('self.chapter_maps:',self.chapter_maps)
 		for i,img in enumerate(self.chapter_maps):

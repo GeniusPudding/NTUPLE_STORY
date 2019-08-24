@@ -99,7 +99,8 @@ for f in os.listdir(path):#0.csv,1.csv,2.csv,3.csv
 						content['source'] = os.path.join('res/images/handpainting/',img)
 						break
 			if 'switching' == content['function_types'][0]:
-				if content['description'] != content['name']:
+				#if content['description'] != content['name']:
+				if content['name'] == '返回按鈕':
 					content['source'] = 'res/images/handpainting/返回按鈕.png'
 
 
