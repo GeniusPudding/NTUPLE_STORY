@@ -201,6 +201,7 @@ def build_CodedLock(screen,item):
 		screen.add_widget(screen.code_labels[i])
 	select_code_block_canvas(screen, 0)
 	screen.item_view = 0
+	screen.puzzling = True
 def puzzle_move_view(screen, press_key_id):
 	if press_key_id == 276:
 		screen.code_id = select_left[screen.code_id]
@@ -220,28 +221,28 @@ def select_code_block_canvas(screen, code_id):
 	screen.canvas.add(Color(.1,.1,.1,.5))
 	screen.canvas.add(Line(points=[lb_pos[0], lb_pos[1], rb_pos[0], rb_pos[1], rt_pos[0], rt_pos[1], lt_pos[0], lt_pos[1]],cap=None,joint='round',close=True, width=wid,group='block'))
 		
-def puzzle_select_number(screen,GM, press_key_id,answer_code,puzzle_name):
+# def puzzle_select_number(screen,GM, press_key_id,answer_code,puzzle_name):
 
-	if press_key_id == 273:
-		screen.cur_code[screen.code_id] = num_up[screen.cur_code[screen.code_id]]
-	elif press_key_id == 274:
-		screen.cur_code[screen.code_id] = num_down[screen.cur_code[screen.code_id]]
-	screen.code_labels[screen.code_id].text = str(screen.cur_code[screen.code_id])
-	print(f'select screen.cur_code[{screen.code_id}]:{screen.cur_code[screen.code_id]}')
+# 	if press_key_id == 273:
+# 		screen.cur_code[screen.code_id] = num_up[screen.cur_code[screen.code_id]]
+# 	elif press_key_id == 274:
+# 		screen.cur_code[screen.code_id] = num_down[screen.cur_code[screen.code_id]]
+# 	screen.code_labels[screen.code_id].text = str(screen.cur_code[screen.code_id])
+# 	print(f'select screen.cur_code[{screen.code_id}]:{screen.cur_code[screen.code_id]}')
 
-	if screen.cur_code == answer_code:#[3,1,5,8]:
-		screen.puzzling = False
-		#clear_CodedLock(screen)
+# 	if screen.cur_code == answer_code:#[3,1,5,8]:
+# 		screen.puzzling = False
+# 		#clear_CodedLock(screen)
 
-		if puzzle_name == '木製保險櫃(關)':
-			screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!\n')
-			#TODO:加入新場景到章節地圖中
-			name = '女主家裡房間二'
-			GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
-			screen.current_map_id = len(screen.chapter_maps) - 1 
+# 		if puzzle_name == '木製保險櫃(關)':
+# 			screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!\n')
+# 			#TODO:加入新場景到章節地圖中
+# 			name = '女主家裡房間二'
+# 			GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
+# 			screen.current_map_id = len(screen.chapter_maps) - 1 
 
-		elif puzzle_name == '孟亦安的手機':
-			screen.quit_puzzle_mode(text='解碼成功...觸發劇情!\n',turn_mode = 3) 
+# 		elif puzzle_name == '孟亦安的手機':
+# 			screen.quit_puzzle_mode(text='解碼成功...觸發劇情!\n',turn_mode = 3) 
 
 def clear_CodedLock(screen):
 	try:

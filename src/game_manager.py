@@ -43,6 +43,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.object_table = self.load_object_table()
 		self.unlock_table = self.load_unlock_table()
 		self.synthesis_table = self.load_synthesis_table()
+		self.puzzle_table = self.load_puzzle_table()
 		self.name_to_id_table = self.load_name_to_id_table() #有些不同id的名稱會重複，重複時查總表
 		#self.NPC_table = self.load_NPC_table()無需總表
 
@@ -70,7 +71,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 	def change_chapter(self):
 		if self.current_chapter[self.current_player_id] == final_chapter:
-			self.players[self.current_player_id].GG = True
+			#self.players[self.current_player_id].GG = True
 			#self.ready_to_ending(self.current_player_id)
 			self.exclude_from_turns(self.current_player_id)#set current_player_id to last player, for the change_turn
 			
@@ -100,15 +101,15 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		turns = new_link
 
 	def ready_to_ending(self):#, player_id
-		last_one = False
-		if self.p0.GG and self.p1.GG and self.p2.GG and self.p3.GG:
-			last_one = True
+		# last_one = False
+		# if self.p0.GG and self.p1.GG and self.p2.GG and self.p3.GG:
+		# 	last_one = True
 
-			self.manager.get_screen('ending').load_ending()
-			self.manager.current = 'ending'
-		else:
-			print(self.p0.GG,self.p1.GG,self.p2.GG,self.p3.GG)
-			print('[*] Exception! Should not get to ending!')
+		self.manager.get_screen('ending').load_ending()
+		self.manager.current = 'ending'
+		# else:
+		# 	print(self.p0.GG,self.p1.GG,self.p2.GG,self.p3.GG)
+		# 	print('[*] Exception! Should not get to ending!')
 
 	def init_chapters(self,main_screen):
 		Chapters = []
@@ -131,6 +132,11 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 	def load_synthesis_table(self):
 		with open('res/objects/synthesis_table.json','r') as f:
+			table = json.load(f)
+		return table 	
+
+	def load_puzzle_table(self):
+		with open('res/objects/puzzle_table.json','r') as f:
 			table = json.load(f)
 		return table 	
 
@@ -167,7 +173,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			p_dict = pickle.load(p_)
 			self.players[p].item_list = p_dict['item_list']#DEBUG: 地圖上還有重複載入
 			self.players[p].achievement = p_dict['achievement']
-			self.players[p].GG = p_dict['GG']	
+			#self.players[p].GG = p_dict['GG']	
 			print(f'Load {p}\'s p_dict:{p_dict}')
 			for c in range(4):
 				chapter = f'{p}_{c}.pickle' 
@@ -210,6 +216,9 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			print('loading main_screen.dialog_view:',main_screen.dialog_view)
 		else:
 			main_screen.current_mode = load_mode
+		global turns
+		turns = dict_main['turns']
+		print('load turns:',turns)
 		main_screen.hp_per_round = 20#dict_main['hp_per_round']
 		main_screen.current_map_id = -1
 		main_screen.current_map_id = self.Chapters[self.current_player_id][self.current_chapter[self.current_player_id]].chapter_default_map#dict_main['current_map_id']
@@ -221,7 +230,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			player = f'p{p}.pickle'
 			p_ = open(os.path.join(pickle_path,player), 'wb')
 			p_dict = {'item_list':self.players[p].item_list,'achievement':\
-			self.players[p].achievement,'GG':self.players[p].GG}
+			self.players[p].achievement}#,'GG':self.players[p].GG
 			pickle.dump(p_dict,p_) 
 			print('auto save p_dict:',p_dict)
 			for c in range(4):		
@@ -244,6 +253,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			dict_main['current_mode'] = 1
 		# dict_main['current_map_id'] = main_screen.current_map_id
 		# dict_main['hp_per_round'] = main_screen.hp_per_round	
+		dict_main['turns'] = turns
 		print('auto save dict_main:',dict_main)
 		pickle.dump(dict_main,main) 
 
@@ -256,7 +266,7 @@ class Player(object):#player_id=player_id
 		self.achievement = []
 		#self.load_objects_table()
 		self.load_personal_info(player_id)
-		self.GG = False
+		#self.GG = False
 	def get_item(self, object_id):#need to consider number of item?
 		if object_id not in self.item_list:
 			print('get_item:',object_id)

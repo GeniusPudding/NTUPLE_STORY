@@ -625,7 +625,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			elif press_key_id in [274,273]:
 				if self.puzzling:
-					puzzle_select_number(self,GM,press_key_id,self.answer_code,self.puzzle_name)		
+					self.puzzle_select_number(press_key_id)		
 
 			elif press_key_id == 98:#b:
 				if self.current_mode == 2:
@@ -686,6 +686,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.text_cleared = False
 			
 			#for testing
+
+			elif press_key_id == 101:#e: 
+				if self.current_mode == 1:
+					GM.ready_to_ending()
+
 			elif press_key_id == 112:#p
 				if self.current_mode == 1:	
 					self.current_mode = 3
@@ -944,17 +949,70 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def puzzle_handler(self, item):#目前只有密碼鎖一種
 		self.puzzle_name = item['name']
-		if self.puzzle_name == '木製保險櫃(關)':
-			self.answer_code = [3,1,5,8]
-			self.puzzling = True
-			build_CodedLock(self,item)#TODO:item source
-		elif self.puzzle_name == '孟亦安的手機':
-			self.answer_code = [0,7,3,0]
-			self.puzzling = True
-			build_CodedLock(self,item)#TODO:item source
+		self.puzzle_content = GM.puzzle_table[self.puzzle_name]
 
-		else:
-			print('目前不支援')
+		# if self.puzzle_name == '木製保險櫃(關)':
+		# 	self.answer_code = [3,1,5,8]
+		# 	self.puzzling = True
+		# 	build_CodedLock(self,item)#TODO:item source
+		# elif self.puzzle_name == '孟亦安的手機':
+		self.answer_code =  self.puzzle_content['input']#[0,7,3,0]
+		
+		build_CodedLock(self,item)#TODO:item source
+
+		# else:
+		# 	print('目前不支援')
+	def puzzle_select_number(press_key_id):
+
+		if press_key_id == 273:
+			self.cur_code[self.code_id] = num_up[self.cur_code[self.code_id]]
+		elif press_key_id == 274:
+			self.cur_code[screen.code_id] = num_down[self.cur_code[self.code_id]]
+		self.code_labels[screen.code_id].text = str(self.cur_code[self.code_id])
+
+		if self.cur_code == answer_code:#[3,1,5,8]:
+			self.puzzling = False
+			#clear_CodedLock(screen)
+
+			# if puzzle_name == '木製保險櫃(關)':
+			# 	screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!\n')
+			# 	#TODO:加入新場景到章節地圖中
+			# 	name = '女主家裡房間二'
+			# 	GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
+			# 	screen.current_map_id = len(screen.chapter_maps) - 1 
+
+			# elif puzzle_name == '孟亦安的手機':
+			# 	screen.quit_puzzle_mode(text='解碼成功...觸發劇情!\n',turn_mode = 3) 
+
+
+			quit_text = '解碼成功...'
+			if self.puzzle_content['output_item'] is not None:
+				print('解碼成功...獲得新道具!')
+				quit_text += '獲得新道具! '
+				# if isinstance(self.puzzle_content['output_item'],list):
+				# 	for out in self.puzzle_content['output_item']:
+				# 		output_id = GM.name_to_id_table[out]
+				# 		GM.players[self.current_player_id].get_item(output_id)
+				# else:
+				output_id = GM.name_to_id_table[self.puzzle_content['output_item']]
+				GM.players[self.current_player_id].get_item(output_id)#->auto_reload_item_list->auto_gen_items	
+			if self.puzzle_content['new_scene'] is not None:
+				print('解碼成功...解鎖新場景!')
+				quit_text += '解鎖新場景! '
+				name = self.puzzle_content['new_scene']
+				GM.Chapters[self.current_player_id][self.current_chapter].unlock_new_map(name)
+				self.current_map_id = len(self.chapter_maps) - 1 #unlock and go to new scene
+			if self.puzzle_content['switch_scene'] is not None:
+				print('解碼成功...更換場景!')
+				self.current_map_id = self.chapter_maps.index(self.puzzle_content['switch_scene'])
+			if self.puzzle_content['trigger']:
+				print('解碼成功...觸發劇情!')
+				quit_text += '觸發劇情!\n'
+				self.quit_puzzle_mode(text=quit_text,turn_mode = 3)
+			else:
+				quit_text += '\n'
+				self.quit_puzzle_mode(text=quit_text)
+
 
 	def synthesis_handler(self, item):#TODO: canvas 框(填入已知)+框(待填)=框 拖曳正確輸入就產生輸出道具
 		material = item['name']  
@@ -1094,7 +1152,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				if lock_content['trigger']:
 					print('開鎖成功...觸發劇情!')#DEBUG: 對話框
 					quit_text += '觸發劇情!\n'
-					self.quit_puzzle_mode(text=quit_text,turn_mode=3)
+					self.quit_puzzle_mode(text=quit_text,turn_mode = 3)
 				else:
 					quit_text += '\n'
 					self.quit_puzzle_mode(text=quit_text)
