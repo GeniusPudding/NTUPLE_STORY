@@ -57,7 +57,7 @@ class EndingScreen(Screen):
         self.canvas.before.remove_group('end')
         self.cur_image_size = (self.cur_image_size[0]*rate,self.cur_image_size[1]*rate) 
         self.cur_image_pos = ((self.size[0]-self.cur_image_size[0])/2, (self.size[1]-self.cur_image_size[1])/2)
-        self.canvas.before.add(Rectangle(source='res/images/cover.jpg',pos=self.cur_image_pos,size=self.cur_image_size,group='end'))
+        self.canvas.before.add(Rectangle(source='res/images/end.jpg',pos=self.cur_image_pos,size=self.cur_image_size,group='end'))
 
 
 
