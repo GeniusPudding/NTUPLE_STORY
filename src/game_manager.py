@@ -8,8 +8,6 @@ from subgames import *
 from dialog_utils import *
 from UI_utils import *
 
-#from manager.update_manager import *
-
 class ImageButton(ButtonBehavior, Image): #Behavior
 	def __init__(self, callback,object_id=-1, **kargs):
 		super(ImageButton, self).__init__( **kargs)
@@ -17,18 +15,16 @@ class ImageButton(ButtonBehavior, Image): #Behavior
 		self.object_id = object_id#use this if it is an object
 	def on_press(self):
 		print('ImageButton on_press')
-		self.callback()#self
+		self.callback()
 
 turns = {1:2,2:3,3:0,0:1}
 class GameManagerScreen(Screen):#main control class of the whole game
-	#TODO: Exceptions
 	#TODO: 用計時器跟體力控制做出不同難度模式，預設為easy，不限時
 	p0 = ObjectProperty()
 	p1 = ObjectProperty()
 	p2 = ObjectProperty()
-	p3 = ObjectProperty()#can't bind Object if property changed?
+	p3 = ObjectProperty()
 	players = ReferenceListProperty(p0,p1,p2,p3)
-	#reload_item_list = BooleanProperty(False)	
 	def __init__(self, **kwargs):
 		super(GameManagerScreen, self).__init__(**kwargs)
 		#init all needed game info here
@@ -39,21 +35,15 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		self.current_player_id = 3
 		self.current_chapter = [0]*4
 		self.players_name = {0:'室友',1:'男友',2:'哥哥',3:'故人'}
-		#self.Chapters = self.init_chapters()
 		self.object_table = self.load_object_table()
 		self.unlock_table = self.load_unlock_table()
 		self.synthesis_table = self.load_synthesis_table()
 		self.puzzle_table = self.load_puzzle_table()
-		self.name_to_id_table = self.load_name_to_id_table() #有些不同id的名稱會重複，重複時查總表
-		#self.NPC_table = self.load_NPC_table()無需總表
-
-		print("global_w,global_h:",global_w,global_h)
-
+		self.name_to_id_table = self.load_name_to_id_table() 
 
 	def link_main_screen(self):
 		self.main_screen = self.manager.get_screen('story')
 		self.Chapters = self.init_chapters(self.main_screen)
-
 		self.main_screen.start_story(self)		
 
 	def start_chapter(self):
@@ -62,19 +52,17 @@ class GameManagerScreen(Screen):#main control class of the whole game
 	def change_turn(self):
 		print('turns:',turns)
 		print('self.current_chapter:',self.current_chapter)
-		if len(turns) == 0:#test
+		if len(turns) == 0:
 			self.ready_to_ending()
 			return self.current_player_id, self.current_chapter[self.current_player_id]
 		
 		self.current_player_id = turns[self.current_player_id]
-		return self.current_player_id, self.current_chapter[self.current_player_id] #(self.current_player_id, self.current_chapter[self.current_player_id])	
+		return self.current_player_id, self.current_chapter[self.current_player_id]
 
 	def change_chapter(self):
 		if self.current_chapter[self.current_player_id] == final_chapter:
-			#self.players[self.current_player_id].GG = True
-			#self.ready_to_ending(self.current_player_id)
 			self.exclude_from_turns(self.current_player_id)#set current_player_id to last player, for the change_turn
-			
+	
 		else:
 			self.current_chapter[self.current_player_id] += 1
 	def exclude_from_turns(self, player_id):
@@ -100,16 +88,9 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 		turns = new_link
 
-	def ready_to_ending(self):#, player_id
-		# last_one = False
-		# if self.p0.GG and self.p1.GG and self.p2.GG and self.p3.GG:
-		# 	last_one = True
-
+	def ready_to_ending(self):
 		self.manager.get_screen('ending').load_ending()
 		self.manager.current = 'ending'
-		# else:
-		# 	print(self.p0.GG,self.p1.GG,self.p2.GG,self.p3.GG)
-		# 	print('[*] Exception! Should not get to ending!')
 
 	def init_chapters(self,main_screen):
 		Chapters = []
@@ -122,7 +103,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		#'id':{'name','source','pos_hint','size_hint','player','chapter','function_types','description','on_map_name'}
 		with open('res/objects/final_objects_table.json','r') as f:
 			table = json.load(f)
-	
 		return table
 
 	def	load_unlock_table(self):
@@ -144,11 +124,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		with open('res/objects/name_to_id_table.json','r') as f:
 			table = json.load(f)
 		return table 	
-
-	# def load_NPC_table(self):
-	# 	table = {0:{'name':'艾爾莎','source':'res/images/testing/Erza.png','map_name':'','pos_hint':'','size_hint':'','player':1,'chapter':0,'function_types':'','description':'妖精的尾巴'}}##key:NPC_id,value:(name,source,location,pos,player,chapter,function_types,description)		return table		
-	# 	return table
-
 
 	def load_game(self,main_screen):
 		pickle_list = ['0_0.pickle','0_1.pickle','0_2.pickle','0_3.pickle',\
@@ -173,7 +148,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			p_dict = pickle.load(p_)
 			self.players[p].item_list = p_dict['item_list']#DEBUG: 地圖上還有重複載入
 			self.players[p].achievement = p_dict['achievement']
-			#self.players[p].GG = p_dict['GG']	
 			print(f'Load {p}\'s p_dict:{p_dict}')
 			for c in range(4):
 				chapter = f'{p}_{c}.pickle' 
@@ -195,8 +169,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		main = open(os.path.join(pickle_path,'main_screen.pickle'), 'rb')	
 		dict_main = pickle.load(main)	
 		print(f'Load dict_main:{dict_main}')
-		# main_screen.finish_auto = True#auto_prompt
-		# main_screen.remove_widget(main_screen.prompt_label)
 		load_mode = dict_main['current_mode'] 
 		if load_mode == 0:
 			print('loading main_screen.seal_on:',main_screen.seal_on)
@@ -223,14 +195,14 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		main_screen.current_map_id = -1
 		main_screen.current_map_id = self.Chapters[self.current_player_id][self.current_chapter[self.current_player_id]].chapter_default_map#dict_main['current_map_id']
 		main_screen.reload_item_list = True
-		main_screen.loading = False#考慮再加個封蓋?
+		main_screen.loading = False
 	def save_game(self,main_screen):
 		pickle_path = 'res/pickles/'
 		for p in range(4):
 			player = f'p{p}.pickle'
 			p_ = open(os.path.join(pickle_path,player), 'wb')
 			p_dict = {'item_list':self.players[p].item_list,'achievement':\
-			self.players[p].achievement}#,'GG':self.players[p].GG
+			self.players[p].achievement}
 			pickle.dump(p_dict,p_) 
 			print('auto save p_dict:',p_dict)
 			for c in range(4):		
@@ -257,17 +229,14 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		print('auto save dict_main:',dict_main)
 		pickle.dump(dict_main,main) 
 
-class Player(object):#player_id=player_id
+class Player(object):
 	def __init__(self, player_id, GM):
 		self.GM = GM
 		self.name = ''
 		self.personality = ''
 		self.item_list= []#only int key
-		self.achievement = []
-		#self.load_objects_table()
-		self.load_personal_info(player_id)
-		#self.GG = False
-	def get_item(self, object_id):#need to consider number of item?
+		self.achievement = []#TODO
+	def get_item(self, object_id):#No need to consider number of item
 		if object_id not in self.item_list:
 			print('get_item:',object_id)
 			self.item_list.append(object_id)#key:object_id,value:(name,source,location,pos,player,chapter,function_types,description)
@@ -281,15 +250,7 @@ class Player(object):#player_id=player_id
 			self.GM.manager.get_screen('story').reload_item_list = True 
 		else:
 			print('[*] Exception! Cannot spend an item that not in item list!')
-	def get_achievement(self,achievement):
-		pass #TODO:思考內容要放啥
 
-	# def load_objects_table(self):
-	# 	path = 'res/objects/'
-	# 	#TODO
-	def load_personal_info(self,player_id):
-		path = 'res/players/'
-		#needed??
 
 class Chapter(object):
 	def __init__(self, player_id, chapter_id,main_screen):
@@ -312,7 +273,6 @@ class Chapter(object):
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
 		self.chapter_pre_plot, self.chapter_plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
 		self.started = False
-		#self.used_list = []#used objects' id
 
 	def unlock_new_map(self,map_name):#TODO: Optimize,不需要重新載入所有地圖物件
 		for locked_img in os.listdir('res/images/handpainting'):#self.locked_map_path
@@ -328,13 +288,10 @@ class Chapter(object):
 		 = self.load_chapter_NPCs_of_maps()#load new objects info of unlocked map
 				
 	def load_default_map(self,player_id, chapter_id):
-		# if (player_id==1 and chapter_id==2) or (player_id==2 and chapter_id==1):
-		# 	return -1 #TODO
 
 		default_maps = ['雙人宿舍夜','博雅','雙人宿舍日','雙人宿舍日','農場夜',\
 		'B男宿舍夜','排球場','女主家裡房間一','女主家C男房間晚一','女主家C男房間晚一','女主家客廳',\
 		'女主家C男房間晚二','D女房間','D女房間','D女房間二','D女房間二']
-		# default_map = [[],[],[],[]]
 		for i,m in enumerate(self.chapter_maps):
 			if default_maps[player_id*4+chapter_id] in m:
 				return i
@@ -360,7 +317,7 @@ class Chapter(object):
 				part2.append([line_list[0],line_list[1]])
 			else:
 				part2.append(['',line])
-		return part1,part2#can be many dialog_parts?
+		return part1,part2
 
 	def load_chapter_title(self,player_id, chapter_id):
 
@@ -368,7 +325,6 @@ class Chapter(object):
 		return Label(text=text,color=(1,1,1,1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/HuaKangTiFan-CuTi-1.otf')
 	def load_chapter_objects_of_maps(self):
 
-		#from self.object_path 
 		maps = self.chapter_maps
 		print('load chapter maps:',maps)
 		chapter_objects = []
@@ -456,7 +412,6 @@ class NPCButton(Button):#text = npc_name
 		self.get_item = get_item
 		self.player_id = player_id
 		self.bind(parent=self.on_add_and_remove)
-		#self.label = Label(text=self.text,size_hint=self.size_hint,pos_hint=self.pos_hint,font_size=30,color=(0,0,0,1),font_name= 'res/HuaKangTiFan-CuTi-1.otf')
 	def delay_release_NPC(self,*args):
 		self.main_screen.NPC_talking = False
 	def on_press(self):	
@@ -471,7 +426,7 @@ class NPCButton(Button):#text = npc_name
 				print('after l.text:',l.text)
 			if self.get_item  is not None:
 				self.main_screen.get_item_from_NPC(self.get_item)
-			self.main_screen.hp_per_round -= 1
+			#self.main_screen.hp_per_round -= 1
 			Clock.schedule_once(self.delay_release_NPC,spent_time)
 
 
@@ -481,21 +436,16 @@ class NPCButton(Button):#text = npc_name
 			self.main_screen.canvas.add(Color(rbga=(1,1,1,1),group='npc'))
 			self.main_screen.canvas.add(Rectangle(source='res/images/npc.png',pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
 				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='npc'))
-			#self.main_screen.add_widget(self.label)
 		else:
-			print(f'Remove NPCButton:{self.text} on main screen!')	
-			#self.main_screen.remove_widget(self.label)		 
+			print(f'Remove NPCButton:{self.text} on main screen!')	 
 			self.main_screen.canvas.remove_group('npc')
-
 
 class MapObject(Widget):#自定義按紐
 	def __init__(self,object_id,object_content,screen,touch_range='default', **kargs):
 		#依照是否有source圖片區分
-		#self.callback = partial(self.probe_object_on_map,self,screen)#()
 		super(MapObject, self).__init__(**kargs)
 		self.object_id = object_id
 		self.source = object_content['source']
-		#super(MapObject, self).__init__(self.callback,self.object_id,allow_stretch=True,keep_ratio=False,**kargs)
 		self.object_content = object_content
 		self.object_types = object_content['function_types']
 		self.map_name = object_content['on_map_name']
@@ -554,8 +504,6 @@ class MapObject(Widget):#自定義按紐
 					screen.on_press_nothing(self) 	
 				
 				
-
-
 # >>> def keep(path):
 # ...     dir = os.listdir(path)
 # ...     if len(dir) == 0:

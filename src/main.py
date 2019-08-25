@@ -19,7 +19,6 @@ class NTUPLE_Story(App):
         sm = ScreenManager()
         sm.add_widget(GameManagerScreen(name='gm')) 
         print("global_w,global_h:",global_w,global_h)
-        #sm.add_widget(SealScreen(name='seal'))  
         sm.add_widget(StoryScreen(name='story'))
         sm.get_screen('gm').link_main_screen()
         sm.add_widget(CoverScreen(name='cover'))
@@ -43,20 +42,13 @@ if __name__ == '__main__':
     # disable the left click red dot
     Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
     Config.set('graphics', 'fullscreen', '0')
-    #Config.set('graphics', 'position', 'custom')
-    #Config.set('graphics', 'left', 0)
-    #Config.set('graphics', 'top',  0)
 
     #Config.set('kivy','exit_on_escape',0)
     Config.set('kivy','keyboard_mode','')
 
-
-
-    #TODO:checkers of all jsons, if not exist, execute all table parser
-
     with open ('kv/NTUPLE_Story.kv', 'r', encoding='utf-8') as f:
         Builder.load_string(f.read())
     if OS == "Windows":
-        Window.fullscreen = 'auto'#True
-    NTUPLE_Story().run()#+collect_submodules('kivy.weakmethod')+collect_submodules('pandas')+
+        Window.fullscreen = 'auto'
+    NTUPLE_Story().run()
 

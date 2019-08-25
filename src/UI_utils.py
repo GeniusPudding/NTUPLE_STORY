@@ -4,18 +4,16 @@
 ###################################################
 from game_manager import *
 
-#TODO: 按鍵提示語寫法可以更加彈性
+#TODO: 按鍵提示可以更加有擴充性以及彈性
 def auto_prompt(Screen,press_key,pos_hint,instance, prompt,extra_info=''):#a Screen-bind function
 	if prompt:
 		print(f'[*] Auto prompt to press {press_key}!')
-		Screen.prompt_label = Label(text=extra_info+f'請按\'{press_key}\'鍵繼續遊戲...',color=(1,1,1,1),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
+		Screen.prompt_label = Label(text=extra_info+f'請按\'{press_key}\'鍵繼續品味人生...',color=(1,1,1,1),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.prompt_label)			
 		#MUST set remove_widget in Screen's key_action function
 
-
-def auto_display_speaker(Screen, instance, name):#name is Chinese here   #a Screen-bind function
+def auto_display_speaker(Screen, instance, name): #a Screen-bind function
 	print('[*] Display speaker: ',name)
-	#name = speaker_name[speaker]
 	Screen.remove_widget(Screen.nametag)
 	Screen.canvas.before.remove_group('speaker')
 	if name not in ['','N']:
@@ -111,7 +109,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		    self.bg_rect = Ellipse(pos=self.pos,size=self.size,source=source,group='self')
 		self.bind(pos=redraw_widget, size=redraw_widget)
 		self.bind(free=global_free)
-		#self.canvas.add(Ellipse(pos=self.pos,size=self.size,source=source,group='self'))
+
 		self.x_radius = self.size[0]/2
 		self.y_radius = self.size[1]/2
 		self.dragger = 0
@@ -158,8 +156,6 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		screen.remove_widget(screen.dragging)	
 		#if mode == 1:
 		screen.try_open_item_view()# item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
-		
-			
 
 	def start_switching_animate(self,pos,offset,direction,duration=.2):
 		(px,py) = pos
@@ -224,29 +220,6 @@ def select_code_block_canvas(screen, code_id):
 	screen.canvas.add(Color(.1,.1,.1,.5))
 	screen.canvas.add(Line(points=[lb_pos[0], lb_pos[1], rb_pos[0], rb_pos[1], rt_pos[0], rt_pos[1], lt_pos[0], lt_pos[1]],cap=None,joint='round',close=True, width=wid,group='block'))
 		
-# def puzzle_select_number(screen,GM, press_key_id,answer_code,puzzle_name):
-
-# 	if press_key_id == 273:
-# 		screen.cur_code[screen.code_id] = num_up[screen.cur_code[screen.code_id]]
-# 	elif press_key_id == 274:
-# 		screen.cur_code[screen.code_id] = num_down[screen.cur_code[screen.code_id]]
-# 	screen.code_labels[screen.code_id].text = str(screen.cur_code[screen.code_id])
-# 	print(f'select screen.cur_code[{screen.code_id}]:{screen.cur_code[screen.code_id]}')
-
-# 	if screen.cur_code == answer_code:#[3,1,5,8]:
-# 		screen.puzzling = False
-# 		#clear_CodedLock(screen)
-
-# 		if puzzle_name == '木製保險櫃(關)':
-# 			screen.quit_puzzle_mode(text='解碼成功...解鎖新場景!\n')
-# 			#TODO:加入新場景到章節地圖中
-# 			name = '女主家裡房間二'
-# 			GM.Chapters[screen.current_player_id][screen.current_chapter].unlock_new_map(name)
-# 			screen.current_map_id = len(screen.chapter_maps) - 1 
-
-# 		elif puzzle_name == '孟亦安的手機':
-# 			screen.quit_puzzle_mode(text='解碼成功...觸發劇情!\n',turn_mode = 3) 
-
 def clear_CodedLock(screen):
 	try:
 		for i in range(4):
@@ -308,6 +281,7 @@ def synthesis_canvas(screen,item,stage,*args):
 	else:
 		print(f'synthesis stage {stage} not supported')
 
+#for testing
 class DraggableItem(Image):#Deprecated
 	def __init__(self, frame_pos, frame_size, draggable_item_id, **kargs):#other_pos
 		super(DraggableItem, self).__init__( **kargs)
@@ -371,8 +345,7 @@ class DraggableItem(Image):#Deprecated
 				return True
 		return False
 
-
-
+#for testing
 class SynthesisFrame(Image):#Deprecated
 	parent_w = NumericProperty()
 	parent_h = NumericProperty()
