@@ -422,7 +422,6 @@ class NPCButton(Button):#text = npc_name
 			Clock.schedule_once(self.delay_release_NPC,spent_time)
 			Clock.schedule_once(self.main_screen.try_close_dialog_view,spent_time)
 
-
 	def on_add_and_remove(self,isinstance,parent):
 		if parent is not None:
 			print(f'Add NPCButton:{self.text} on main screen!')

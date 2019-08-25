@@ -441,7 +441,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		elif dialog_view == 0:
 			print("hide dialog view")	
 			self.current_speaker_name = 'N'
-			#if len(self.displaying_character_labels) > 0:#dialog_events
 			self.clear_text_on_screen()
 			self.canvas.remove_group('dialogframe')
 

@@ -3,7 +3,6 @@
 # "Screen" must be an intance og kivy Screen      #
 ###################################################
 from game_manager import *
-speaker_name = {'A':'李語蝶','B':'司馬熏','C':'孟亦寒','D':'亓官楓','X':'孟亦安','M':'媽媽','F':'爸爸','N':'','L':'何品謙','P':'闕子婷','R':'社長'}
 special_char_time = .27
 common_char_time = .115
 next_line_time = .45
@@ -111,16 +110,22 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dial
 	Screen.text_cleared = False
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
-	if len(line) <= 20:
+	
+	pages = line.split('\n')
+	max_displaying_length = 0
+	for page in pages:
+		if len(page) > max_displaying_length:
+			max_displaying_length = len(page)
+	if max_displaying_length <= 20:
 		chars_of_row = 10
 		rows = 2
-	elif len(line) <= 45:
+	elif max_displaying_length <= 45:
 		chars_of_row = 15
 		rows = 3
-	elif len(line) <= 80:
+	elif max_displaying_length <= 80:
 		chars_of_row = 20
 		rows = 4
-	elif len(line) <= 125:
+	elif max_displaying_length <= 125:
 		chars_of_row = 25
 		rows = 5
 	else:
