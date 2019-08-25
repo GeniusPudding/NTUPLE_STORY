@@ -22,8 +22,10 @@ class EndingScreen(Screen):
         self.bind(pos=redraw_widget, size=redraw_widget)
         Window.bind(on_key_down=self.key_action)
 
-        self.cur_image_size = (.1*self.size[0],.1*self.size[1])
-        self.cur_image_pos = (.45*self.size[0],.45*self.size[1])
+        # self.cur_image_size = (.1*self.size[0],.1*self.size[1])
+        # self.cur_image_pos = (.45*self.size[0],.45*self.size[1])
+        self.cur_image_size = self.size
+        self.cur_image_pos = self.pos        
         self.canvas.before.add(Rectangle(source='res/images/testing/a.jpg',pos=self.cur_image_pos,size=self.cur_image_size,group='end'))
 
     def load_ending(self):
@@ -41,7 +43,7 @@ class EndingScreen(Screen):
                 os.remove(os.path.join(pickle_path,f))
 
         Clock.schedule_interval(partial(self.animate,self.label.pos,274),.35)
-        self.amplifying_event = Clock.schedule_interval(self.amplifying,.05)
+        self.reducing_event = Clock.schedule_interval(self.reducing,.05)
     def key_action(self, *args):
         if self.manager.current == 'ending': 
             print('ending key: ',args)
@@ -49,11 +51,13 @@ class EndingScreen(Screen):
             if press_key_id in [274,273]:#<-,->     
                 self.animate(self.label.pos,press_key_id)
 
-    def amplifying(self, *args):
-        if self.cur_image_size[0] >= self.size[0]:
-            Clock.unschedule(self.amplifying_event)
+    def reducing(self, *args):
+        # if self.cur_image_size[0] >= self.size[0]:
+        #     Clock.unschedule(self.amplifying_event)
+        if self.cur_image_size[0] <= .1*self.size[0]:
+            Clock.unschedule(self.reducing_event)
             return 
-        rate = 1.003
+        rate = 1/1.002
         self.canvas.before.remove_group('end')
         self.cur_image_size = (self.cur_image_size[0]*rate,self.cur_image_size[1]*rate) 
         self.cur_image_pos = ((self.size[0]-self.cur_image_size[0])/2, (self.size[1]-self.cur_image_size[1])/2)
@@ -63,7 +67,7 @@ class EndingScreen(Screen):
 
     def animate(self,pos,direction,duration=.35,*args):
         (px,py) = pos
-        (ox,oy) = (0,5)
+        (ox,oy) = (0,8)
             
         # if direction == 'positive':
         #     (ox,oy) = (10,0)
@@ -71,7 +75,7 @@ class EndingScreen(Screen):
         #     anim.start(self)
         #     self.pos = (px+ox,py+oy) 
         if direction == 273:
-            (ox,oy) = (0,-5)
+            (ox,oy) = (0,-8)
         anim = Animation(pos=(px+ox,py+oy), duration=duration )#(x=px-ox, y=py-oy, duration=1)
         anim.start(self.label)
         self.label.pos = (px+ox,py+oy)

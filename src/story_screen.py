@@ -1384,6 +1384,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def to_epo_screen(self,*args):
 		if self.current_mode == 1:
+			self.manager.get_screen('epo').load_personal_ePo(self.current_player_id,self.current_chapter)
 			self.manager.current = 'epo'
 
 	#for testing: 	
