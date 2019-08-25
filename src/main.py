@@ -9,11 +9,10 @@ from story_screen import StoryScreen
 from ending_screen import EndingScreen
 from info_screen import InfoScreen 
 from subgame_screen import SubgameManager
-#from phone_screen import PhoneScreen   
-from ntuphone_screen import NTUPhoneScreen
+from epo_screen import ePoScreen
 from memory_screen import MemoryScreen   
 from prologue_screen import PrologueScreen
-#from seal_screen import SealScreen
+
 class NTUPLE_Story(App):
     
     def build(self):
@@ -28,8 +27,7 @@ class NTUPLE_Story(App):
         sm.add_widget(PrologueScreen(name='prologue'))   
         sm.add_widget(MemoryScreen(name='memory'))       
         sm.add_widget(SubgameManager(name='subgames_manager'))
-        #sm.add_widget(PhoneScreen(name='phone'))
-        sm.add_widget(NTUPhoneScreen(name='ntuphone'))
+        sm.add_widget(ePoScreen(name='epo'))
         sm.add_widget(InfoScreen(name='info'))     
         sm.add_widget(EndingScreen(name='ending'))         
         sm.current = 'cover'

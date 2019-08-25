@@ -1382,9 +1382,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if uncontinuous:
 			self.dialog_events = []	
 
-	def to_phone_screen(self,*args):
+	def to_epo_screen(self,*args):
 		if self.current_mode == 1:
-			self.manager.current = 'ntuphone'
+			self.manager.current = 'epo'
 
 	#for testing: 	
 	def to_game_screen(self,*args):
