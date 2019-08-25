@@ -314,7 +314,7 @@ class Chapter(object):
 		self.started = False
 		#self.used_list = []#used objects' id
 
-	def unlock_new_map(self,map_name):#DEBUG: 不需要重新載入所有地圖物件
+	def unlock_new_map(self,map_name):#TODO: Optimize,不需要重新載入所有地圖物件
 		for locked_img in os.listdir('res/images/handpainting'):#self.locked_map_path
 			if map_name == locked_img.split('.')[0]:
 				shutil.copy(os.path.join('res/images/handpainting/',locked_img),self.unlocked_map_path)

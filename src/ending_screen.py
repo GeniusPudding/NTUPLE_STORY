@@ -19,13 +19,13 @@ class EndingScreen(Screen):
             size=(.6*self.size[0],2*self.size[1]),size_hint=(None,None),font_name='res/HuaKangTiFan-CuTi-1.otf')
         #self.label.pos = ()
         print('init end label.pos:',self.label.pos)
-        self.bind(pos=redraw_widget, size=redraw_widget)
+        #self.bind(pos=redraw_widget, size=redraw_widget)
         Window.bind(on_key_down=self.key_action)
 
         # self.cur_image_size = (.1*self.size[0],.1*self.size[1])
         # self.cur_image_pos = (.45*self.size[0],.45*self.size[1])
-        self.cur_image_size = self.size
-        self.cur_image_pos = self.pos        
+        self.cur_image_size = (2*self.size[0],2*self.size[1])
+        self.cur_image_pos = (-.5*self.size[0],-.5*self.size[1])       
         self.canvas.before.add(Rectangle(source='res/images/testing/a.jpg',pos=self.cur_image_pos,size=self.cur_image_size,group='end'))
 
     def load_ending(self):
@@ -42,7 +42,7 @@ class EndingScreen(Screen):
             if '.pickle' in f:
                 os.remove(os.path.join(pickle_path,f))
 
-        Clock.schedule_interval(partial(self.animate,self.label.pos,274),.35)
+        self.up_event = Clock.schedule_interval(partial(self.animate,self.label.pos),.35)
         self.reducing_event = Clock.schedule_interval(self.reducing,.05)
     def key_action(self, *args):
         if self.manager.current == 'ending': 
@@ -54,28 +54,23 @@ class EndingScreen(Screen):
     def reducing(self, *args):
         # if self.cur_image_size[0] >= self.size[0]:
         #     Clock.unschedule(self.amplifying_event)
-        if self.cur_image_size[0] <= .1*self.size[0]:
+        if self.cur_image_size[0] <= self.size[0]:#.1*self.size[0]:
             Clock.unschedule(self.reducing_event)
             return 
-        rate = 1/1.002
+        rate = 1/1.00031
         self.canvas.before.remove_group('end')
         self.cur_image_size = (self.cur_image_size[0]*rate,self.cur_image_size[1]*rate) 
         self.cur_image_pos = ((self.size[0]-self.cur_image_size[0])/2, (self.size[1]-self.cur_image_size[1])/2)
         self.canvas.before.add(Rectangle(source='res/images/end.jpg',pos=self.cur_image_pos,size=self.cur_image_size,group='end'))
 
 
-
-    def animate(self,pos,direction,duration=.35,*args):
+    def animate(self,pos,duration=.35,*args):
         (px,py) = pos
-        (ox,oy) = (0,8)
-            
-        # if direction == 'positive':
-        #     (ox,oy) = (10,0)
-        #     anim = Animation(pos=(px+ox,py+oy), duration=duration)#(x=px+ox, y=py+oy, duration=1)
-        #     anim.start(self)
-        #     self.pos = (px+ox,py+oy) 
-        if direction == 273:
-            (ox,oy) = (0,-8)
+        if py >= self.size[1]:
+            Clock.unschedule(self.up_event)
+            return
+
+        (ox,oy) = (0,12)
         anim = Animation(pos=(px+ox,py+oy), duration=duration )#(x=px-ox, y=py-oy, duration=1)
         anim.start(self.label)
         self.label.pos = (px+ox,py+oy)
