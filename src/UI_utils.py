@@ -93,6 +93,16 @@ class CircleImage(Widget):#Image
 			#print('self.parent.itemframe.playing_anim_num:',self.parent.itemframe.playing_anim_num)
 
 
+
+class ImageButton(ButtonBehavior, Image): #Behavior
+	def __init__(self, **kargs):#callback,
+		super(ImageButton, self).__init__( **kargs)
+		#self.callback = callback
+		#self.object_id = object_id#use this if it is an object
+	def on_press(self):
+		print('ImageButton on_press')
+		#self.callback()
+
 def redraw_widget(Widget,*args):
     Widget.bg_rect.size = Widget.size
     Widget.bg_rect.pos = Widget.pos	

@@ -308,7 +308,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.prompt_label = Label()
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
-		self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
+		#self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
 		self.banned_map_list = ['女主書桌','A女書桌','女主書桌抽屜','女主家裡房間保險箱']#skip when switching maps 
 		self.NPC_tag = Image(pos_hint={'x':.96,'y':.6},size_hint=(.04,.1),source='res/images/NPC_tag.png',allow_stretch=True,keep_ratio=False)
 
@@ -498,8 +498,11 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			print('testing self.chapter_maps:',self.chapter_maps)
 			print('testing self.NPCs_allocation:',self.NPCs_allocation)
-			if self.NPCs_allocation[self.current_map_id] != []:
-				self.add_widget(self.NPC_tag)
+			if self.NPCs_allocation[self.current_map_id] != []:	
+				try:
+					self.add_widget(self.NPC_tag)
+				except:
+					print('self.NPC_tag already loaded')
 			else:
 				self.remove_widget(self.NPC_tag)	
 
@@ -623,7 +626,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 							self.NPC_view = 0
 							self.add_widget(self.NPC_tag)
 
-			elif press_key_id == 105:#i:
+			elif press_key_id == 105:#i
 				print('text_cleared:',self.text_cleared)
 				if self.current_mode == 1 and self.NPC_view == 0:
 					self.item_view ^= 1
@@ -788,7 +791,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 		self.item_box_canvas_controller('show')
 
-		self.item_tag = ImageButton(pos_hint={'x':.76,'y':.75},size_hint=(.04,.1),source='res/images/itemtag.png',callback=self.hide_itemframe,allow_stretch=True,keep_ratio=False)
+		self.item_tag = Image(pos_hint={'x':.76,'y':.75},size_hint=(.04,.1),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)
 
 		self.add_widget(self.item_tag)	
 	def hide_itemframe(self,*args):
@@ -1260,6 +1263,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.dialog_view = 1	
 
 	def try_open_item_view(self,*args):
+		self.try_close_dialog_view()
 		if self.item_view == 0:
 			self.item_view = 1
 

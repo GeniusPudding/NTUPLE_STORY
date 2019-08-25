@@ -8,15 +8,6 @@ from subgames import *
 from dialog_utils import *
 from UI_utils import *
 
-class ImageButton(ButtonBehavior, Image): #Behavior
-	def __init__(self, callback,object_id=-1, **kargs):
-		super(ImageButton, self).__init__( **kargs)
-		self.callback = callback
-		self.object_id = object_id#use this if it is an object
-	def on_press(self):
-		print('ImageButton on_press')
-		self.callback()
-
 turns = {1:2,2:3,3:0,0:1}
 class GameManagerScreen(Screen):#main control class of the whole game
 	#TODO: 用計時器跟體力控制做出不同難度模式，預設為easy，不限時
@@ -374,9 +365,9 @@ class Chapter(object):
 			print('npc_info:',table)
 			for map_id,map_path in enumerate(self.chapter_maps):
 				for i in table.keys():
-					if table[i]['map_name'] == map_path.split('/')[-1].split('.')[0]:
-						npc_buttons[map_id].append(NPCButton(self.main_screen,table[i]['dialog'],self.player_chapter[0],table[i]['get_item'],\
-							pos_hint={'x':.375,'y':.3+.2*count},size_hint=(.25,.1),text=table[i]['npc_name'],font_size=40,color=(0,0,0,1),font_name= 'res/HuaKangTiFan-CuTi-1.otf' ))
+					if table[i]['map_name'] == map_path.split('/')[-1].split('.')[0]:#
+						npc_buttons[map_id].append(NPCButton(self.main_screen,table[i]['dialog'],self.player_chapter[0],table[i]['get_item'],'res/images/choices.png',\
+							pos_hint={'x':.375,'y':.3+.2*count},size_hint=(.25,.1),background_color=(1,1,1,0), color=(0,0,0,1),text=table[i]['npc_name'],font_size=40,font_name= 'res/HuaKangTiFan-CuTi-1.otf' ))
 						count += 1
 				count = 0
 
@@ -405,13 +396,14 @@ class Chapter(object):
 		return chapter_maps
 
 class NPCButton(Button):#text = npc_name
-	def __init__(self,main_screen,dialog,player_id,get_item,**kargs):
+	def __init__(self,main_screen,dialog,player_id,get_item,source,**kargs):
 		super(NPCButton, self).__init__(**kargs)
 		self.main_screen = main_screen
 		self.dialog = dialog
 		self.get_item = get_item
 		self.player_id = player_id
 		self.bind(parent=self.on_add_and_remove)
+		self.source = source
 	def delay_release_NPC(self,*args):
 		self.main_screen.NPC_talking = False
 	def on_press(self):	
@@ -428,13 +420,14 @@ class NPCButton(Button):#text = npc_name
 				self.main_screen.get_item_from_NPC(self.get_item)
 			#self.main_screen.hp_per_round -= 1
 			Clock.schedule_once(self.delay_release_NPC,spent_time)
+			Clock.schedule_once(self.main_screen.try_close_dialog_view,spent_time)
 
 
 	def on_add_and_remove(self,isinstance,parent):
 		if parent is not None:
 			print(f'Add NPCButton:{self.text} on main screen!')
 			self.main_screen.canvas.add(Color(rbga=(1,1,1,1),group='npc'))
-			self.main_screen.canvas.add(Rectangle(source='res/images/npc.png',pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
+			self.main_screen.canvas.add(Rectangle(source='res/images/choices.png',pos=(self.pos_hint['x']*global_w,self.pos_hint['y']*global_h),\
 				size=(self.size_hint[0]*global_w,self.size_hint[1]*global_h),group='npc'))
 		else:
 			print(f'Remove NPCButton:{self.text} on main screen!')	 
