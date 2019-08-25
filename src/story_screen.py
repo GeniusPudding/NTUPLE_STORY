@@ -203,7 +203,6 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 					screen.dragging.on_touch_down(touch)
 
 	def on_touch_down(self, touch):
-		#for testing
 		print('itemframe touch.profile:',touch.profile,'touch.id:',touch.id,'touch.pos:',touch.pos)
 		if self.parent is not None and self.focusing_frame_id >= 0 and self.item_images[self.focusing_frame_id].collide_point(*touch.pos) and self.count > 0:
 			object_id = self.item_list[self.focusing_frame_id]
