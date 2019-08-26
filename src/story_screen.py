@@ -255,7 +255,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	probing = BooleanProperty(False)
 	loading = BooleanProperty(True)
 	NPC_talking = BooleanProperty(False) 
-	text_cleared = BooleanProperty(False) 
+	text_cleared = BooleanProperty(True) 
 	judgable = BooleanProperty(True) #避免重複判定扣血
 	in_judge_range = BooleanProperty(False) 
 	current_player = StringProperty()
@@ -288,13 +288,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bind(seal_on=self.auto_seal)
 		self.bind(current_mode=self.auto_switch_mode)
 		#self.bind(current_mode=self.auto_save_game)
-		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.25,'y':.4}))
+		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.2,'y':.3}))
 		self.bind(finish_auto=self.auto_start_chapter)
 		self.bind(reload_item_list=self.auto_reload_item_list)
 		self.bind(focusing_object_id=self.auto_focus_item)
 		self.bind(NPC_talking=self.auto_listen)
 		self.bind(golden_id=self.auto_golden_player)
 		self.bind(cheat_chapter_id=self.auto_cheat_chapter)
+		self.bind(text_cleared=self.auto_check_text_cleared)
 		Window.bind(on_key_down=self.key_action)
 		self.hp_widgets = []
 		self.displaying_character_labels = []
@@ -309,7 +310,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		#self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
 		self.banned_map_list = ['女主書桌','A女書桌','女主書桌抽屜','女主家裡房間保險箱']#skip when switching maps 
-		self.NPC_tag = Image(pos_hint={'x':.96,'y':.6},size_hint=(.04,.1),source='res/images/NPC_tag.png',allow_stretch=True,keep_ratio=False)
+		self.NPC_tag = Image(pos_hint={'x':.94,'y':.55},size_hint=(.06,.15),source='res/images/NPC_tag.png',allow_stretch=True,keep_ratio=False)
 
 		self.bg_widget = BG_widget(parent =self)
 		self.add_widget(self.bg_widget) 
@@ -372,7 +373,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
 			self.remove_widget(self.prompt_label)#for exception!
-			auto_prompt(self,'->',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='要繼續努力回想的時候...\n')
+			auto_prompt(self,'->',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='要繼續努力回想的時候...\n')
 
 		self.auto_save_game()	
 
@@ -478,7 +479,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	# 	if self.hp_per_round <= 0:
 	# 		self.quit_puzzle_mode()
 	# 		#TODO:check if there is any status not be cleared
-	# 		auto_prompt(self,'Enter',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='體力耗盡!\n')
+	# 		auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='體力耗盡!\n')
 
 			                         
 
@@ -549,6 +550,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.clear_text_on_screen()
 			self.text_cleared = True
 
+	def auto_check_text_cleared(self,instance,text_cleared):
+		print('[*] text cleared:',text_cleared)
 
 	def key_action(self, *args):
 		if self.manager.current == 'story':	
@@ -627,7 +630,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			elif press_key_id == 105:#i
 				print('text_cleared:',self.text_cleared)
 				if self.current_mode == 1 and self.NPC_view == 0:
-					self.item_view ^= 1
+					if self.item_view == 0 and self.text_cleared:#testing
+						self.item_view = 1
+					elif self.item_view == 1:
+						self.item_view = 0
 
 			elif press_key_id == 13:#Enter
 				if self.seal_on and not self.finish_auto and self.manager.current == 'story':
@@ -646,8 +652,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						self.itemframe.use_item(self,self.focusing_object_id,None)
 
 				elif self.current_mode == 2:
-					print('Give up the puzzle, back to exploring mode')
-					self.quit_puzzle_mode()
+					if not self.prompt_label in self.children:
+						print('Give up the puzzle, back to exploring mode')
+						self.quit_puzzle_mode()
 
 				elif self.current_mode == 3:
 					if self.manual_node.type == 'tail': 
@@ -772,7 +779,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def generate_item_tag(self):
 		print("Enter function: generate_item_tag")
 		#RGB (0,182,237)
-		self.item_tag = Image(pos_hint={'x':.96,'y':.75},size_hint=(.04,.1),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)#ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
+		self.item_tag = Image(pos_hint={'x':.94,'y':.70},size_hint=(.06,.15),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)#ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
 		self.add_widget(self.item_tag)
 
 	def display_itemframe(self,*args):
@@ -789,7 +796,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 		self.item_box_canvas_controller('show')
 
-		self.item_tag = Image(pos_hint={'x':.76,'y':.75},size_hint=(.04,.1),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)
+		self.item_tag = Image(pos_hint={'x':.76,'y':.70},size_hint=(.06,.15),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)
 
 		self.add_widget(self.item_tag)	
 	def hide_itemframe(self,*args):
@@ -896,7 +903,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.lastline_time = line_display_scheduler(self,node.text_line,False,special_char_time,next_line_time,common_char_time,name=node.speaker)
 		else:
 			#prompt to next chapter, end round
-			auto_prompt(self,'Enter',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='完成章節!\n')
+			auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='完成章節!\n')
 
 	def last_dialog(self,*args):		
 		if self.manual_node.type != 'head':
@@ -1165,7 +1172,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		elif turn_mode == 3:
 			print('self.current_mode:',self.current_mode )	
-			auto_prompt(self,'q',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='於是，你也墮入了回憶...\n')
+			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='於是，你也墮入了回憶...\n')
 
 	def on_press_item(self, btn):
 
@@ -1261,7 +1268,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.dialog_view = 1	
 
 	def try_open_item_view(self,*args):
-		self.try_close_dialog_view()
+		#self.try_close_dialog_view()
 		if self.item_view == 0:
 			self.item_view = 1
 
@@ -1280,7 +1287,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		
 		if uncontinuous:
 			self.dialog_events = []	
-
+		self.text_cleared = True	
 	def to_epo_screen(self,*args):
 		if self.current_mode == 1:
 			self.manager.get_screen('epo').load_personal_ePo(self.current_player_id,self.current_chapter)
@@ -1299,12 +1306,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def auto_golden_player(self,instance,golden_id):#直接完成遊戲的通關密碼
 		print('[*] get golden_id:',golden_id)
 		if golden_id >= len(self.golden_password):
-			auto_prompt(self,'g',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='你，也像我一樣看透人生了嗎\n')
+			auto_prompt(self,'g',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='你，也像我一樣看透人生了嗎\n')
 
 	def auto_cheat_chapter(self,instance,cheat_chapter_id):
 		print('[*] get cheat_chapter_id:',cheat_chapter_id)
 		if cheat_chapter_id >= len(self.cheat_chapter_password):
-			auto_prompt(self,'q',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='於是，你不惜一切代價也要墮入回憶...\n')
+			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='於是，你不惜一切代價也要墮入回憶...\n')
 
 
 	def load_game(self):

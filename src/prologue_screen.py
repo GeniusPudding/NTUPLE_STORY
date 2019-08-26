@@ -35,7 +35,7 @@ class PrologueScreen(Screen):
 		Window.bind(on_key_down=self.key_action)
 		self.bind(start_autoplay=partial(auto_play_dialog,self,self.auto_dialog))
 		self.bind(current_speaker_name=partial(auto_display_speaker,self))
-		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.25,'y':.4}))
+		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.2,'y':.3}))
 		self.displaying_character_labels = []
 
 	def key_action(self, *args):

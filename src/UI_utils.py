@@ -5,10 +5,10 @@
 from game_manager import *
 
 #TODO: 按鍵提示可以更加有擴充性以及彈性
-def auto_prompt(Screen,press_key,pos_hint,instance, prompt,extra_info=''):#a Screen-bind function
+def auto_prompt(Screen,press_key,pos_hint,instance, prompt,size_hint=(.6,.4),extra_info=''):#a Screen-bind function
 	if prompt:
 		print(f'[*] Auto prompt to press {press_key}!')
-		Screen.prompt_label = Label(text=extra_info+f'請按\'{press_key}\'鍵繼續品味人生...',color=(1,1,1,1),pos_hint=pos_hint,size_hint=(.5,.3),halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
+		Screen.prompt_label = Label(text=extra_info+f'請按\'{press_key}\'鍵繼續品味人生...',color=(191/255, 201/255, 202/255, 1),pos_hint=pos_hint,size_hint=size_hint,halign='center',valign='center',font_size=84,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.prompt_label)			
 		#MUST set remove_widget in Screen's key_action function
 

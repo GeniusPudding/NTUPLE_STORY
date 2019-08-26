@@ -174,7 +174,7 @@ def clear_displayed_text(Screen,displaying_character_labels,*args):#must between
 	for label in displaying_character_labels:
 		Screen.remove_widget(label)
 	Screen.displaying_character_labels = []
-	Screen.text_cleared = True
+	#Screen.text_cleared = True
 def line_to_labels(line,chars_of_row,rows):
 	labels = []
 	page_char_count = 0

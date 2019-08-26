@@ -37,7 +37,7 @@ class EndingScreen(Screen):
         self.cur_image_pos = (-.5*self.size[0],-.5*self.size[1])       
     def auto_exit_prompt(self,instance,end_signal):
         if end_signal >= 2:
-            auto_prompt(self,'Enter',{'x':.25,'y':.4},instance=self, prompt=True,extra_info='故事結束\n')
+            auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='故事結束\n')
 
     def load_ending(self):
         print('End The Story')
