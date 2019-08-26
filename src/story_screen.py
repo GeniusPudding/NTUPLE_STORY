@@ -374,7 +374,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.try_open_dialog_view()	
 			print('try_open_dialog_view')
 
-			self.manual_node = semi_manual_play_dialog(self,self.manual_dialog)
+			self.manual_node = semi_auto_play_dialog(self,self.plot_dialog)
 			self.remove_widget(self.prompt_label)#for exception!
 			auto_prompt(self,'->',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='要繼續努力回想的時候...\n')
 
@@ -395,7 +395,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				self.canvas.remove_group('seal')
 				#self.finish_auto = False
 				self.dialog_view = 1	
-				auto_play_dialog(self,self.auto_dialog)
+				auto_play_dialog(self,self.lead_dialog)
 				
 	def auto_load_chapter_info_contents(self, instance, chapter_info):
 		print('[*]Auto load chapter_info for new round!')
@@ -408,8 +408,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.chapter_maps = chapter_info.chapter_maps
 		self.objects_allocation = chapter_info.chapter_objects_of_maps
 		self.NPCs_allocation = chapter_info.chapter_NPCs_of_maps#Mostly empty #TODO: if not empty, add a prompt tag 
-		self.auto_dialog = self.chapter_info.chapter_pre_plot 
-		self.manual_dialog = self.chapter_info.chapter_plot
+		self.lead_dialog = self.chapter_info.chapter_pre_plot 
+		self.plot_dialog = self.chapter_info.chapter_plot
 		self.scenes = self.chapter_info.chapter_plot_scenes
 		self.plot_scenes_table = self.chapter_info.chapter_scenes_table
 
@@ -420,7 +420,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	
 		self.current_map_id = -2
 		self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
-		print(f'chapter_maps:{self.chapter_maps},objects_allocation:{self.objects_allocation}')#,current_dialog:{self.auto_dialog}')
+		print(f'chapter_maps:{self.chapter_maps},objects_allocation:{self.objects_allocation}')
 
 	def auto_start_chapter(self, instance, finish_auto):
 		if finish_auto:
@@ -808,7 +808,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 		self.item_box_canvas_controller('show')
 
-		self.item_tag = Image(pos_hint={'x':.76,'y':.70},size_hint=(.06,.15),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)
+		self.item_tag = Image(pos_hint={'x':.74,'y':.70},size_hint=(.06,.15),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)
 
 		self.add_widget(self.item_tag)	
 	def hide_itemframe(self,*args):

@@ -199,9 +199,9 @@ def line_to_labels(line,chars_of_row,rows):
 	return labels
 
 #Manual-dialog tools part:
-def semi_manual_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
+def semi_auto_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
 	print('[*] Start manual play dialog')	
-	first_line_node = semi_manual_dialog_preprocess(dialog,'flexable')
+	first_line_node = semi_auto_dialog_preprocess(dialog,'flexable')
 
 
 	print('first_line_node.text_line:',first_line_node.text_line)
@@ -227,7 +227,7 @@ class DialogListnode(object):
 	def get_next(self):
 		return self.next
 
-def semi_manual_dialog_preprocess(dialog,format):
+def semi_auto_dialog_preprocess(dialog,format):
 	new_auto_dialog = dialog
 	if format == 'flexable':#Cancel the fixed-length partition here to support the scene-switching function
 		last_node = head_node = DialogListnode(new_auto_dialog[0][0],new_auto_dialog[0][1],'head')

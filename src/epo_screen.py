@@ -18,24 +18,24 @@ class ePoScreen(Screen):
 		self.phone_size_hint = (.3,.95)
 		self.canvas.add(Color(.718, .831, .941, 1))
 		self.canvas.add(Rectangle(pos=self.pos, size=self.size))
-		self.phone = Image(source='res/images/phone/phone_messege.png',pos_hint=self.phone_pos_hint , size_hint=self.phone_size_hint,allow_stretch=True,keep_ratio=False )
+		self.phone = Image(source='res/images/phone/phone_messege.png',pos_hint=self.pos_hint , size_hint=self.size_hint,allow_stretch=True,keep_ratio=False )
 		self.add_widget(self.phone)
 
 		btn_len = min(.1*global_w, .2*global_h)
+		# self.canvas.add(Color(0, 0, 0, .9))
+		# self.canvas.add(Ellipse(pos=(.2*global_w, 0), size=(btn_len,btn_len)))
+		# self.canvas.add(Color(1, 1, 1, .8))
+		# self.canvas.add(Ellipse(pos=(.2*global_w+btn_len/10, btn_len/10), size=(.8*btn_len,.8*btn_len)))
+		# self.add_widget(Label(text='Press\nEnter',color=(.2,.2,.2,1),font_size=40,pos=(.2*global_w+btn_len/10, btn_len/10), size=(.8*btn_len,.8*btn_len), size_hint=(None,None)))
 		self.canvas.add(Color(0, 0, 0, .9))
-		self.canvas.add(Ellipse(pos=(.2*global_w, .2*global_h), size=(btn_len,btn_len)))
+		self.canvas.add(Ellipse(pos=(.05*global_w, 0), size=(btn_len,btn_len)))
 		self.canvas.add(Color(1, 1, 1, .8))
-		self.canvas.add(Ellipse(pos=(.2*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len)))
-		self.add_widget(Label(text='Press\nEnter',color=(.2,.2,.2,1),font_size=40,pos=(.2*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len), size_hint=(None,None)))
-		self.canvas.add(Color(0, 0, 0, .9))
-		self.canvas.add(Ellipse(pos=(.05*global_w, .2*global_h), size=(btn_len,btn_len)))
-		self.canvas.add(Color(1, 1, 1, .8))
-		self.canvas.add(Ellipse(pos=(.05*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len)))
-		self.add_widget(Label(text='Back!',color=(.2,.2,.2,1),font_size=40,pos=(.05*global_w+btn_len/10, .2*global_h+btn_len/10), size=(.8*btn_len,.8*btn_len), size_hint=(None,None)))
-		self.add_widget(Button(on_press=self.back_to_story,background_color=(1,1,1,0),pos_hint={'x':.05,'y':.2},\
+		self.canvas.add(Ellipse(pos=(.05*global_w+btn_len/10, btn_len/10), size=(.8*btn_len,.8*btn_len)))
+		self.add_widget(Label(text='Back!',color=(.2,.2,.2,1),font_size=40,pos=(.05*global_w+btn_len/10, btn_len/10), size=(.8*btn_len,.8*btn_len), size_hint=(None,None)))
+		self.add_widget(Button(on_press=self.back_to_story,background_color=(1,1,1,0),pos_hint={'x':.05,'y':0},\
 			size_hint=(btn_len/global_w,btn_len/global_h)))
 		self.select_py = [.697,.609,.521,.433] 
-		self.select_px = [.386,.614]
+		self.select_px = [.335,.665]
 		self.detail_image = Image(source='res/images/phone/phone_messege.png',size_hint=(1,1),allow_stretch=True,keep_ratio=False)
 		self.bind(cur_select_chapter_id=self.auto_select)
 		Window.bind(on_key_down=self.key_action)
@@ -79,7 +79,7 @@ class ePoScreen(Screen):
 			else:
 				self.canvas.remove_group('select')
 				self.canvas.add(Color(rgba=(0,182/255,1,.2),group='select'))
-				self.canvas.add(Rectangle(pos=(.386*global_w,self.select_py[cur_select_chapter_id+1]*global_h),size=(.228*global_w,.088*global_h),group='select'))
+				self.canvas.add(Rectangle(pos=(.335*global_w,self.select_py[cur_select_chapter_id+1]*global_h),size=(.33*global_w,.088*global_h),group='select'))
 
 	def display_achievement(self):
 		self.detailing = True
@@ -93,7 +93,7 @@ class ePoScreen(Screen):
 	def back_to_story(self,btn):
 		self.cur_select_chapter_id = -2
 		self.manager.current = 'story'
-
+		
 #for testing
 class NTUPhone(Image):#deprecated
 	executing_function = StringProperty('messege')
