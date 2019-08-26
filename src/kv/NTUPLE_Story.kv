@@ -19,34 +19,34 @@
                 source: 'res/images/cover.jpg'
 
 
-            Color:
-                rgba: 45/255,32/255,58/255,.8
-            Mesh:
-                vertices:[.1*self.size[0], .2*self.size[1], 0, 0, .15*self.size[0], .1*self.size[1], 0, 0, .4*self.size[0], .1*self.size[1], 0, 0, .45*self.size[0], .2*self.size[1], 0, 0, .4*self.size[0], .3*self.size[1], 0, 0, .15*self.size[0], .3*self.size[1], 0, 0] 
-                indices: [0,1,2,3,4,5]
-                mode: 'triangle_fan'
+            # Color:
+            #     rgba: 45/255,32/255,58/255,.8
+            # Mesh:
+            #     vertices:[.1*self.size[0], .2*self.size[1], 0, 0, .15*self.size[0], .1*self.size[1], 0, 0, .4*self.size[0], .1*self.size[1], 0, 0, .45*self.size[0], .2*self.size[1], 0, 0, .4*self.size[0], .3*self.size[1], 0, 0, .15*self.size[0], .3*self.size[1], 0, 0] 
+            #     indices: [0,1,2,3,4,5]
+            #     mode: 'triangle_fan'
 
-            Color:
-                rgba: 52/255,161/255,62/255,.5
-            Mesh:
-                vertices:[.107*self.size[0], .2*self.size[1], 0, 0, .153*self.size[0], .106*self.size[1], 0, 0, .397*self.size[0], .106*self.size[1], 0, 0, .443*self.size[0], .2*self.size[1], 0, 0, .397*self.size[0], .294*self.size[1], 0, 0, .153*self.size[0], .294*self.size[1], 0, 0] 
-                indices: [0,1,2,3,4,5]
-                mode: 'triangle_fan'
+            # Color:
+            #     rgba: 52/255,161/255,62/255,.5
+            # Mesh:
+            #     vertices:[.107*self.size[0], .2*self.size[1], 0, 0, .153*self.size[0], .106*self.size[1], 0, 0, .397*self.size[0], .106*self.size[1], 0, 0, .443*self.size[0], .2*self.size[1], 0, 0, .397*self.size[0], .294*self.size[1], 0, 0, .153*self.size[0], .294*self.size[1], 0, 0] 
+            #     indices: [0,1,2,3,4,5]
+            #     mode: 'triangle_fan'
 
 
-            Color:
-                rgba: 45/255,32/255,58/255,.8
-            Mesh:
-                vertices:[.55*self.size[0], .2*self.size[1], 0, 0, .6*self.size[0], .1*self.size[1], 0, 0, .85*self.size[0], .1*self.size[1], 0, 0, .9*self.size[0], .2*self.size[1], 0, 0, .85*self.size[0], .3*self.size[1], 0, 0, .6*self.size[0], .3*self.size[1], 0, 0] 
-                indices: [0,1,2,3,4,5]
-                mode: 'triangle_fan'
+            # Color:
+            #     rgba: 45/255,32/255,58/255,.8
+            # Mesh:
+            #     vertices:[.55*self.size[0], .2*self.size[1], 0, 0, .6*self.size[0], .1*self.size[1], 0, 0, .85*self.size[0], .1*self.size[1], 0, 0, .9*self.size[0], .2*self.size[1], 0, 0, .85*self.size[0], .3*self.size[1], 0, 0, .6*self.size[0], .3*self.size[1], 0, 0] 
+            #     indices: [0,1,2,3,4,5]
+            #     mode: 'triangle_fan'
 
-            Color:
-                rgba: 52/255,161/255,62/255,.5
-            Mesh:
-                vertices:[.557*self.size[0], .2*self.size[1], 0, 0, .603*self.size[0], .106*self.size[1], 0, 0, .847*self.size[0], .106*self.size[1], 0, 0, .893*self.size[0], .2*self.size[1], 0, 0, .847*self.size[0], .294*self.size[1], 0, 0, .603*self.size[0], .294*self.size[1], 0, 0] 
-                indices: [0,1,2,3,4,5]
-                mode: 'triangle_fan'
+            # Color:
+            #     rgba: 52/255,161/255,62/255,.5
+            # Mesh:
+            #     vertices:[.557*self.size[0], .2*self.size[1], 0, 0, .603*self.size[0], .106*self.size[1], 0, 0, .847*self.size[0], .106*self.size[1], 0, 0, .893*self.size[0], .2*self.size[1], 0, 0, .847*self.size[0], .294*self.size[1], 0, 0, .603*self.size[0], .294*self.size[1], 0, 0] 
+            #     indices: [0,1,2,3,4,5]
+            #     mode: 'triangle_fan'
                
         # Label:
         #     text: '新   生'
@@ -55,37 +55,52 @@
         #     font_size: '660'
         #     size_hint: (.5, .4)
         #     pos_hint: {'x': .25,'y':.5}
-
+            # Color:
+            #     rgba: 1,1,1,1
+            # Rectangle:
+            #     pos:
+            #     size:
+        Image:
+            size_hint: (.3, .2)
+            pos_hint: {'x': .125,'y':.1}            
+            source: 'res/images/load_game.png'
+            allow_stretch: True
+            keep_ratio: False
+        Image:
+            size_hint: (.3, .2)
+            pos_hint: {'x': .575,'y':.1}
+            source: 'res/images/new_game.png'               
+            allow_stretch: True
+            keep_ratio: False
+        # Label:
+        #     text: root.load_game
+        #     color: 36/255, 22/255, 48/255, .7
+        #     font_name: 'res/HanyiSentyMeadow.ttf'
+        #     font_size: '100'
+        #     size_hint: (.3, .1)
+        #     pos_hint: {'x': .125,'y':.15}
+        #     markup: True
                
-        Label:
-            text: root.load_game
-            color: 36/255, 22/255, 48/255, .7
-            font_name: 'res/HanyiSentyMeadow.ttf'
-            font_size: '100'
-            size_hint: (.3, .1)
-            pos_hint: {'x': .125,'y':.15}
-            markup: True
-               
-        Label:
-            text: root.new_game
-            color: 36/255, 22/255, 48/255, .7
-            font_name: 'res/HanyiSentyMeadow.ttf'
-            font_size: '100'
-            size_hint: (.3, .1)
-            pos_hint: {'x': .575,'y':.15}
-            markup: True
+        # Label:
+        #     text: root.new_game
+        #     color: 36/255, 22/255, 48/255, .7
+        #     font_name: 'res/HanyiSentyMeadow.ttf'
+        #     font_size: '100'
+        #     size_hint: (.3, .1)
+        #     pos_hint: {'x': .575,'y':.15}
+        #     markup: True
 
         Button:
             background_color: 1,1,1,0
-            size_hint: (.3, .1)
-            pos_hint: {'x': .125,'y':.15}
+            size_hint: (.3, .2)
+            pos_hint: {'x': .125,'y':.1}
             on_press:
                 root.on_press_load(self)                
 
         Button:
             background_color: 1,1,1,0
-            size_hint: (.2, .1)
-            pos_hint: {'x': .575,'y':.15}
+            size_hint: (.2, .2)
+            pos_hint: {'x': .575,'y':.1}
             on_press:
                 root.on_press_new(self)
 
@@ -99,7 +114,6 @@
             size: self.size     
     Label:
         color: 1,1,1,1
-        #text_size:(.5,.3)
         text:root.title
         pos_hint:{'x':.25,'y':.4}
         size_hint:(.5,.3)
@@ -107,6 +121,7 @@
         valign:'center'
         font_size: 184
         font_name: 'res/HuaKangTiFan-CuTi-1.otf'  
+        
 <PrologueScreen>:
     canvas:
         Rectangle:
@@ -124,28 +139,14 @@
             group:'seal'  
     Label:
         color: 1,1,1,1
-        #text_size:(.5,.3)
-        text:'失 蹤 的 女 大 生'
-        pos_hint:{'x':.25,'y':.4}
+        text:'新 生' #'失 蹤 的 女 大 生'
+        pos_hint:{'x':.25,'y':.45}
         size_hint:(.5,.3)
         halign:'center'
         valign:'center'
-        font_size: 150
+        font_size: 450
         font_name: 'res/HuaKangTiFan-CuTi-1.otf'  
        
-        # self.canvas.add(Color(.2,.2,.2,.4))
-        # self.canvas.add(Rectangle(pos=(0,0),size=(global_w,global_h),group='seal'))
-
-
-<FreeDraggableItem>:
-    # canvas.before:
-    #     PushMatrix
-    #     Rotate:
-    #         angle: root.angle
-    #         axis: 0, 0, 1
-    #         origin: root.pos
-    # canvas.after:
-    #     PopMatrix
 
 <IntroScreen>:
 	FloatLayout:
@@ -153,16 +154,15 @@
             Rectangle:
                 pos: self.pos
                 size: self.size
-                source: 'res/images/testing/intro.jpg'
-        Label:
-            text: '依稀在回憶中\n她本來不是這樣的\n這麼多年以來究竟\n發生過些什麼\n一直沒說出口的\n\n我\n如果可以\n如果可以早點知道就好了\n好想好想妳'
-            color: .8, .8, .8, .8
-            background_color:  .2, .2, .2, 1
-            font_name: 'res/HanyiSentyMeadow.ttf'
-            font_size: '42'
-            size_hint: (.3, .6)
-            pos_hint: {'x': .35,'y':.22}
-
+                source: 'res/images/intro.jpg'
+        # Label:
+        #     text: '依稀在回憶中\n她本來不是這樣的\n這麼多年以來究竟\n發生過些什麼\n一直沒說出口的\n\n我\n如果可以\n如果可以早點知道就好了\n好想好想妳'
+        #     color: .8, .8, .8, .8
+        #     background_color:  .2, .2, .2, 1
+        #     font_name: 'res/HanyiSentyMeadow.ttf'
+        #     font_size: '42'
+        #     size_hint: (.3, .6)
+        #     pos_hint: {'x': .35,'y':.22}
 
 <ItemFrame>:
     FloatLayout:
@@ -172,38 +172,11 @@
             Rectangle:
                 source: 'res/images/itemframe.png'
                 pos: (.8*root.parent_w,.25*root.parent_h)
-                size: self.size
-                #pos: (.15*root.parent_w,.33*root.parent_h)
-                #size: (.85*root.parent_w,.5*root.parent_h)
+                size: (.2*root.parent_w,.6*root.parent_h)#self.size
 
-  
-<ImageButton>:
 <StoryScreen>:
 	FloatLayout:
         canvas:
-
-            # Color:
-            #     rgba: 1,1,1,1 # (default)
-            # Rectangle:
-            #     source:'res/images/testing/dialogframe.png'
-            #     pos:(0,0)
-            #     size:(root.w*root.dialogframe_width,root.h*root.dialogframe_height)
-            #     group:'dialog'
-
-            # Color:
-            #     rgba: 1,1,1,1
-            # Ellipse:
-            #     source:'res/images/testing/lastdialog.png'
-            #     pos:(root.size[0]*0.65,root.size[1]*0.01)
-            #     size:(100,100)#(self.size[0]*0.08,self.size[1]*0.15) )
-            #     group: 'fixed'
-            # Color:
-            #     rgba: 1,1,1,1
-            # Ellipse:
-            #     source:'res/images/testing/nextdialog.png'
-            #     pos:(root.size[0]*0.75,root.size[1]*0.01)
-            #     size:(100,100)#(self.size[0]*0.08,self.size[1]*0.15))
-            #     group: 'fixed'
             Color:
                 rgba: 1,1,1,1
             Rectangle:
@@ -211,46 +184,13 @@
                 pos:(root.w*root.dialogframe_width,0)
                 size:(root.w*root.button_width,root.h*root.button_height*2)#height*2
                 group: 'fixed'
-            # Rectangle:
-            #     source:'res/images/testing/item.png'
-            #     pos:(root.w*root.dialogframe_width,root.h*root.button_height)
-            #     size:(root.w*root.button_width,root.h*root.button_height)
-            #     group:'fixed'   
 
-        # Label:
-        #     text: root.current_player_name
-        #     font_size: 24
-        #     background_color: 1,1,1,1
-        #     font_name: 'res/HuaKangTiFan-CuTi-1.otf'
-        #     pos_hint: {'x':0, 'y':root.dialogframe_height}
-        #     size_hint: (.05, .05)
-
-
-        # Button:
-        #     background_color: 0, 0, 0, 0
-        #     # pos_hint: {'x':0.1, 'y':0}
-        #     # size_hint: (.8, 0.25)
-        #     pos_hint: {'x':0.65, 'y':0.01}#{'x':0, 'y':0}
-        #     size_hint: (100/root.w,100/root.h)#(root.dialogframe_width, root.dialogframe_height)        
-        #     on_press: 
-        #         root.last_dialog(self)
-                
-        # Button:
-        #     background_color: 0, 0, 0, 0
-        #     pos_hint: {'x':0.75, 'y':0.01}
-        #     size_hint: (100/root.w,100/root.h)      
-        #     on_press: 
-        #         root.next_dialog(self)  #if not root.end_round: 
-                
         Button:
-            
             background_color: 0, 0, 0, 0
             pos_hint: {'x':root.dialogframe_width, 'y':0}
             size_hint: (root.button_width, root.button_height*2)
-            #background_color: 0,0,0,0
             on_press:
-                root.to_phone_screen(self)
-
+                root.to_epo_screen(self)
                 
 <GameScreen>:
     FloatLayout:
@@ -259,17 +199,14 @@
                 rgba: (.2, .2, .2, .7)
 
                 
+# <EndingScreen>:
+#     FloatLayout:
+#         Label: 
+#             text: '故 事 結 束'
+#             color: .1, .1, .2, .8
+#             font_name: 'res/HanyiSentyMeadow.ttf'
+#             font_size: '302'
+#             size_hint: (.4, .3)
+#             pos_hint: {'x': .3,'y':.4}        
 
-<EndingScreen>:
-    FloatLayout:
-        # canvas:
-        #     Color: 
-        #         rgba: (.2, .2, .2, .7)
-        Label: 
-            text: '故 事 結 束'
-            color: .1, .1, .2, .8
-            font_name: 'res/HanyiSentyMeadow.ttf'
-            font_size: '302'
-            size_hint: (.4, .3)
-            pos_hint: {'x': .3,'y':.4}        
 
