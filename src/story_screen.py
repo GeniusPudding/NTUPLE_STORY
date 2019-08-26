@@ -315,6 +315,9 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bg_widget = BG_widget(parent =self)
 		self.add_widget(self.bg_widget) 
 
+		# self.canvas.add(Color(rgba=(1,1,1,1),group='switch_map'))
+		# self.canvas.add(Rectangle(source='res/images/switch_map.png',pos=(.4*global_w,0),size=(.2*global_w,.2*global_h),group='switch_map'))
+
 		self.next_round()
 		#self.load_game() #testing auto load/save this game, or set a button
 
@@ -504,6 +507,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					print('self.NPC_tag already loaded')
 			else:
 				self.remove_widget(self.NPC_tag)	
+
+			self.canvas.remove_group('switch_map')
+			if len(set([map_path.split('/')[-1].split('.')[0] for map_path in self.chapter_maps])\
+				-set(self.banned_map_list)) > 1:
+				print('self.chapter_maps:',self.chapter_maps)
+				print('self.banned_map_list:',self.banned_map_list)
+				self.canvas.add(Color(rgba=(1,1,1,1),group='switch_map'))
+				self.canvas.add(Rectangle(source='res/images/switch_map.png',pos=(.4*global_w,0),size=(.2*global_w,.2*global_h),group='switch_map'))
+
 
 		#TODO:
 		#elif == -1: 
