@@ -11,11 +11,22 @@ next_line_time = .45
 #Auto-dialog tools part:
 def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-bind function
 	print('[*] Start auto play dialog')
-	start_line_clock_time = auto_dialog_preprocess(auto_dialog)#, auto_dialog 
+	f = open('velocity.txt','r')
+	r = f.read().split(',')
+	print('auto r:',r)
+	s_time = float(r[0])
+	c_time = float(r[1])
+	n_time = float(r[2])
+	print('s_time,c_time,n_time:',s_time,c_time,n_time)
+
+	start_line_clock_time = auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time)#, auto_dialog 
 	clock_time_accu = 0
 	p = Screen.current_player_id
 	c = Screen.current_chapter
 	print('p,c:',p,c)
+
+
+
 	if (p == 2 and c == 1) or (p == 1 and c == 2):
 		with open(f'res/chapters/{p}_{c}/dialogs/switch_scenes.json','r') as f:
 			table = json.load(f)
@@ -39,8 +50,8 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 					Clock.schedule_once(partial(Screen.bg_widget.load_bg,source),i*.5+clock_time_accu)
 					switch_id += 1
 
-			
-			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
+
+			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
 			Screen.dialog_events.append(event)		
 
 			last_line = line.strip('\n')
@@ -48,15 +59,16 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 	else:
 		for i,(name,line)  in enumerate(auto_dialog):#displaying
 			clock_time_accu += start_line_clock_time[i]
-			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
+			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
 			Screen.dialog_events.append(event)
-def auto_dialog_preprocess(auto_dialog):
+def auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time):
 	#preprocessing:
 	#new_auto_dialog= dialog_segmentation(auto_dialog,20)#deprecated for displaying flexible length text line 
 
 	start_line_clock_time = [0]#display time for each line
 	for _,line in auto_dialog:#for i,(_,line) in enumerate(auto_dialog):
-		time = cal_line_time_accu(line)#new_auto_dialog,line,i,start_line_clock_time)#start_line_clock_time = 
+		time = cal_line_time_accu(line,s_time,c_time,n_time)#new_auto_dialog,line,i,start_line_clock_time)#start_line_clock_time = 
+		print('\\n in line:',('\n' in line))
 		start_line_clock_time.append(time)	
 	#print('after preprocessing, new_auto_dialog:',new_auto_dialog,'start_line_clock_time:',start_line_clock_time)	
 	return start_line_clock_time #,new_auto_dialog
@@ -80,16 +92,18 @@ def dialog_segmentation(dialog,max_count):
 
 	return new_dialog
 
-def cal_line_time_accu(line):
+def cal_line_time_accu(line,s_time,c_time,n_time):
+	print('cal s_time,c_time,n_time:',s_time,c_time,n_time)
 	time = 0
 	for char in line:
 		if char in ['？','，','！','。','、',')']:
-			time += special_char_time
+			time += s_time#special_char_time
 		elif char == '\n':
-			time += next_line_time
+			time += n_time#next_line_time
 		else:
-			time += common_char_time
-	
+			time += c_time#common_char_time
+	time += n_time#for 	end of line
+	print('cal time:',time)
 	return time
 
 def custom_multisplit(string,split_list):
