@@ -259,10 +259,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	judgable = BooleanProperty(True) #避免重複判定扣血
 	in_judge_range = BooleanProperty(False) 
 	current_player = StringProperty()
+	unread_count = NumericProperty(0)
 	golden_id = NumericProperty(0)
 	golden_password = StringProperty('geniuspudding')
 	cheat_chapter_id = NumericProperty(0)
 	cheat_chapter_password = StringProperty('koreanogoodfish')
+	current_line = StringProperty('')
+	current_char_id = NumericProperty(0)
+	display_pausing = NumericProperty(0)#0:not in auto dialog, 1:auto displaying, 2: auto pausing
+
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -288,7 +293,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bind(seal_on=self.auto_seal)
 		self.bind(current_mode=self.auto_switch_mode)
 		#self.bind(current_mode=self.auto_save_game)
-		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.2,'y':.3}))
+		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.2,'y':.3},pre_info='至此，命運之輪將不再停止...'))
 		self.bind(finish_auto=self.auto_start_chapter)
 		self.bind(reload_item_list=self.auto_reload_item_list)
 		self.bind(focusing_object_id=self.auto_focus_item)
@@ -296,6 +301,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.bind(golden_id=self.auto_golden_player)
 		self.bind(cheat_chapter_id=self.auto_cheat_chapter)
 		self.bind(text_cleared=self.auto_check_text_cleared)
+		self.bind(unread_count=self.auto_unread_notation)
 		Window.bind(on_key_down=self.key_action)
 		self.hp_widgets = []
 		self.displaying_character_labels = []
@@ -306,6 +312,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		self.objects_allocation = [[]]
 		self.NPCs_allocation = [[]]
 		self.prompt_label = Label()
+		self.unread_label = Label()
 		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
 		#self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
@@ -376,7 +383,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 			self.manual_node = semi_auto_play_dialog(self,self.plot_dialog)
 			self.remove_widget(self.prompt_label)#for exception!
-			auto_prompt(self,'->',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='要繼續努力回想的時候...\n')
+			auto_prompt(self,'->',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='回憶似海，若你無意靠岸...',post_info='越沉...越深...')
 
 		self.auto_save_game()	
 
@@ -420,10 +427,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	
 		self.current_map_id = -2
 		self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
+		
+		self.unread_count = -1
+		self.unread_count = len(GM.players[self.current_player_id].unread_achievement)
+
 		print(f'chapter_maps:{self.chapter_maps},objects_allocation:{self.objects_allocation}')
 
 	def auto_start_chapter(self, instance, finish_auto):
 		if finish_auto:
+			self.display_pausing = 0
 			GM.start_chapter() #let self.chapter_info.started = True
 			self.loading = False
 			self.auto_save_game()
@@ -482,7 +494,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	# 	if self.hp_per_round <= 0:
 	# 		self.quit_puzzle_mode()
 	# 		#TODO:check if there is any status not be cleared
-	# 		auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='體力耗盡!\n')
+	# 		auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='體力耗盡!\n')
 
 			                         
 
@@ -564,6 +576,36 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def auto_check_text_cleared(self,instance,text_cleared):
 		print('[*] text cleared:',text_cleared)
+
+	def auto_unread_notation(self,instance,unread_count):
+		#TODO
+		self.canvas.remove_group('unread')
+		self.remove_widget(self.unread_label)
+		if unread_count > 0:
+
+			self.canvas.add(Color(rgba=(1,0,0,1),group='unread'))
+			self.canvas.add(Ellipse(pos=(self.w*.975,self.h*self.button_height*1.85),size=(15,15),group='unread'))
+			self.unread_label = Label(pos_hint={'x':.975, 'y':self.button_height*1.85},size_hint=(15/self.w, 15/self.h)\
+				,text=str(unread_count),color=(1,1,1,1))
+			self.add_widget(self.unread_label)
+        #     Color:
+        #         rgba: 1,0,0,1
+        # 		group: 'fixed'
+        #     Ellipse:
+        #         potes:(self.w*.975,self.h*self.button_height*1.85)
+        #         size:(15,15)#height*2
+        #         group: 'fixed'        
+
+        # Label:
+        #     pos_hint: {'x':.975, 'y':self.button_height*1.85}
+        #     size_hint: (15/self.w, 15/self.h)
+        #     text: '1'
+        #     color: 1,1,1,1  
+
+		# else:
+		# 	self.canvas.remove_group(group='unread')
+		# 	self.remove_widget(self.unread_label)			
+
 
 	def key_action(self, *args):
 		if self.manager.current == 'story':	
@@ -653,11 +695,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.seal_on = False
 
 				elif self.current_mode == 0 and self.finish_auto:
+					self.clear_text_on_screen()
 					self.remove_widget(self.prompt_label)
 					self.current_mode = 1#exploring mode entry
 
-				elif self.hp_per_round <= 0:
-					self.next_round()  
+				# elif self.hp_per_round <= 0:
+				# 	self.next_round()  
 
 				elif self.current_mode == 1:
 					if self.item_view == 1 and self.itemframe.count > 0:
@@ -689,14 +732,46 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.remove_widget(self.prompt_label)
 					GM.ready_to_ending()
 
+			
+			elif press_key_id == 112:#p
+				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
+					if self.display_pausing == 1:
+						print('Pause the auto dialog')
+						#self.clear_text_on_screen()
+						cancel_events(self)
+						s = ''
+						for l in self.displaying_character_labels[:self.current_char_id+1]:
+							s += l.text
+						print('pausing s:',s)
+						#self.display_pausing = 2
+						auto_prompt(self,'r',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='讓我冷靜兩秒鐘...',post_info='再次面對人生')
+						Clock.schedule_once(partial(pause,self),1.2) 				
+
+
+					#elif self.display_pausing == 2:
+			elif press_key_id == 114:#r
+				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
+					if self.display_pausing == 2:
+						self.remove_widget(self.prompt_label)
+						s = ''
+						for l in self.displaying_character_labels[self.current_char_id+1:]:
+							s += l.text
+						#先跑完該句剩下的
+						s_time,c_time,n_time = read_velocity_config()
+						res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
+						#再重新開始播放動畫
+						self.lead_dialog = self.lead_dialog[self.auto_line_id+1:]
+						Clock.schedule_once(partial(auto_play_dialog,self,self.lead_dialog),res_time)#self.display_pausing = 1
+						
+
 			#for testing
+				if self.current_mode == 1:	
+					self.current_mode = 3
+
 			elif press_key_id == 101:#e: 
 				if self.current_mode == 1:
 					GM.ready_to_ending()
 
-			elif press_key_id == 112:#p
-				if self.current_mode == 1:	
-					self.current_mode = 3
 			elif press_key_id == 100:#d: 
 				self.dialog_view ^= 1
 
@@ -725,6 +800,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			# 	if self.current_mode == 1: 
 			# 		pass
 			return True
+
 
 	def map_objects_allocator(self, action,*args):
 		if action not in ['allocate','deallocate','reallocate']:
@@ -915,7 +991,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.lastline_time = line_display_scheduler(self,node.text_line,False,special_char_time,next_line_time,common_char_time,name=node.speaker)
 		else:
 			#prompt to next chapter, end round
-			auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='完成章節!\n')
+			auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='過往妳我的緣分暫告一段落...',post_info='接著 是另外兩行人生的交錯...')
 
 	def last_dialog(self,*args):		
 		if self.manual_node.type != 'head':
@@ -1184,7 +1260,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 		elif turn_mode == 3:
 			print('self.current_mode:',self.current_mode )	
-			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='於是，你也墮入了回憶...\n')
+			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='於是，我也墮入了回憶...\n',post_info='不再回頭')
 
 	def on_press_item(self, btn):
 
@@ -1284,17 +1360,20 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if self.item_view == 0:
 			self.item_view = 1
 
+
 	def clear_text_on_screen(self,uncontinuous=True,delay_time=0,*args):#TODO:clear_text_on_screen與line_display_scheduler對應同步
 		print('[*]clear_text_on_screen!!')
-		def cancel_events(screen,*args):
-			for event in screen.dialog_events:
-				event.cancel()	
+		# def cancel_events(screen,*args):
+		# 	for event in screen.dialog_events:
+		# 		event.cancel()	
 		#delay at here
 		if delay_time > 0:
 			Clock.schedule_once(partial(cancel_events,self), delay_time) 
+			#Clock.schedule_once(self.cancel_events, delay_time) 
 			Clock.schedule_once(partial(clear_displayed_text,self,self.displaying_character_labels), delay_time)
 		else:
 			cancel_events(self)
+			#self.cancel_events()
 			clear_displayed_text(self,self.displaying_character_labels)
 		
 		if uncontinuous:
@@ -1318,12 +1397,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	def auto_golden_player(self,instance,golden_id):#直接完成遊戲的通關密碼
 		print('[*] get golden_id:',golden_id)
 		if golden_id >= len(self.golden_password):
-			auto_prompt(self,'g',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='你，也像我一樣看透人生了嗎\n')
+			auto_prompt(self,'g',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='你，也像我一樣看透人生了嗎\n',post_info='坦然接受，無論結局為何...')
 
 	def auto_cheat_chapter(self,instance,cheat_chapter_id):
 		print('[*] get cheat_chapter_id:',cheat_chapter_id)
 		if cheat_chapter_id >= len(self.cheat_chapter_password):
-			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,extra_info='於是，你不惜一切代價也要墮入回憶...\n')
+			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='於是，我不惜一切代價也要墮入回憶...\n',post_info='喚醒早已深沉的一切')
 
 
 	def load_game(self):

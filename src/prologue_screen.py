@@ -15,10 +15,15 @@ class PrologueScreen(Screen):
 	nametag = ObjectProperty(Label())
 	current_player_id = NumericProperty(-1)#for auto dialog
 	current_chapter = NumericProperty(-1)
+	current_line = StringProperty('')
+	current_char_id = NumericProperty(0)
+	display_pausing = NumericProperty(0)#0:not in auto dialog, 1:auto displaying, 2: auto pausing
+
 	def __init__(self, **kwargs):
 		super(PrologueScreen, self).__init__(**kwargs)
 		self.size = (self.w,self.h) = (global_w,global_h) 
-
+		self.prompt_label = Label()
+		
 		f = open('res/dialogs/第零章.txt','r',encoding='utf-16')#,encoding='utf-8')
 		r = f.read()
 
@@ -32,10 +37,11 @@ class PrologueScreen(Screen):
 				self.auto_dialog.append(['N',line])
 		print('self.auto_dialog:',self.auto_dialog)
 
+		#auto_prompt(self,'Enter',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='故事開始',post_info='')
 		Window.bind(on_key_down=self.key_action)
 		self.bind(start_autoplay=partial(auto_play_dialog,self,self.auto_dialog))
 		self.bind(current_speaker_name=partial(auto_display_speaker,self))
-		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.2,'y':.3}))
+		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.2,'y':.3},pre_info='一切 就是如此倉促...',post_info='翻開這本\n再也闔不上的\n現實'))
 		self.displaying_character_labels = []
 
 	def key_action(self, *args):
@@ -56,6 +62,40 @@ class PrologueScreen(Screen):
 					self.manager.current = 'story' #'seal'# 'story' 
 					self.manager.get_screen('story').seal_on = True
 					
+			elif press_key_id == 112:#p
+				if self.start_autoplay and not self.finish_auto:
+					if self.display_pausing == 1:
+						print('Pause the auto dialog')
+						#self.clear_text_on_screen()
+						cancel_events(self)
+						print('pausing self.displaying_character_labels:',self.displaying_character_labels)
+						s = ''
+						for l in self.displaying_character_labels[:self.current_char_id+1]:
+							s += l.text
+						print('pausing s:',s)
+						print('pausing self.auto_dialog:',self.auto_dialog)
+
+						auto_prompt(self,'r',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='猶豫了嗎...',post_info='再次面對人生')						
+						#self.display_pausing = 2
+						Clock.schedule_once(partial(pause,self),1.2) 
+						#TODO: 重新計算剩餘字幕
+
+					#elif self.display_pausing == 2:
+			elif press_key_id == 114:#r
+				if self.start_autoplay and not self.finish_auto:
+					if self.display_pausing == 2:
+						self.remove_widget(self.prompt_label)
+						s = ''
+						for l in self.displaying_character_labels[self.current_char_id+1:]:
+							s += l.text
+						#先跑完該句剩下的
+						s_time,c_time,n_time = read_velocity_config()
+						res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
+						#再重新開始播放動畫
+						self.auto_dialog = self.auto_dialog[self.auto_line_id+1:]
+						Clock.schedule_once(partial(auto_play_dialog,self,self.auto_dialog),res_time)#self.display_pausing = 1
+					
+
 			#for testing
 			elif press_key_id == 115:#s
 				if self.start_autoplay: 

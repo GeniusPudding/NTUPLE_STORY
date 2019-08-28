@@ -53,8 +53,13 @@ class GameManagerScreen(Screen):#main control class of the whole game
 	def change_chapter(self):
 		if self.current_chapter[self.current_player_id] == final_chapter:
 			self.exclude_from_turns(self.current_player_id)#set current_player_id to last player, for the change_turn
-	
+
 		else:
+			#testing
+			self.players[self.current_player_id].unread_achievement\
+				.append(self.current_chapter[self.current_player_id])
+		
+
 			self.current_chapter[self.current_player_id] += 1
 	def exclude_from_turns(self, player_id):
 		global turns
@@ -138,7 +143,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			p_ = open(os.path.join(pickle_path,player), 'rb')
 			p_dict = pickle.load(p_)
 			self.players[p].item_list = p_dict['item_list']#DEBUG: 地圖上還有重複載入
-			self.players[p].achievement = p_dict['achievement']
+			self.players[p].unread_achievement = p_dict['unread_achievement']
 			print(f'Load {p}\'s p_dict:{p_dict}')
 			for c in range(4):
 				chapter = f'{p}_{c}.pickle' 
@@ -192,8 +197,8 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		for p in range(4):
 			player = f'p{p}.pickle'
 			p_ = open(os.path.join(pickle_path,player), 'wb')
-			p_dict = {'item_list':self.players[p].item_list,'achievement':\
-			self.players[p].achievement}
+			p_dict = {'item_list':self.players[p].item_list,'unread_achievement':\
+			self.players[p].unread_achievement}
 			pickle.dump(p_dict,p_) 
 			print('auto save p_dict:',p_dict)
 			for c in range(4):		
@@ -226,7 +231,7 @@ class Player(object):
 		self.name = ''
 		self.personality = ''
 		self.item_list= []#only int key
-		self.achievement = []#TODO
+		self.unread_achievement = []#TODO
 	def get_item(self, object_id):#No need to consider number of item
 		if object_id not in self.item_list:
 			print('get_item:',object_id)
