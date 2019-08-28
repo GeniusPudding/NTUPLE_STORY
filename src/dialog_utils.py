@@ -1,6 +1,6 @@
 ###################################################
 # Implement all common dialog tools here          #
-# "Screen" must be an intance og kivy Screen      #
+# "screen" must be an intance og kivy screen      #
 ###################################################
 from game_manager import *
 special_char_time = .27
@@ -17,21 +17,16 @@ def read_velocity_config():
 	c_time = float(r[1])
 	n_time = float(r[2])
 	return s_time,c_time,n_time
-def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-bind function
+def auto_play_dialog(screen,auto_dialog, *args):#Main entry function, a screen-bind function
 	print('[*] Start auto play dialog')
-	# f = open('velocity.txt','r')
-	# r = f.read().split(',')
-	# print('auto r:',r)
-	# s_time = float(r[0])
-	# c_time = float(r[1])
-	# n_time = float(r[2])
+	screen.display_pausing = 1
 	s_time,c_time,n_time = read_velocity_config()
 	print('s_time,c_time,n_time:',s_time,c_time,n_time)
 
 	start_line_clock_time = auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time)#, auto_dialog 
 	clock_time_accu = 0
-	p = Screen.current_player_id
-	c = Screen.current_chapter
+	p = screen.current_player_id
+	c = screen.current_chapter
 	print('p,c:',p,c)
 
 
@@ -56,20 +51,20 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 				if last_line == table_line:
 					source = table[str(switch_id)]['source']
 					print('Switch bg to:',source)
-					Clock.schedule_once(partial(Screen.bg_widget.load_bg,source),i*.5+clock_time_accu)
+					Clock.schedule_once(partial(screen.bg_widget.load_bg,source),i*.5+clock_time_accu)
 					switch_id += 1
 
 
-			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
-			Screen.dialog_events.append(event)		
+			event = Clock.schedule_once(partial(line_display_scheduler,screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name,auto_line_id=i), .5+i*.5+clock_time_accu)#.5 is from the screen start
+			screen.dialog_events.append(event)		
 
 			last_line = line.strip('\n')
 
 	else:
 		for i,(name,line) in enumerate(auto_dialog):#displaying
 			clock_time_accu += start_line_clock_time[i]
-			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name,auto_line_id=i), .5+i*.5+clock_time_accu)#.5 is from the screen start
-			Screen.dialog_events.append(event)
+			event = Clock.schedule_once(partial(line_display_scheduler,screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name,auto_line_id=i), .5+i*.5+clock_time_accu)#.5 is from the screen start
+			screen.dialog_events.append(event)
 
 def auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time):
 	#preprocessing:
@@ -129,13 +124,13 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,auto_line_id = 0,*args):#or chars_of_row = 15,rows = 3
+def line_display_scheduler(screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,auto_line_id = 0,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
-	Screen.current_line = line 
-	Screen.text_cleared = False
-	Screen.current_speaker_name = name# #trigger auto_display_speaker
-	Screen.auto_line_id = auto_line_id
-	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
+	screen.current_line = line 
+	screen.text_cleared = False
+	screen.current_speaker_name = name# #trigger auto_display_speaker
+	screen.auto_line_id = auto_line_id
+	print(f'Line display name:{screen.current_speaker_name},line:{line}')
 	
 	pages = line.split('\n')
 	max_displaying_length = 0
@@ -158,23 +153,24 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dial
 		print('Text Line is too long!! Not supported')
 		return
 
-	clear_displayed_text(Screen,Screen.displaying_character_labels)
+	clear_displayed_text(screen,screen.displaying_character_labels)
 	if uncontinuous:
-		for event in Screen.dialog_events:
-			event.cancel()
-	print('len(displaying_character_labels)=',len(Screen.displaying_character_labels))
-	if len(Screen.displaying_character_labels) > 0:#testing
+		cancel_events(screen)
+		# for event in screen.dialog_events:
+		# 	event.cancel()
+	print('len(displaying_character_labels)=',len(screen.displaying_character_labels))
+	if len(screen.displaying_character_labels) > 0:#testing
 		print('有字幕殘留')
 	
 	print('start generate line:',line)
-	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
+	screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
 
 	if last_autoline:# line_id == len(auto_dialog) - 1:
-		Screen.finish_auto = True
+		screen.finish_auto = True
 #testing	
-	return display_character_labels(Screen,line,ts,tn,tc)
+	return display_character_labels(screen,line,ts,tn,tc)
 #testing
-def display_character_labels(Screen,line,ts,tn,tc,restart_id=0):
+def display_character_labels(screen,line,ts,tn,tc,restart_id=0):
 
 	accu_time = 0
 	char_time = 0
@@ -186,29 +182,32 @@ def display_character_labels(Screen,line,ts,tn,tc,restart_id=0):
 			accu_time += char_time
 		else:
 			char_time = tc
-		event = Clock.schedule_once(partial(clock_display_characters,Screen,Screen.displaying_character_labels, char, i+restart_id), accu_time)
-		Screen.dialog_events.append(event)
+		event = Clock.schedule_once(partial(clock_display_characters,screen,screen.displaying_character_labels, char, i+restart_id), accu_time)
+		screen.dialog_events.append(event)
 
 		if char != '\n':
 			accu_time += char_time
 
 
 	return accu_time
-def clock_display_characters(Screen,displaying_character_labels, char, char_id,*args):
+def clock_display_characters(screen,displaying_character_labels, char, char_id,*args):
 	if char != '\n':
-		Screen.add_widget(displaying_character_labels[char_id])
-		Screen.current_char_id = char_id
-		print('Screen.current_char_id:',Screen.current_char_id)
+		try:
+			screen.add_widget(displaying_character_labels[char_id])
+			screen.current_char_id = char_id
+			print('screen.current_char_id:',screen.current_char_id)
+		except:
+			print(f'[*] Exception: {char_id}-th displayed')
 	else:
-		clear_displayed_text(Screen,displaying_character_labels)
+		clear_displayed_text(screen,displaying_character_labels)
 
 
-def clear_displayed_text(Screen,displaying_character_labels,*args):#must between the last line characters displayed and the next line be processed  
+def clear_displayed_text(screen,displaying_character_labels,*args):#must between the last line characters displayed and the next line be processed  
 	print('[*]clear_displayed_text!')
 	for label in displaying_character_labels:
-		Screen.remove_widget(label)
-	Screen.displaying_character_labels = []
-	#Screen.text_cleared = True
+		screen.remove_widget(label)
+	screen.displaying_character_labels = []
+	#screen.text_cleared = True
 def line_to_labels(line,chars_of_row,rows):
 	labels = []
 	page_char_count = 0
@@ -232,14 +231,22 @@ def line_to_labels(line,chars_of_row,rows):
 			page_char_count = 0
 	return labels
 
+def cancel_events(screen,*args):
+	for event in screen.dialog_events:
+		event.cancel()	
+
+def pause(screen,*args):
+	screen.display_pausing = 2
+
+
 #Manual-dialog tools part:
-def semi_auto_play_dialog(Screen,dialog):#TODO: finish the plot mode functions
+def semi_auto_play_dialog(screen,dialog):#TODO: finish the plot mode functions
 	print('[*] Start manual play dialog')	
 	first_line_node = semi_auto_dialog_preprocess(dialog,'flexable')
 
 
 	print('first_line_node.text_line:',first_line_node.text_line)
-	line_display_scheduler(Screen,first_line_node.text_line,False,special_char_time,next_line_time,common_char_time,name=first_line_node.speaker)
+	line_display_scheduler(screen,first_line_node.text_line,False,special_char_time,next_line_time,common_char_time,name=first_line_node.speaker)
 	#screen_auto_display_node(first_line_node)
 	return  first_line_node
 

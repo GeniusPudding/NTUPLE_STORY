@@ -265,7 +265,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	cheat_chapter_password = StringProperty('koreanogoodfish')
 	current_line = StringProperty('')
 	current_char_id = NumericProperty(0)
-	display_pausing = BooleanProperty(False)
+	display_pausing = NumericProperty(0)#0:not in auto dialog, 1:auto displaying, 2: auto pausing
+
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -427,6 +428,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 
 	def auto_start_chapter(self, instance, finish_auto):
 		if finish_auto:
+			self.display_pausing = 0
 			GM.start_chapter() #let self.chapter_info.started = True
 			self.loading = False
 			self.auto_save_game()
@@ -656,6 +658,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.seal_on = False
 
 				elif self.current_mode == 0 and self.finish_auto:
+					self.clear_text_on_screen()
 					self.remove_widget(self.prompt_label)
 					self.current_mode = 1#exploring mode entry
 
@@ -695,10 +698,10 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 			elif press_key_id == 112:#p
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
-					if not self.display_pausing:
+					if self.display_pausing == 1:
 						print('Pause the auto dialog')
 						#self.clear_text_on_screen()
-						self.cancel_events()
+						cancel_events(self)
 						print('pausing self.displaying_character_labels:',self.displaying_character_labels)
 						s = ''
 						for l in self.displaying_character_labels[:self.current_char_id+1]:
@@ -706,9 +709,14 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						print('pausing s:',s)
 						print('pausing self.lead_dialog:',self.lead_dialog)
 
-						self.display_pausing = True
+						#self.display_pausing = 2
+						Clock.schedule_once(partial(pause,self),1.2) 
 						#TODO: 重新計算剩餘字幕
-					else:
+
+					#elif self.display_pausing == 2:
+			elif press_key_id == 114:#r
+				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
+					if self.display_pausing == 2:
 						s = ''
 						for l in self.displaying_character_labels[self.current_char_id+1:]:
 							s += l.text
@@ -717,9 +725,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
 						#再重新開始播放動畫
 						self.lead_dialog = self.lead_dialog[self.auto_line_id+1:]
-						Clock.schedule_once(partial(auto_play_dialog,self,self.lead_dialog),res_time)
-
-						self.display_pausing = False
+						Clock.schedule_once(partial(auto_play_dialog,self,self.lead_dialog),res_time)#self.display_pausing = 1
+						
 
 			#for testing
 				if self.current_mode == 1:	
@@ -757,6 +764,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			# 	if self.current_mode == 1: 
 			# 		pass
 			return True
+
 
 	def map_objects_allocator(self, action,*args):
 		if action not in ['allocate','deallocate','reallocate']:
@@ -1316,9 +1324,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if self.item_view == 0:
 			self.item_view = 1
 
-	def cancel_events(self,*args):
-		for event in self.dialog_events:
-			event.cancel()	
 
 	def clear_text_on_screen(self,uncontinuous=True,delay_time=0,*args):#TODO:clear_text_on_screen與line_display_scheduler對應同步
 		print('[*]clear_text_on_screen!!')
@@ -1327,12 +1332,12 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		# 		event.cancel()	
 		#delay at here
 		if delay_time > 0:
-			#Clock.schedule_once(partial(cancel_events,self), delay_time) 
-			Clock.schedule_once(self.cancel_events, delay_time) 
+			Clock.schedule_once(partial(cancel_events,self), delay_time) 
+			#Clock.schedule_once(self.cancel_events, delay_time) 
 			Clock.schedule_once(partial(clear_displayed_text,self,self.displaying_character_labels), delay_time)
 		else:
-			#cancel_events(self)
-			self.cancel_events()
+			cancel_events(self)
+			#self.cancel_events()
 			clear_displayed_text(self,self.displaying_character_labels)
 		
 		if uncontinuous:
