@@ -6,17 +6,26 @@ from game_manager import *
 special_char_time = .27
 common_char_time = .115
 next_line_time = .45
-
+special_char_list = ['？','，','！','。','、']
 #TODO: 自動撥放一鍵加速功能
 #Auto-dialog tools part:
-def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-bind function
-	print('[*] Start auto play dialog')
+def read_velocity_config():
 	f = open('velocity.txt','r')
 	r = f.read().split(',')
 	print('auto r:',r)
 	s_time = float(r[0])
 	c_time = float(r[1])
 	n_time = float(r[2])
+	return s_time,c_time,n_time
+def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-bind function
+	print('[*] Start auto play dialog')
+	# f = open('velocity.txt','r')
+	# r = f.read().split(',')
+	# print('auto r:',r)
+	# s_time = float(r[0])
+	# c_time = float(r[1])
+	# n_time = float(r[2])
+	s_time,c_time,n_time = read_velocity_config()
 	print('s_time,c_time,n_time:',s_time,c_time,n_time)
 
 	start_line_clock_time = auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time)#, auto_dialog 
@@ -59,7 +68,7 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 	else:
 		for i,(name,line) in enumerate(auto_dialog):#displaying
 			clock_time_accu += start_line_clock_time[i]
-			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
+			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),s_time,n_time,c_time,name,auto_line_id=i), .5+i*.5+clock_time_accu)#.5 is from the screen start
 			Screen.dialog_events.append(event)
 
 def auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time):
@@ -120,11 +129,12 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,*args):#or chars_of_row = 15,rows = 3
+def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,auto_line_id = 0,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
 	Screen.current_line = line 
 	Screen.text_cleared = False
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
+	Screen.auto_line_id = auto_line_id
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')
 	
 	pages = line.split('\n')
@@ -158,29 +168,37 @@ def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dial
 	
 	print('start generate line:',line)
 	Screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
-	
+
+	if last_autoline:# line_id == len(auto_dialog) - 1:
+		Screen.finish_auto = True
+#testing	
+	return display_character_labels(Screen,line,ts,tn,tc)
+#testing
+def display_character_labels(Screen,line,ts,tn,tc,restart_id=0):
+
 	accu_time = 0
 	char_time = 0
 	for i,char in enumerate(line):
-		if char in ['？','，','！','。','、']:
+		if char in special_char_list:
 			char_time = ts#special_char_time
 		elif char == '\n':
 			char_time = tn#next_line_time
 			accu_time += char_time
 		else:
 			char_time = tc
-		event = Clock.schedule_once(partial(clock_display_characters,Screen,Screen.displaying_character_labels, char, i), accu_time)
+		event = Clock.schedule_once(partial(clock_display_characters,Screen,Screen.displaying_character_labels, char, i+restart_id), accu_time)
 		Screen.dialog_events.append(event)
 
 		if char != '\n':
 			accu_time += char_time
 
-	if last_autoline:# line_id == len(auto_dialog) - 1:
-		Screen.finish_auto = True
+
 	return accu_time
 def clock_display_characters(Screen,displaying_character_labels, char, char_id,*args):
 	if char != '\n':
 		Screen.add_widget(displaying_character_labels[char_id])
+		Screen.current_char_id = char_id
+		print('Screen.current_char_id:',Screen.current_char_id)
 	else:
 		clear_displayed_text(Screen,displaying_character_labels)
 

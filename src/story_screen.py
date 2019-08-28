@@ -264,6 +264,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	cheat_chapter_id = NumericProperty(0)
 	cheat_chapter_password = StringProperty('koreanogoodfish')
 	current_line = StringProperty('')
+	current_char_id = NumericProperty(0)
+	display_pausing = BooleanProperty(False)
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -693,9 +695,31 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 			elif press_key_id == 112:#p
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
-					print('Pause the auto dialog')
-					self.clear_text_on_screen()
-					#TODO: 重新計算剩餘字幕
+					if not self.display_pausing:
+						print('Pause the auto dialog')
+						#self.clear_text_on_screen()
+						self.cancel_events()
+						print('pausing self.displaying_character_labels:',self.displaying_character_labels)
+						s = ''
+						for l in self.displaying_character_labels[:self.current_char_id+1]:
+							s += l.text
+						print('pausing s:',s)
+						print('pausing self.lead_dialog:',self.lead_dialog)
+
+						self.display_pausing = True
+						#TODO: 重新計算剩餘字幕
+					else:
+						s = ''
+						for l in self.displaying_character_labels[self.current_char_id+1:]:
+							s += l.text
+						#先跑完該句剩下的
+						s_time,c_time,n_time = read_velocity_config()
+						res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
+						#再重新開始播放動畫
+						self.lead_dialog = self.lead_dialog[self.auto_line_id+1:]
+						Clock.schedule_once(partial(auto_play_dialog,self,self.lead_dialog),res_time)
+
+						self.display_pausing = False
 
 			#for testing
 				if self.current_mode == 1:	
@@ -1292,17 +1316,23 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 		if self.item_view == 0:
 			self.item_view = 1
 
+	def cancel_events(self,*args):
+		for event in self.dialog_events:
+			event.cancel()	
+
 	def clear_text_on_screen(self,uncontinuous=True,delay_time=0,*args):#TODO:clear_text_on_screen與line_display_scheduler對應同步
 		print('[*]clear_text_on_screen!!')
-		def cancel_events(screen,*args):
-			for event in screen.dialog_events:
-				event.cancel()	
+		# def cancel_events(screen,*args):
+		# 	for event in screen.dialog_events:
+		# 		event.cancel()	
 		#delay at here
 		if delay_time > 0:
-			Clock.schedule_once(partial(cancel_events,self), delay_time) 
+			#Clock.schedule_once(partial(cancel_events,self), delay_time) 
+			Clock.schedule_once(self.cancel_events, delay_time) 
 			Clock.schedule_once(partial(clear_displayed_text,self,self.displaying_character_labels), delay_time)
 		else:
-			cancel_events(self)
+			#cancel_events(self)
+			self.cancel_events()
 			clear_displayed_text(self,self.displaying_character_labels)
 		
 		if uncontinuous:
