@@ -66,6 +66,12 @@ class ePoScreen(Screen):
 				if self.detailing:
 					self.hide_achievement()
 				else:
+					try:
+						self.manager.get_screen('gm').players[self.player_id]\
+							.unread_achievement.remove(self.cur_select_chapter_id)
+
+					except:
+						print('[*] Exception! Chapter not exists')
 					self.display_achievement()
 
 			return True
@@ -80,7 +86,8 @@ class ePoScreen(Screen):
 				self.canvas.remove_group('select')
 				self.canvas.add(Color(rgba=(0,182/255,1,.2),group='select'))
 				self.canvas.add(Rectangle(pos=(.335*global_w,self.select_py[cur_select_chapter_id+1]*global_h),size=(.33*global_w,.088*global_h),group='select'))
-
+		else:
+			self.canvas.remove_group('select')
 	def display_achievement(self):
 		self.detailing = True
 		self.detail_image.source = f'res/images/phone/{self.player_id}_{self.cur_select_chapter_id+1}_0.jpg' 
@@ -93,6 +100,10 @@ class ePoScreen(Screen):
 	def back_to_story(self,btn):
 		self.cur_select_chapter_id = -2
 		self.manager.current = 'story'
+		self.manager.get_screen('story').unread_count = -1
+		c = len(self.manager.get_screen('gm')\
+			.players[self.player_id].unread_achievement)
+		self.manager.get_screen('story').unread_count = c
 		
 #for testing
 class NTUPhone(Image):#deprecated

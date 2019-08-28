@@ -137,15 +137,15 @@
             pos: self.pos
             size: self.size
             group:'seal'  
-    Label:
-        color: 1,1,1,1
-        text:'新 生' #'失 蹤 的 女 大 生'
-        pos_hint:{'x':.25,'y':.45}
-        size_hint:(.5,.3)
-        halign:'center'
-        valign:'center'
-        font_size: 450
-        font_name: 'res/HuaKangTiFan-CuTi-1.otf'  
+    # Label:
+    #     color: 1,1,1,1
+    #     text:'新 生' #'失 蹤 的 女 大 生'
+    #     pos_hint:{'x':.25,'y':.45}
+    #     size_hint:(.5,.3)
+    #     halign:'center'
+    #     valign:'center'
+    #     font_size: 450
+    #     font_name: 'res/HuaKangTiFan-CuTi-1.otf'  
        
 
 <IntroScreen>:
@@ -184,7 +184,18 @@
                 pos:(root.w*root.dialogframe_width,0)
                 size:(root.w*root.button_width,root.h*root.button_height*2)#height*2
                 group: 'fixed'
+        #     Color:
+        #         rgba: 1,0,0,1
+        #     Ellipse:
+        #         pos:(root.w*.975,root.h*root.button_height*1.85)
+        #         size:(15,15)#height*2
+        #         group: 'fixed'        
 
+        # Label:
+        #     pos_hint: {'x':.975, 'y':root.button_height*1.85}
+        #     size_hint: (15/root.w, 15/root.h)
+        #     text: '1'
+        #     color: 1,1,1,1            
         Button:
             background_color: 0, 0, 0, 0
             pos_hint: {'x':root.dialogframe_width, 'y':0}
