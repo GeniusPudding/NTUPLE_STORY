@@ -46,10 +46,11 @@ def auto_play_dialog(Screen,auto_dialog, *args):#Main entry function, a Screen-b
 			last_line = line.strip('\n')
 
 	else:
-		for i,(name,line)  in enumerate(auto_dialog):#displaying
+		for i,(name,line) in enumerate(auto_dialog):#displaying
 			clock_time_accu += start_line_clock_time[i]
 			event = Clock.schedule_once(partial(line_display_scheduler,Screen,line,(i==len(auto_dialog)-1),special_char_time,next_line_time,common_char_time,name), .5+i*.5+clock_time_accu)#.5 is from the screen start
 			Screen.dialog_events.append(event)
+
 def auto_dialog_preprocess(auto_dialog):
 	#preprocessing:
 	#new_auto_dialog= dialog_segmentation(auto_dialog,20)#deprecated for displaying flexible length text line 
@@ -107,6 +108,7 @@ def custom_multisplit(string,split_list):
 
 def line_display_scheduler(Screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,*args):#or chars_of_row = 15,rows = 3
 	#TODO:auto close_dialogframe function after the chars displayed
+	Screen.current_line = line 
 	Screen.text_cleared = False
 	Screen.current_speaker_name = name# #trigger auto_display_speaker
 	print(f'Line display name:{Screen.current_speaker_name},line:{line}')

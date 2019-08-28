@@ -263,6 +263,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 	golden_password = StringProperty('geniuspudding')
 	cheat_chapter_id = NumericProperty(0)
 	cheat_chapter_password = StringProperty('koreanogoodfish')
+	current_line = StringProperty('')
 	#initialize of the whole game, with fixed properties and resources
 	def __init__(self, **kwargs):
 		super(StoryScreen, self).__init__(**kwargs)
@@ -689,14 +690,21 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					self.remove_widget(self.prompt_label)
 					GM.ready_to_ending()
 
+			
+			elif press_key_id == 112:#p
+				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
+					print('Pause the auto dialog')
+					self.clear_text_on_screen()
+					#TODO: 重新計算剩餘字幕
+
 			#for testing
+				if self.current_mode == 1:	
+					self.current_mode = 3
+
 			elif press_key_id == 101:#e: 
 				if self.current_mode == 1:
 					GM.ready_to_ending()
 
-			elif press_key_id == 112:#p
-				if self.current_mode == 1:	
-					self.current_mode = 3
 			elif press_key_id == 100:#d: 
 				self.dialog_view ^= 1
 
