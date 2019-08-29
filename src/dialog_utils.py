@@ -19,6 +19,7 @@ def read_velocity_config():
 	return s_time,c_time,n_time
 def auto_play_dialog(screen,auto_dialog, *args):#Main entry function, a screen-bind function
 	print('[*] Start auto play dialog')
+	#if screen.display_pausing == 0:
 	screen.display_pausing = 1
 	s_time,c_time,n_time = read_velocity_config()
 	print('s_time,c_time,n_time:',s_time,c_time,n_time)

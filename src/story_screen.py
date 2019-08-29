@@ -735,7 +735,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			
 			elif press_key_id == 112:#p
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
-					if self.display_pausing == 1:
+					if self.display_pausing == 1: #and '\'r\'' not in self.prompt_label.text:
 						print('Pause the auto dialog')
 						#self.clear_text_on_screen()
 						cancel_events(self)
@@ -744,6 +744,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 							s += l.text
 						print('pausing s:',s)
 						#self.display_pausing = 2
+						#if 
 						auto_prompt(self,'r',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='讓我冷靜兩秒鐘...',post_info='再次面對人生')
 						Clock.schedule_once(partial(pause,self),1.2) 				
 
@@ -751,7 +752,8 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 					#elif self.display_pausing == 2:
 			elif press_key_id == 114:#r
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
-					if self.display_pausing == 2:
+					if self.display_pausing == 2:  #and '\'r\'' in self.prompt_label.text:
+						print('Restart the auto dialog')
 						self.remove_widget(self.prompt_label)
 						s = ''
 						for l in self.displaying_character_labels[self.current_char_id+1:]:
@@ -763,7 +765,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						self.lead_dialog = self.lead_dialog[self.auto_line_id+1:]
 						Clock.schedule_once(partial(auto_play_dialog,self,self.lead_dialog),res_time)#self.display_pausing = 1
 						
-
+						#self.display_pausing = 1
 			#for testing
 				if self.current_mode == 1:	
 					self.current_mode = 3
