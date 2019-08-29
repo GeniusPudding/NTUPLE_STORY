@@ -588,24 +588,6 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			self.unread_label = Label(pos_hint={'x':.975, 'y':self.button_height*1.85},size_hint=(15/self.w, 15/self.h)\
 				,text=str(unread_count),color=(1,1,1,1))
 			self.add_widget(self.unread_label)
-        #     Color:
-        #         rgba: 1,0,0,1
-        # 		group: 'fixed'
-        #     Ellipse:
-        #         potes:(self.w*.975,self.h*self.button_height*1.85)
-        #         size:(15,15)#height*2
-        #         group: 'fixed'        
-
-        # Label:
-        #     pos_hint: {'x':.975, 'y':self.button_height*1.85}
-        #     size_hint: (15/self.w, 15/self.h)
-        #     text: '1'
-        #     color: 1,1,1,1  
-
-		# else:
-		# 	self.canvas.remove_group(group='unread')
-		# 	self.remove_widget(self.unread_label)			
-
 
 	def key_action(self, *args):
 		if self.manager.current == 'story':	
@@ -720,6 +702,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 			elif press_key_id == 113:#q		
 				if self.current_mode == 2 or (self.current_mode == 1 and self.cheat_chapter_id == len(self.cheat_chapter_password)):	
 					self.remove_widget(self.prompt_label)
+					self.cheat_chapter_id = 0
 					self.current_mode = 3
 
 			elif press_key_id == 100:#d 

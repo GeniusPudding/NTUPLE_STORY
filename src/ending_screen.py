@@ -15,7 +15,7 @@ class EndingScreen(Screen):
         print('init end self.size:',self.size)
         with open('res/dialogs/終章.txt','r',encoding='MS950') as f:#,encoding='utf-8')
             r = f.read()
-        print(r)#'ABCDEFGH\nIJKLM\nNOPQRSTUVW\nXYZ0123456789\n'
+        print(r)
         self.label = Label(text=r,font_size=36,pos=(.2*self.size[0],-1.9*self.size[1]),\
             size=(.6*self.size[0],2*self.size[1]),size_hint=(None,None),font_name='res/HuaKangTiFan-CuTi-1.otf')
 
@@ -28,9 +28,6 @@ class EndingScreen(Screen):
         self.canvas.add(Rectangle(pos=(0,0),size=(global_w,global_h),group='bg'))
         self.canvas.add(Color(rgba=(1,1,1,1),group='dialogframe'))
         self.canvas.add(Rectangle(source='res/images/new_dialogframe.png',pos=(0,0),size=(global_w*self.dialogframe_width,global_h*(self.dialogframe_height+.07)),group='dialogframe'))
-     
-        #self.canvas.remove_group('dialogframe')        
-
 
         #for end 5
         self.cur_image_size = (2*self.size[0],2*self.size[1])

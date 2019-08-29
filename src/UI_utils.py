@@ -55,7 +55,6 @@ class CircleImage(Widget):#Image
 
 	def start_switching_animate(self,pos,offset,direction,duration=.35):#offset and duration also can be a list, and must have same length 
 		(px,py) = pos
-		#print(f'Before anim... pos:{pos},offset:{offset},direction:{direction}')
 		if not isinstance(offset, list):#only a tuple
 			(ox,oy) = offset
 			
@@ -90,9 +89,6 @@ class CircleImage(Widget):#Image
 		#print('on_complete')
 		if isinstance(self.parent,Screen):
 			self.parent.itemframe.playing_anim_num -= 1
-			#print('self.parent.itemframe.playing_anim_num:',self.parent.itemframe.playing_anim_num)
-
-
 
 class ImageButton(ButtonBehavior, Image): #Behavior
 	def __init__(self, **kargs):#callback,
