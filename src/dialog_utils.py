@@ -196,7 +196,7 @@ def clock_display_characters(screen,displaying_character_labels, char, char_id,*
 		try:
 			screen.add_widget(displaying_character_labels[char_id])
 			screen.current_char_id = char_id
-			print('screen.current_char_id:',screen.current_char_id)
+			#print('screen.current_char_id:',screen.current_char_id)
 		except:
 			print(f'[*] Exception: {char_id}-th displayed')
 	else:

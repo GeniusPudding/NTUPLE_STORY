@@ -7,7 +7,7 @@ GM = GameManagerScreen()
 global_x = 0
 global_y = 0
 
-player_name = {0:'李語蝶',1:'司馬熏',2:'孟亦寒',3:'亓官楓'}
+# player_name = {0:'李語蝶',1:'司馬熏',2:'孟亦寒',3:'亓官楓'}
 class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式的功能
 
 	parent_w = NumericProperty()
@@ -28,6 +28,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		self.screen = screen
 		self.bind(item_list=self.auto_gen_items)#after auto_reload_item_list called
 		self.bind(focusing_frame_id=self.auto_focus)
+		self.bind(playing_anim_num=self.auto_switchable)
 
 		self.front_pos = (.75*global_w,.4*global_h)
 		self.back_pos = (.85*global_w,.45*global_h)#for animations
@@ -38,6 +39,13 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		self.info_size_x, self.info_size_y = .12*global_w,.18*global_h
 		self.cyclic = {}
 		self.item_images = []
+	def auto_switchable(self,instance,playing_anim_num):
+		print('[*] playing_anim_num:',playing_anim_num)
+		if playing_anim_num > 0:
+			self.switchable = False
+		else: 
+			self.switchable = True
+
 	def auto_gen_items(self,instance,item_list):#focusing_frame_id must be self.cyclic[0] when first open the frame after modified item_list
 		print('[*]item frame gen items:',item_list)
 		self.count = len(item_list)
@@ -94,10 +102,11 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 		spent_time = line_display_scheduler(screen,text_line,False,.2,.5,.15)
 			
 	def switching_frame_focus(self,screen,press_key_id):#handle the cyclic animation
-		self.switchable = False
-		screen.try_open_item_view()
+		#self.switchable = False
+		
 
 		n = self.playing_anim_num = self.count #determined by the number of animations
+		screen.try_open_item_view()
 		#n = self.count
 		if n > 1:
 			d_len = min(.15*global_w,.2*global_h)
@@ -156,7 +165,7 @@ class ItemFrame(FloatLayout):#TODO: 立體版UI之外提供切換成平面模式
 
 			print('self.cyclic:',self.cyclic,'self.playing_anim_num:',self.playing_anim_num)
 
-		self.switchable = True
+		#self.switchable = True
 
 
 	def curve_animation(self,screen,animatable_im,init_pos,final_pos):#TODO: 修改動畫逼近曲線
@@ -641,13 +650,15 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 							pass#TODO:加速撥放功能?
 
 					elif self.item_view == 1:
-						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0 and self.itemframe.count > 1:
+						if self.itemframe.switchable and self.itemframe.count > 1:
+						#if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0 and self.itemframe.count > 1:
 							self.item_box_canvas_controller('show',direction=press_key_id) 
 						else:
 							print('Wait for item canvas finish')
 				elif self.current_mode == 2:
 					if not self.puzzling:
-						if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0:
+						if self.itemframe.switchable:
+						#if self.itemframe.switchable and self.itemframe.playing_anim_num <= 0:
 							self.item_box_canvas_controller('show',direction=press_key_id) 
 					else:		
 						puzzle_move_view(self,press_key_id)
@@ -686,7 +697,7 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 				if self.current_mode == 1 and self.NPC_view == 0:
 					if self.item_view == 0 and self.text_cleared:#testing
 						self.item_view = 1
-					elif self.item_view == 1:
+					elif self.item_view == 1 and self.itemframe.switchable:
 						self.item_view = 0
 
 			elif press_key_id == 13:#Enter

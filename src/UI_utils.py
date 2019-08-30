@@ -91,7 +91,6 @@ class CircleImage(Widget):#Image
 		#print('on_complete')
 		if isinstance(self.parent,Screen):
 			self.parent.itemframe.playing_anim_num -= 1
-			#print('self.parent.itemframe.playing_anim_num:',self.parent.itemframe.playing_anim_num)
 
 
 

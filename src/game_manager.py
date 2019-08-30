@@ -8,6 +8,7 @@ from subgames import *
 from dialog_utils import *
 from UI_utils import *
 
+player_name = {0:'李詠晴',1:'楊承恩',2:'孟亦廷',3:'張怡彤'}
 turns = {1:2,2:3,3:0,0:1}
 class GameManagerScreen(Screen):#main control class of the whole game
 	#TODO: 用計時器跟體力控制做出不同難度模式，預設為easy，不限時
@@ -58,7 +59,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			#testing
 			self.players[self.current_player_id].unread_achievement\
 				.append(self.current_chapter[self.current_player_id])
-		
+
 
 			self.current_chapter[self.current_player_id] += 1
 	def exclude_from_turns(self, player_id):
@@ -161,6 +162,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		#main_screen.loading = True
 		main_screen.current_player_id, main_screen.current_chapter = self.current_player_id, self.current_chapter[self.current_player_id]	
 		main_screen.auto_reload_chapter_info(self,[main_screen.current_player_id, main_screen.current_chapter])
+		main_screen.current_player = player_name[main_screen.current_player_id]
 
 		main = open(os.path.join(pickle_path,'main_screen.pickle'), 'rb')	
 		dict_main = pickle.load(main)	
@@ -318,7 +320,7 @@ class Chapter(object):
 	def load_chapter_title(self,player_id, chapter_id):
 
 		text = ['紊亂的書房','曾經的約定','蜷曲的背影','生日的禮物','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的日記','哭泣的玩偶','遺失的過往','手機的密碼','補全的卡片','渴望的支持','友誼的結尾'][4*chapter_id+player_id]
-		return Label(text=text,color=(191/255, 201/255, 202/255, 1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/蒙纳繁长宋.otf')#  'res/HuaKangTiFan-CuTi-1.otf')
+		return Label(text=text,color=(191/255, 201/255, 202/255, 1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/mona.otf')#  'res/HuaKangTiFan-CuTi-1.otf')
 	def load_chapter_objects_of_maps(self):
 
 		maps = self.chapter_maps
