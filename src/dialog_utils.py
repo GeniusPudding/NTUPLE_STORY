@@ -233,6 +233,17 @@ def line_to_labels(line,chars_of_row,rows):
 			page_char_count = 0
 	return labels
 
+def auto_accelerate(screen, prompt = False):
+	cancel_events(screen)
+	Clock.schedule_once(partial(pause,screen),.3) 
+	while screen.current_char_id < len(screen.current_line) - 1:
+		l = screen.displaying_character_labels[screen.current_char_id+1]
+		screen.add_widget(l)
+		screen.current_char_id += 1
+	if prompt:
+		auto_prompt(screen,'r',{'x':.2,'y':.3},instance=screen, prompt=True,pre_info='等不及了',post_info='趕快接受人生')
+
+
 def auto_pause(screen, pre_info='讓我冷靜兩秒鐘...',post_info='再次面對人生',*args):
 	print('Pause the auto dialog')
 	cancel_events(screen)

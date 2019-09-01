@@ -266,7 +266,6 @@ class Chapter(object):
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
 		self.scene_path = f'res/chapters/{player_id}_{chapter_id}/scenes/' #including scene images for the plot mode
 		self.npc_path = f'res/chapters/{player_id}_{chapter_id}/NPCs/' #including json of NPC info
-		#self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)
 		self.main_screen = main_screen
 		self.chapter_maps = self.load_chapter_maps()
@@ -286,7 +285,6 @@ class Chapter(object):
 		self.chapter_objects_of_maps[map_id].remove(picked_item)
 		self.picked_item_info.append((map_id,picked_item.object_id))
 		self.main_screen.remove_widget(picked_item)
-#on_press_item
 
 	def unlock_new_map(self,map_name):#TODO: Optimize,不需要重新載入所有地圖物件
 		for locked_img in os.listdir('res/images/handpainting'):#self.locked_map_path
@@ -310,6 +308,7 @@ class Chapter(object):
 			if default_maps[player_id*4+chapter_id] in m:
 				return i
 		return 0
+
 	def load_chapter_dialogs(self):
 
 		f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
@@ -347,7 +346,6 @@ class Chapter(object):
 
 		with open(self.object_path+'chapter_objects.json','r',encoding='utf-16') as f:
 			objects_table = json.load(f)
-			#print('chapter\'s objects_table:',objects_table)
 			for str_id in  objects_table.keys():
 				obj = objects_table[str_id]
 				if obj['on_map_name'] is not None:

@@ -707,7 +707,13 @@ class StoryScreen(Screen):
 					self.remove_widget(self.prompt_label)
 					GM.ready_to_ending()
 
-			
+			elif press_key_id == 111:#o
+				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
+					if self.display_pausing == 1:
+						auto_accelerate(self,prompt = True)
+				elif self.current_mode in [1,2,3]:#testing
+					auto_accelerate(self)
+					
 			elif press_key_id == 112:#p
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
 					if self.display_pausing == 1: #and '\'r\'' not in self.prompt_label.text:
