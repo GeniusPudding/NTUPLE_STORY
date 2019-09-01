@@ -62,6 +62,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 
 
 			self.current_chapter[self.current_player_id] += 1
+
 	def exclude_from_turns(self, player_id):
 		global turns
 		new_link = {}
@@ -175,30 +176,23 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		print(f'Load dict_main:{dict_main}')
 		load_mode = dict_main['current_mode'] 
 		if load_mode == 0:
-			print('loading main_screen.seal_on:',main_screen.seal_on)
-			print('loading main_screen.finish_auto:',main_screen.finish_auto)
-			print('loading self.manager.current:',self.manager.current)
 			main_screen.current_mode = -1
-			main_screen.current_mode = load_mode
-		elif load_mode == 1:	
-			print('loading main_screen.seal_on:',main_screen.seal_on)
-			print('loading main_screen.finish_auto:',main_screen.finish_auto)
-			print('loading self.manager.current:',self.manager.current)
-			print('loading main_screen.dialog_view:',main_screen.dialog_view)
-			main_screen.current_mode = load_mode
-			print('loading main_screen.seal_on:',main_screen.seal_on)
-			print('loading main_screen.finish_auto:',main_screen.finish_auto)
-			print('loading self.manager.current:',self.manager.current)
-			print('loading main_screen.dialog_view:',main_screen.dialog_view)
-		else:
-			main_screen.current_mode = load_mode
+			#main_screen.current_mode = load_mode
+		# elif load_mode == 1:	
+		# 	main_screen.current_mode = load_mode
+		# else:
+		# 	main_screen.current_mode = load_mode
+		#main_screen.current_map_id = dict_main['current_map_id']
+		main_screen.current_mode = load_mode
 		global turns
 		turns = dict_main['turns']
 		print('load turns:',turns)
 		#main_screen.hp_per_round = 20#dict_main['hp_per_round']
-		main_screen.current_map_id = -1
-		main_screen.current_map_id = self.Chapters[self.current_player_id][self.current_chapter[self.current_player_id]].chapter_default_map#dict_main['current_map_id']
-		main_screen.reload_item_list = True
+		#main_screen.current_map_id = -1
+		main_screen.current_map_id = dict_main['current_map_id']
+		#main_screen.reload_item_list = True
+		if load_mode == 3:#為何載入時先被關對話框??
+			Clock.schedule_once(main_screen.try_open_dialog_view,1) 
 		main_screen.loading = False
 
 	def save_game(self,main_screen):#map_objects_allocator 
@@ -214,8 +208,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 				chapter = f'{p}_{c}.pickle' 
 				c_ = open(os.path.join(pickle_path,chapter), 'wb')
 				c_dict = {'chapter_maps':self.Chapters[p][c].chapter_maps,\
-				'started':self.Chapters[p][c].started,'picked_ids':self.Chapters[p][c].picked_item_info}
-				
+				'started':self.Chapters[p][c].started,'picked_ids':self.Chapters[p][c].picked_item_info}		
 				print('auto save c_dict:',c_dict)
 				pickle.dump(c_dict,c_) 
 		p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'wb')	
@@ -232,6 +225,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		# dict_main['current_map_id'] = main_screen.current_map_id
 		# dict_main['hp_per_round'] = main_screen.hp_per_round	
 		dict_main['turns'] = turns
+		dict_main['current_map_id'] = main_screen.current_map_id
 		print('auto save dict_main:',dict_main)
 		pickle.dump(dict_main,main) 
 
@@ -257,7 +251,6 @@ class Player(object):
 		else:
 			print('[*] Exception! Cannot spend an item that not in item list!')
 
-
 class Chapter(object):
 	def __init__(self, player_id, chapter_id,main_screen):
 		self.object_path = f'res/chapters/{player_id}_{chapter_id}/objects/' #including a json and object images
@@ -269,7 +262,7 @@ class Chapter(object):
 		self.player_chapter = (player_id,chapter_id)
 		self.main_screen = main_screen
 		self.chapter_maps = self.load_chapter_maps()
-		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
+		self.chapter_default_map = self.load_chapter_default_map(player_id, chapter_id)
 		self.chapter_NPCs_of_maps = self.load_chapter_NPCs_of_maps()#list of ImageButton
 		self.chapter_objects_of_maps = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
 		self.picked_item_info = []#TODO: save/load the picked item ids
@@ -299,7 +292,7 @@ class Chapter(object):
 		self.main_screen.NPCs_allocation = self.chapter_NPCs_of_maps\
 		 = self.load_chapter_NPCs_of_maps()#load new objects info of unlocked map
 				
-	def load_default_map(self,player_id, chapter_id):
+	def load_chapter_default_map(self,player_id, chapter_id):
 
 		default_maps = ['雙人宿舍夜','博雅','雙人宿舍日','雙人宿舍日','農場夜',\
 		'B男宿舍夜','排球場','女主家裡房間一','女主家C男房間晚一','女主家C男房間晚一','女主家客廳',\
@@ -514,8 +507,7 @@ class MapObject(Widget):#自定義按紐
 					screen.on_press_switching(self) 	
 				if 'nothing' in self.object_types:
 					#定義: 無特別功用
-					screen.on_press_nothing(self) 	
-				
+					screen.on_press_nothing(self) 				
 				
 # >>> def keep(path):
 # ...     dir = os.listdir(path)

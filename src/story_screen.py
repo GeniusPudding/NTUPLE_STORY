@@ -285,8 +285,6 @@ class StoryScreen(Screen):
 		print(f"global_w:{global_w},global_h:{global_h}")	
 		self.button_height = self.dialogframe_height/2
 		print("init pos={},size={},self={},type(self)={},(w,h)={},Window.size={}".format(self.pos,self.size,self,type(self),(self.w,self.h),Window.size))
-		#self.bind(hp_per_round=self.auto_hp_canvas)
-		#self.bind(hp_per_round=self.auto_save_game)
 		self.bind(current_speaker_name=partial(auto_display_speaker,self))
 		self.bind(current_map_id=self.auto_switch_maps)
 		#self.bind(current_map_id=self.auto_save_game)
@@ -298,7 +296,6 @@ class StoryScreen(Screen):
 		self.bind(complete_chapter=self.auto_end_chapter)
 		self.bind(seal_on=self.auto_seal)
 		self.bind(current_mode=self.auto_switch_mode)
-		#self.bind(current_mode=self.auto_save_game)
 		self.bind(finish_auto=partial(auto_prompt,self,'Enter',{'x':.2,'y':.3},pre_info='至此，命運之輪將不再停止...'))
 		self.bind(finish_auto=self.auto_start_chapter)
 		self.bind(reload_item_list=self.auto_reload_item_list)
@@ -353,7 +350,6 @@ class StoryScreen(Screen):
 		self.current_player = player_name[self.current_player_id]
 
 		#round-binding canvas: 
-		#self.hp_per_round = 1
 		self.hp_per_round = 20#trigger event #auto save?
 
 		#<chapter info part>: 透過bind auto_load_chapter_info_contents，從 chapter_info 載入所有地圖所需
@@ -361,8 +357,8 @@ class StoryScreen(Screen):
 		# self.current_map_id = self.chapter_info.chapter_default_map #0#trigger the map loading function
 
 		#auto save
-		if self.finish_auto:
-			self.auto_save_game()
+		# if self.finish_auto:
+		# 	self.auto_save_game()
 
 	def auto_switch_mode(self, instance, mode):#Entry of all stroy screen modes
 		print('[*]Switch mode:', mode)
@@ -440,12 +436,18 @@ class StoryScreen(Screen):
 
 		print(f'chapter_maps:{self.chapter_maps},objects_allocation:{self.objects_allocation}')
 
+	def auto_reload_chapter_info(self, instance, c_p):#do not bind "self.current_player_id, self.current_chapter = GM.change_turn()" !
+		print('[*]current_player_chapter: ', c_p)
+		self.chapter_info = GM.Chapters[self.current_player_id][self.current_chapter]#load chapter info at each round starts
+		print("chapter_info reloaded:",self.chapter_info)
+
 	def auto_start_chapter(self, instance, finish_auto):
 		if finish_auto:
+			print('testing finish_auto')
 			self.display_pausing = 0
 			GM.start_chapter() #let self.chapter_info.started = True
 			self.loading = False
-			self.auto_save_game()
+
 	def auto_end_chapter(self, instance, complete_chapter):#called when outer calls "self.complete_chapter = True"  
 		if complete_chapter:
 			print('[*]complete_chapter:', complete_chapter)#after the plot's dialog ended
@@ -485,11 +487,6 @@ class StoryScreen(Screen):
 			self.map_NPCs_allocator('deallocate')
 			self.map_objects_allocator('allocate')
 
-	#select the background image of this story	
-	def auto_reload_chapter_info(self, instance, c_p):#do not bind "self.current_player_id, self.current_chapter = GM.change_turn()" !
-		print('[*]current_player_chapter: ', c_p)
-		self.chapter_info = GM.Chapters[self.current_player_id][self.current_chapter]#load chapter info at each round starts
-		print("chapter_info reloaded:",self.chapter_info)
 
 	# def auto_hp_canvas(self,instance, hp):#if hp = 0, end this round
 	# 	print('[*]hp:', hp)
@@ -506,14 +503,12 @@ class StoryScreen(Screen):
 
 	def auto_switch_maps(self,instance, current_map_id):
 		if current_map_id >= 0:
-
 			print('[*]current map:', current_map_id)
-			print("self.chapter_maps:",self.chapter_maps)
 			print("self.chapter_maps[current_map_id]:",self.chapter_maps[current_map_id])
 			self.bg_widget.load_bg(self.chapter_maps[current_map_id])
 			if self.item_view == 1:
 				self.item_view == 0
-			if self.current_mode in [1,2] :
+			if self.current_mode in [1,2]:
 				self.map_objects_allocator('reallocate')
 
 			if self.NPCs_allocation[self.current_map_id] != []:	
@@ -526,11 +521,12 @@ class StoryScreen(Screen):
 
 			self.canvas.remove_group('switch_map')
 			if len(set([map_path.split('/')[-1].split('.')[0] for map_path in self.chapter_maps])\
-				-set(self.banned_map_list)) > 1:
-				print('self.chapter_maps:',self.chapter_maps)
+				-set(self.banned_map_list)) > 1:#display hint if it's able to switch maps freely in this chapter
 				print('self.banned_map_list:',self.banned_map_list)
 				self.canvas.add(Color(rgba=(1,1,1,1),group='switch_map'))
 				self.canvas.add(Rectangle(source='res/images/switch_map.png',pos=(.4*global_w,0),size=(.2*global_w,.2*global_h),group='switch_map'))
+
+			self.auto_save_game()
 
 	def auto_reload_item_list(self,instance, reload_item_list):
 		if reload_item_list:
@@ -1087,13 +1083,11 @@ class StoryScreen(Screen):
 		lock_name = item['name']
 		lock_content = GM.unlock_table[lock_name]
 		expected_input = lock_content['input_item']
-
 		judge_pos_hint, judge_size_hint = {'x':.35,'y':((global_h-.3*global_w)/2)/global_h},(.3,.3*global_w/global_h)
 		if item['source'] is not None:
 			print('item[\'source\']:',item['source'])
 			self.canvas.add(Color(rgba=(1,1,1,1),group='lock'))
 			self.canvas.add(Rectangle(source=item['source'],pos=(.35*global_w,(global_h-.3*global_w)/2),size=(.3*global_w,.3*global_w),group='lock'))
-			#self.canvas.add(Rectangle(source=item['source'],pos=(.35*global_w,.35*global_h),size=(.3*global_w,.3*global_h),group='lock'))
 		else:
 			judge_pos_hint, judge_size_hint = {'x':item['pos_hint'][0],'y':item['pos_hint'][1]}, item['size_hint']
 		print('judge_pos_hint, judge_size_hint:',judge_pos_hint, judge_size_hint)
@@ -1105,13 +1099,11 @@ class StoryScreen(Screen):
 		expected_input = lock_content['input_item']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
 		if E2_distance(self.dragging.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range(judge_pos_hint, judge_size_hint):
-
-			if GM.object_table[str(dragging_object_id)]['name'] == expected_input and self.judgable:#開鎖成功
+			if GM.object_table[str(dragging_object_id)]['name'] == expected_input and self.judgable:#passed the lock
 				self.judgable = False
 				self.lock_event.cancel()
 				self.global_mouse_event.cancel()
 				GM.players[self.current_player_id].spend_item(dragging_object_id)#->auto_reload_item_list->auto_gen_items	
-
 				#lock_output: output item, new scene, trigger
 				quit_text = '開鎖成功...'
 				if lock_content['output_item'] is not None:
@@ -1127,7 +1119,6 @@ class StoryScreen(Screen):
 				if lock_content['new_scene'] is not None:
 					print('開鎖成功...解鎖新場景!')
 					quit_text += '解鎖新場景! '
-
 					name = lock_content['new_scene'].split('\'')[1]
 					GM.Chapters[self.current_player_id][self.current_chapter].unlock_new_map(name)
 					self.current_map_id = len(self.chapter_maps) - 1 #unlock and go to new scene
@@ -1137,18 +1128,15 @@ class StoryScreen(Screen):
 					self.quit_puzzle_mode(text=quit_text,turn_mode = 3)
 				else:
 					quit_text += '\n'
-					self.quit_puzzle_mode(text=quit_text)
-						
+					self.quit_puzzle_mode(text=quit_text)						
 			elif self.judgable:
 				self.judgable = False
 				print('開鎖失敗!')
 				self.clear_text_on_screen()
 				self.try_open_dialog_view()
 				spent_time = line_display_scheduler(self,'開鎖失敗...\n',False,special_char_time,next_line_time,common_char_time)
-
 				Clock.schedule_once(partial(self.dragging.reset,self,2),spent_time+1) 	
 				Clock.schedule_once(self.set_judgable,spent_time+1.1)
-
 				self.hp_per_round -= 1
 		elif not self.mouse_in_range(judge_pos_hint, judge_size_hint) and self.dragging.free == 1:
 			print('開鎖超出範圍，返回原位')		
@@ -1173,7 +1161,6 @@ class StoryScreen(Screen):
 			screen.canvas.remove_group('synthesis')
 			screen.canvas.remove_group('synthesis1')
 			screen.canvas.remove_group('synthesis2')			
-
 		self.canvas.remove_group('puzzle_mode')
 		if self.behavior_type == 'puzzle':
 			self.canvas.remove_group('puzzle')
@@ -1193,9 +1180,7 @@ class StoryScreen(Screen):
 			except:
 				pass
 			Clock.schedule_once(partial(systhesis_canvas_clear,self),1.2)
-
 			print('stage == 2 removed')
-
 		self.dialog_view = 1
 		self.clear_text_on_screen()
 		spent_time = line_display_scheduler(self,text,False,special_char_time,next_line_time,common_char_time)
@@ -1216,7 +1201,6 @@ class StoryScreen(Screen):
 	def on_press_item(self, btn):
 
 		self.hp_per_round -= 1
-		#object_id = btn.object_id
 		self.pickup_chapter_objects(btn)
 
 		self.dialog_view = 1
