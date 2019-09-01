@@ -660,7 +660,7 @@ class StoryScreen(Screen):
 
 			elif press_key_id == 105:#i
 				if self.current_mode == 1 and self.NPC_view == 0:
-					if self.item_view == 0 and self.text_cleared:
+					if self.item_view == 0 and self.text_cleared and not self.probing:
 						self.item_view = 1
 					elif self.item_view == 1 and self.itemframe.switchable:
 						self.item_view = 0
@@ -1210,29 +1210,29 @@ class StoryScreen(Screen):
 	def on_press_item(self, btn):
 
 		self.hp_per_round -= 1
-		object_id = btn.object_id
-		self.pickup_chapter_objects(object_id,btn)
+		#object_id = btn.object_id
+		self.pickup_chapter_objects(btn)
 
 		self.dialog_view = 1
 		spent_time = line_display_scheduler(self,'好像撿到有用的道具了呦\n',False,special_char_time,next_line_time,common_char_time)
 		self.delay_hide_dialogframe(spent_time)
 
-	def pickup_chapter_objects(self, object_id,btn,action='to_bag'):
-		picked_item = None
-		for MapObject in self.objects_allocation[self.current_map_id]:
-			if MapObject.object_id == object_id:
-				picked_item = MapObject
-				print('picked_item:',picked_item.object_id)
-				break
+	def pickup_chapter_objects(self,btn,action='to_bag'):
+		# picked_item = None
+		# for MapObject in self.objects_allocation[self.current_map_id]:
+		# 	if MapObject.object_id == object_id:
+		# 		picked_item = MapObject
+		# 		print('picked_item:',picked_item.object_id)
+		# 		break
 
 		print('self.objects_allocation[self.current_map_id]:',self.objects_allocation[self.current_map_id])
 		#self.objects_allocation[self.current_map_id].remove(picked_item)
 		#self.chapter_info.chapter_objects_of_maps[self.current_map_id].remove(picked_item)
-		self.chapter_info.remove_objects_on_map(self.current_map_id,picked_item)
+		self.chapter_info.remove_objects_on_map(self.current_map_id,btn)
 		print('after self.objects_allocation[self.current_map_id]:',self.objects_allocation[self.current_map_id])
 		if action == 'to_bag':
-			GM.players[self.current_player_id].get_item(object_id)
-		self.remove_widget(btn) 
+			GM.players[self.current_player_id].get_item(btn.object_id)
+		#self.remove_widget(btn) 
 
 	def on_press_puzzle(self, btn):
 		self.enter_puzzle_mode(btn.object_id, 'puzzle')	
@@ -1258,7 +1258,7 @@ class StoryScreen(Screen):
 		print('獲得敘述中道具:',btn,item_name)
 		item_id = GM.name_to_id_table[item_name]
 		GM.players[self.current_player_id].get_item(item_id)
-		self.pickup_chapter_objects(btn.object_id,btn,action='discard')	
+		self.pickup_chapter_objects(btn,action='discard')	
 
 	def on_press_switching(self,btn):
 		self.probing = False

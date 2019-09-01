@@ -285,6 +285,8 @@ class Chapter(object):
 		print('picked_item:',picked_item)
 		self.chapter_objects_of_maps[map_id].remove(picked_item)
 		self.picked_item_info.append((map_id,picked_item.object_id))
+		self.main_screen.remove_widget(picked_item)
+#on_press_item
 
 	def unlock_new_map(self,map_name):#TODO: Optimize,不需要重新載入所有地圖物件
 		for locked_img in os.listdir('res/images/handpainting'):#self.locked_map_path
