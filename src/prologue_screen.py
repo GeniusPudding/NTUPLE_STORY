@@ -61,6 +61,11 @@ class PrologueScreen(Screen):
 					self.manager.get_screen('story').seal_on = False
 					self.manager.current = 'story' #'seal'# 'story' 
 					self.manager.get_screen('story').seal_on = True
+
+			elif press_key_id == 111:#o
+				if self.start_autoplay and not self.finish_auto:
+					if self.display_pausing == 1:
+						auto_accelerate(self,prompt = True)
 					
 			elif press_key_id == 112:#p
 				if self.start_autoplay and not self.finish_auto:

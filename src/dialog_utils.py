@@ -271,7 +271,6 @@ def cancel_events(screen,*args):
 def pause(screen,*args):
 	screen.display_pausing = 2
 
-
 #Manual-dialog tools part:
 def semi_auto_play_dialog(screen,dialog):
 	print('[*] Start manual play dialog')	

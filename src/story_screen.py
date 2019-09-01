@@ -713,7 +713,7 @@ class StoryScreen(Screen):
 						auto_accelerate(self,prompt = True)
 				elif self.current_mode in [1,2,3]:#testing
 					auto_accelerate(self)
-					
+
 			elif press_key_id == 112:#p
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
 					if self.display_pausing == 1: #and '\'r\'' not in self.prompt_label.text:
@@ -1330,6 +1330,7 @@ class StoryScreen(Screen):
 		if uncontinuous:
 			self.dialog_events = []	
 		self.text_cleared = True	
+
 	def to_epo_screen(self,*args):
 		if self.current_mode == 1:
 			self.manager.get_screen('epo').load_personal_ePo(self.current_player_id,self.current_chapter)
@@ -1342,8 +1343,7 @@ class StoryScreen(Screen):
 			self.manager.current = 'subgames_manager'
 			if not self.manager.get_screen('subgames_manager').initialized:
 				self.manager.get_screen('subgames_manager').init_all_subgames()
-			self.manager.get_screen('subgames_manager').start_subgame_id(subgames_id)
-			
+			self.manager.get_screen('subgames_manager').start_subgame_id(subgames_id)		
 
 	def auto_golden_player(self,instance,golden_id):#直接完成遊戲的通關密碼
 		print('[*] get golden_id:',golden_id)
@@ -1354,7 +1354,6 @@ class StoryScreen(Screen):
 		print('[*] get cheat_chapter_id:',cheat_chapter_id)
 		if cheat_chapter_id >= len(self.cheat_chapter_password):
 			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='於是，我不惜一切代價也要墮入回憶...\n',post_info='喚醒早已深沉的一切')
-
 
 	def load_game(self):
 		GM.load_game(self)

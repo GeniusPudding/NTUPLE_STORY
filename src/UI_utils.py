@@ -42,7 +42,6 @@ class BG_widget(Widget):
 		print(touch)
 		print(touch.pos,touch.spos)
 
-
 class CircleImage(Widget):#Image
 	def __init__(self,source, **kargs):
 		super(CircleImage, self).__init__( **kargs)
