@@ -23,7 +23,7 @@ class PrologueScreen(Screen):
 		super(PrologueScreen, self).__init__(**kwargs)
 		self.size = (self.w,self.h) = (global_w,global_h) 
 		self.prompt_label = Label()
-		
+
 		f = open('res/dialogs/第零章.txt','r',encoding='utf-16')#,encoding='utf-8')
 		r = f.read()
 
@@ -61,40 +61,44 @@ class PrologueScreen(Screen):
 					self.manager.get_screen('story').seal_on = False
 					self.manager.current = 'story' #'seal'# 'story' 
 					self.manager.get_screen('story').seal_on = True
+
+			elif press_key_id == 111:#o
+				if self.start_autoplay and not self.finish_auto:
+					if self.display_pausing == 1:
+						auto_accelerate(self,prompt = True)
 					
 			elif press_key_id == 112:#p
 				if self.start_autoplay and not self.finish_auto:
 					if self.display_pausing == 1:
-						print('Pause the auto dialog')
-						#self.clear_text_on_screen()
-						cancel_events(self)
-						print('pausing self.displaying_character_labels:',self.displaying_character_labels)
-						s = ''
-						for l in self.displaying_character_labels[:self.current_char_id+1]:
-							s += l.text
-						print('pausing s:',s)
-						print('pausing self.auto_dialog:',self.auto_dialog)
+						auto_pause(self,pre_info='猶豫了嗎...')
+						# print('Pause the auto dialog')
+						# #self.clear_text_on_screen()
+						# cancel_events(self)
+						# print('pausing self.displaying_character_labels:',self.displaying_character_labels)
+						# s = ''
+						# for l in self.displaying_character_labels[:self.current_char_id+1]:
+						# 	s += l.text
+						# print('pausing s:',s)
+						# print('pausing self.auto_dialog:',self.auto_dialog)
 
-						auto_prompt(self,'r',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='猶豫了嗎...',post_info='再次面對人生')						
-						#self.display_pausing = 2
-						Clock.schedule_once(partial(pause,self),1.2) 
-						#TODO: 重新計算剩餘字幕
+						# auto_prompt(self,'r',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='猶豫了嗎...',post_info='再次面對人生')						
+						# Clock.schedule_once(partial(pause,self),1.2) 
 
 					#elif self.display_pausing == 2:
 			elif press_key_id == 114:#r
 				if self.start_autoplay and not self.finish_auto:
 					if self.display_pausing == 2:
-						self.remove_widget(self.prompt_label)
-						s = ''
-						for l in self.displaying_character_labels[self.current_char_id+1:]:
-							s += l.text
-						#先跑完該句剩下的
-						s_time,c_time,n_time = read_velocity_config()
-						res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
-						#再重新開始播放動畫
-						self.auto_dialog = self.auto_dialog[self.auto_line_id+1:]
-						Clock.schedule_once(partial(auto_play_dialog,self,self.auto_dialog),res_time)#self.display_pausing = 1
-					
+						auto_continue(self)
+						# self.remove_widget(self.prompt_label)
+						# s = ''
+						# for l in self.displaying_character_labels[self.current_char_id+1:]:
+						# 	s += l.text
+						# #先跑完該句剩下的
+						# s_time,c_time,n_time = read_velocity_config()
+						# res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
+						# #再重新開始播放動畫
+						# self.auto_dialog = self.auto_dialog[self.auto_line_id+1:]
+						# Clock.schedule_once(partial(auto_play_dialog,self,self.auto_dialog),res_time)#self.display_pausing = 1	
 
 			#for testing
 			# elif press_key_id == 115:#s

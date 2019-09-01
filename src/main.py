@@ -34,12 +34,9 @@ class NTUPLE_Story(App):
         return sm
 
 if __name__ == '__main__':
-    #sys.stdout = open('stdout.txt', 'a+')
-    # sys.stderr = open('debug/stderr.txt', 'a+')
-    # sys.stderr.write('#####'+str(datetime.datetime.now())+'#####\n')
     print('#'*10, datetime.datetime.now(), '#'*10, '\n')
     
-    # disable the left click red dot
+    # disable the right click red dot
     Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
     Config.set('graphics', 'fullscreen', '0')
 

@@ -8,6 +8,7 @@ from subgames import *
 from dialog_utils import *
 from UI_utils import *
 
+player_name = {0:'李詠晴',1:'楊承恩',2:'孟亦廷',3:'張怡彤'}
 turns = {1:2,2:3,3:0,0:1}
 class GameManagerScreen(Screen):#main control class of the whole game
 	#TODO: 用計時器跟體力控制做出不同難度模式，預設為easy，不限時
@@ -58,9 +59,10 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			#testing
 			self.players[self.current_player_id].unread_achievement\
 				.append(self.current_chapter[self.current_player_id])
-		
+
 
 			self.current_chapter[self.current_player_id] += 1
+
 	def exclude_from_turns(self, player_id):
 		global turns
 		new_link = {}
@@ -137,7 +139,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 			return
 
 		print('[*]Loading game records...')	 
-		#global GM
 		for p in range(4):
 			player = f'p{p}.pickle'
 			p_ = open(os.path.join(pickle_path,player), 'rb')
@@ -152,6 +153,13 @@ class GameManagerScreen(Screen):#main control class of the whole game
 				print(f'Load {p}_{c}\'s c_dict:{c_dict}')
 				self.Chapters[p][c].chapter_maps = c_dict['chapter_maps']
 				self.Chapters[p][c].started = c_dict['started']
+				self.Chapters[p][c].picked_item_info = c_dict['picked_ids'] 
+				for (m_id,i_id) in self.Chapters[p][c].picked_item_info:#TODO:改善效率
+					for mapobject in self.Chapters[p][c].chapter_objects_of_maps[m_id]:
+						if mapobject.object_id == i_id:
+							self.Chapters[p][c].chapter_objects_of_maps[m_id].remove(mapobject)
+				print('load self.Chapters[p][c].chapter_objects_of_maps:',self.Chapters[p][c].chapter_objects_of_maps)
+				#TODO:load picked item ids and remove from chapter map objects
 		p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'rb')	
 		dict_p_c = pickle.load(p_c) 	
 		print(f'Load dict_p_c:{dict_p_c}')
@@ -161,38 +169,33 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		#main_screen.loading = True
 		main_screen.current_player_id, main_screen.current_chapter = self.current_player_id, self.current_chapter[self.current_player_id]	
 		main_screen.auto_reload_chapter_info(self,[main_screen.current_player_id, main_screen.current_chapter])
+		main_screen.current_player = player_name[main_screen.current_player_id]
 
 		main = open(os.path.join(pickle_path,'main_screen.pickle'), 'rb')	
 		dict_main = pickle.load(main)	
 		print(f'Load dict_main:{dict_main}')
 		load_mode = dict_main['current_mode'] 
 		if load_mode == 0:
-			print('loading main_screen.seal_on:',main_screen.seal_on)
-			print('loading main_screen.finish_auto:',main_screen.finish_auto)
-			print('loading self.manager.current:',self.manager.current)
 			main_screen.current_mode = -1
-			main_screen.current_mode = load_mode
-		elif load_mode == 1:	
-			print('loading main_screen.seal_on:',main_screen.seal_on)
-			print('loading main_screen.finish_auto:',main_screen.finish_auto)
-			print('loading self.manager.current:',self.manager.current)
-			print('loading main_screen.dialog_view:',main_screen.dialog_view)
-			main_screen.current_mode = load_mode
-			print('loading main_screen.seal_on:',main_screen.seal_on)
-			print('loading main_screen.finish_auto:',main_screen.finish_auto)
-			print('loading self.manager.current:',self.manager.current)
-			print('loading main_screen.dialog_view:',main_screen.dialog_view)
-		else:
-			main_screen.current_mode = load_mode
+			#main_screen.current_mode = load_mode
+		# elif load_mode == 1:	
+		# 	main_screen.current_mode = load_mode
+		# else:
+		# 	main_screen.current_mode = load_mode
+		#main_screen.current_map_id = dict_main['current_map_id']
+		main_screen.current_mode = load_mode
 		global turns
 		turns = dict_main['turns']
 		print('load turns:',turns)
-		main_screen.hp_per_round = 20#dict_main['hp_per_round']
-		main_screen.current_map_id = -1
-		main_screen.current_map_id = self.Chapters[self.current_player_id][self.current_chapter[self.current_player_id]].chapter_default_map#dict_main['current_map_id']
-		main_screen.reload_item_list = True
+		#main_screen.hp_per_round = 20#dict_main['hp_per_round']
+		#main_screen.current_map_id = -1
+		main_screen.current_map_id = dict_main['current_map_id']
+		#main_screen.reload_item_list = True
+		if load_mode == 3:#為何載入時先被關對話框??
+			Clock.schedule_once(main_screen.try_open_dialog_view,1) 
 		main_screen.loading = False
-	def save_game(self,main_screen):
+
+	def save_game(self,main_screen):#map_objects_allocator 
 		pickle_path = 'res/pickles/'
 		for p in range(4):
 			player = f'p{p}.pickle'
@@ -205,9 +208,9 @@ class GameManagerScreen(Screen):#main control class of the whole game
 				chapter = f'{p}_{c}.pickle' 
 				c_ = open(os.path.join(pickle_path,chapter), 'wb')
 				c_dict = {'chapter_maps':self.Chapters[p][c].chapter_maps,\
-				'started':self.Chapters[p][c].started}
-				pickle.dump(c_dict,c_) 
+				'started':self.Chapters[p][c].started,'picked_ids':self.Chapters[p][c].picked_item_info}		
 				print('auto save c_dict:',c_dict)
+				pickle.dump(c_dict,c_) 
 		p_c = open(os.path.join(pickle_path,'current_c_p.pickle'), 'wb')	
 		dict_p_c = {}
 		dict_p_c['current_player_id'] = self.current_player_id 
@@ -222,6 +225,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		# dict_main['current_map_id'] = main_screen.current_map_id
 		# dict_main['hp_per_round'] = main_screen.hp_per_round	
 		dict_main['turns'] = turns
+		dict_main['current_map_id'] = main_screen.current_map_id
 		print('auto save dict_main:',dict_main)
 		pickle.dump(dict_main,main) 
 
@@ -231,7 +235,7 @@ class Player(object):
 		self.name = ''
 		self.personality = ''
 		self.item_list= []#only int key
-		self.unread_achievement = []#TODO
+		self.unread_achievement = []
 	def get_item(self, object_id):#No need to consider number of item
 		if object_id not in self.item_list:
 			print('get_item:',object_id)
@@ -247,7 +251,6 @@ class Player(object):
 		else:
 			print('[*] Exception! Cannot spend an item that not in item list!')
 
-
 class Chapter(object):
 	def __init__(self, player_id, chapter_id,main_screen):
 		self.object_path = f'res/chapters/{player_id}_{chapter_id}/objects/' #including a json and object images
@@ -256,19 +259,25 @@ class Chapter(object):
 		self.dialog_path = f'res/chapters/{player_id}_{chapter_id}/dialogs/' #including two txt files
 		self.scene_path = f'res/chapters/{player_id}_{chapter_id}/scenes/' #including scene images for the plot mode
 		self.npc_path = f'res/chapters/{player_id}_{chapter_id}/NPCs/' #including json of NPC info
-		#self.locked_map_path = 'res/images/locked/'
 		self.player_chapter = (player_id,chapter_id)
 		self.main_screen = main_screen
 		self.chapter_maps = self.load_chapter_maps()
-		self.chapter_default_map = self.load_default_map(player_id, chapter_id)
+		self.chapter_default_map = self.load_chapter_default_map(player_id, chapter_id)
 		self.chapter_NPCs_of_maps = self.load_chapter_NPCs_of_maps()#list of ImageButton
 		self.chapter_objects_of_maps = self.load_chapter_objects_of_maps() #objects_allocation[current_map] = list of MapObjects 
-		#self.picked_item = []
+		self.picked_item_info = []#TODO: save/load the picked item ids
 		self.chapter_plot_scenes = self.load_plot_scenes()
 		self.chapter_scenes_table = self.load_scenes_table()
 		self.chapter_title = self.load_chapter_title(player_id, chapter_id)
 		self.chapter_pre_plot, self.chapter_plot = self.load_chapter_dialogs()#self.chapter_predialog,self.chapter_postdialog
 		self.started = False
+
+	def remove_objects_on_map(self,map_id,picked_item):
+		print('self.chapter_objects_of_maps[map_id]:',self.chapter_objects_of_maps[map_id])
+		print('picked_item:',picked_item)
+		self.chapter_objects_of_maps[map_id].remove(picked_item)
+		self.picked_item_info.append((map_id,picked_item.object_id))
+		self.main_screen.remove_widget(picked_item)
 
 	def unlock_new_map(self,map_name):#TODO: Optimize,不需要重新載入所有地圖物件
 		for locked_img in os.listdir('res/images/handpainting'):#self.locked_map_path
@@ -283,7 +292,7 @@ class Chapter(object):
 		self.main_screen.NPCs_allocation = self.chapter_NPCs_of_maps\
 		 = self.load_chapter_NPCs_of_maps()#load new objects info of unlocked map
 				
-	def load_default_map(self,player_id, chapter_id):
+	def load_chapter_default_map(self,player_id, chapter_id):
 
 		default_maps = ['雙人宿舍夜','博雅','雙人宿舍日','雙人宿舍日','農場夜',\
 		'B男宿舍夜','排球場','女主家裡房間一','女主家C男房間晚一','女主家C男房間晚一','女主家客廳',\
@@ -292,6 +301,7 @@ class Chapter(object):
 			if default_maps[player_id*4+chapter_id] in m:
 				return i
 		return 0
+
 	def load_chapter_dialogs(self):
 
 		f1 = open(os.path.join(self.dialog_path,'1.txt'),'r',encoding='utf-16')		
@@ -318,7 +328,7 @@ class Chapter(object):
 	def load_chapter_title(self,player_id, chapter_id):
 
 		text = ['紊亂的書房','曾經的約定','蜷曲的背影','生日的禮物','蒼白的生日','錯位的戀情','青鳥的囚籠','友誼的裂痕','超載的負荷','哭泣的日記','哭泣的玩偶','遺失的過往','手機的密碼','補全的卡片','渴望的支持','友誼的結尾'][4*chapter_id+player_id]
-		return Label(text=text,color=(191/255, 201/255, 202/255, 1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/蒙纳繁长宋.otf')#  'res/HuaKangTiFan-CuTi-1.otf')
+		return Label(text=text,color=(191/255, 201/255, 202/255, 1),pos_hint={'x':.25,'y':.4},size_hint=(.5,.3),halign='center',valign='center',font_size=184,font_name='res/mona.otf')#  'res/HuaKangTiFan-CuTi-1.otf')
 	def load_chapter_objects_of_maps(self):
 
 		maps = self.chapter_maps
@@ -329,7 +339,6 @@ class Chapter(object):
 
 		with open(self.object_path+'chapter_objects.json','r',encoding='utf-16') as f:
 			objects_table = json.load(f)
-			#print('chapter\'s objects_table:',objects_table)
 			for str_id in  objects_table.keys():
 				obj = objects_table[str_id]
 				if obj['on_map_name'] is not None:
@@ -464,7 +473,7 @@ class MapObject(Widget):#自定義按紐
 
 	def on_touch_down(self,touch):
 		
-		if self.collide_point(*touch.pos):
+		if self.collide_point(*touch.pos) and self.screen.current_mode == 1:
 			print(f"Map object on_touch_down touch.pos:{touch.pos}")
 			self.probe_object_on_map()
 
@@ -498,8 +507,7 @@ class MapObject(Widget):#自定義按紐
 					screen.on_press_switching(self) 	
 				if 'nothing' in self.object_types:
 					#定義: 無特別功用
-					screen.on_press_nothing(self) 	
-				
+					screen.on_press_nothing(self) 				
 				
 # >>> def keep(path):
 # ...     dir = os.listdir(path)

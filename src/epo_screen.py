@@ -131,8 +131,6 @@ class NTUPhone(Image):#deprecated
 		elif self.messege == 'res/images/phone/direct_messege.png':
 			self.source = self.messege = 'res/images/phone/phone_messege.png'
 
-
-
 	def on_touch_down(self,touch):
 		if self.collide_point(*touch.pos):
 			print('touch phone:',touch.pos,touch.spos)
