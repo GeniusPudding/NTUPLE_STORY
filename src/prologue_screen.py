@@ -71,43 +71,20 @@ class PrologueScreen(Screen):
 				if self.start_autoplay and not self.finish_auto:
 					if self.display_pausing == 1:
 						auto_pause(self,pre_info='猶豫了嗎...')
-						# print('Pause the auto dialog')
-						# #self.clear_text_on_screen()
-						# cancel_events(self)
-						# print('pausing self.displaying_character_labels:',self.displaying_character_labels)
-						# s = ''
-						# for l in self.displaying_character_labels[:self.current_char_id+1]:
-						# 	s += l.text
-						# print('pausing s:',s)
-						# print('pausing self.auto_dialog:',self.auto_dialog)
 
-						# auto_prompt(self,'r',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='猶豫了嗎...',post_info='再次面對人生')						
-						# Clock.schedule_once(partial(pause,self),1.2) 
-
-					#elif self.display_pausing == 2:
 			elif press_key_id == 114:#r
 				if self.start_autoplay and not self.finish_auto:
 					if self.display_pausing == 2:
 						auto_continue(self)
-						# self.remove_widget(self.prompt_label)
-						# s = ''
-						# for l in self.displaying_character_labels[self.current_char_id+1:]:
-						# 	s += l.text
-						# #先跑完該句剩下的
-						# s_time,c_time,n_time = read_velocity_config()
-						# res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
-						# #再重新開始播放動畫
-						# self.auto_dialog = self.auto_dialog[self.auto_line_id+1:]
-						# Clock.schedule_once(partial(auto_play_dialog,self,self.auto_dialog),res_time)#self.display_pausing = 1	
 
 			#for testing
-			# elif press_key_id == 115:#s
-			# 	if self.start_autoplay: 
-			# 		print('Skip the auto dialog')
-			# 		for event in self.dialog_events:
-			# 			event.cancel()
-			# 		clear_displayed_text(self,self.displaying_character_labels)
-			# 		self.finish_auto = True
+			elif press_key_id == 115:#s
+				if self.start_autoplay: 
+					print('Skip the auto dialog')
+					for event in self.dialog_events:
+						event.cancel()
+					clear_displayed_text(self,self.displaying_character_labels)
+					self.finish_auto = True
 			return True
 
 	def on_touch_down(self,touch):	

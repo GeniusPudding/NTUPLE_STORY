@@ -88,11 +88,6 @@ class CircleImage(Widget):#Image
 		#print('on_complete')
 		if isinstance(self.parent,Screen):
 			self.parent.itemframe.playing_anim_num -= 1
-<<<<<<< HEAD
-=======
-
-
->>>>>>> refs/remotes/origin/master
 
 class ImageButton(ButtonBehavior, Image): #Behavior
 	def __init__(self, **kargs):#callback,
