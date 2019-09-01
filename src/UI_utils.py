@@ -8,7 +8,7 @@ from game_manager import *
 def auto_prompt(Screen,press_key,pos_hint,instance, prompt,size_hint=(.6,.5),pre_info='',post_info='繼續品味人生...'):#a Screen-bind function
 	if prompt:
 		print(f'[*] Auto prompt to press {press_key}!')
-		Screen.remove_widget(Screen.prompt_label)
+		Screen.remove_widget(Screen.prompt_label)#for exceptions
 		Screen.prompt_label = Label(text=pre_info+f'\n請按\'{press_key}\'鍵\n'+post_info,color=(191/255, 201/255, 202/255, 1),pos_hint=pos_hint,size_hint=size_hint,halign='center',valign='center',font_size=78,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.prompt_label)			
 		#MUST set remove_widget in Screen's key_action function

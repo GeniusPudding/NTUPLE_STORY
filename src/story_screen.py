@@ -750,34 +750,34 @@ class StoryScreen(Screen):#TODO: 如何扣掉Windows電腦中screen size的上�
 						
 						#self.display_pausing = 1
 			#for testing
-				if self.current_mode == 1:	
-					self.current_mode = 3
+			# 	if self.current_mode == 1:	
+			# 		self.current_mode = 3
 
-			elif press_key_id == 101:#e: 
-				if self.current_mode == 1:
-					GM.ready_to_ending()
+			# elif press_key_id == 101:#e: 
+			# 	if self.current_mode == 1:
+			# 		GM.ready_to_ending()
 
-			elif press_key_id == 100:#d: 
-				self.dialog_view ^= 1
+			# elif press_key_id == 100:#d: 
+			# 	self.dialog_view ^= 1
 
-			elif press_key_id == 115:#s
-				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
-					print('Skip the auto dialog')
-					self.clear_text_on_screen()
-					self.finish_auto = True
+			# elif press_key_id == 115:#s
+			# 	if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
+			# 		print('Skip the auto dialog')
+			# 		self.clear_text_on_screen()
+			# 		self.finish_auto = True
 
-			elif  press_key_id == 114:#r:
-				if self.current_mode == 1:	
-					if self.item_view == 1: 
-						self.reload_item_list = True
+			# elif  press_key_id == 114:#r:
+			# 	if self.current_mode == 1:	
+			# 		if self.item_view == 1: 
+			# 			self.reload_item_list = True
 
-			elif  press_key_id == 109:#m:
-				if self.current_mode == 1:
-					self.complete_chapter = True
-			elif  press_key_id == 110:#n:
-				if self.current_mode == 1:
-					if self.item_view == 0: 
-						self.next_round()
+			# elif  press_key_id == 109:#m:
+			# 	if self.current_mode == 1:
+			# 		self.complete_chapter = True
+			# elif  press_key_id == 110:#n:
+			# 	if self.current_mode == 1:
+			# 		if self.item_view == 0: 
+			# 			self.next_round()
 
 			# elif press_key_id in [274,273]:
 			# 	# if self.cur_unsafed:

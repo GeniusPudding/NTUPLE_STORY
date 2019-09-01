@@ -97,13 +97,13 @@ class PrologueScreen(Screen):
 					
 
 			#for testing
-			elif press_key_id == 115:#s
-				if self.start_autoplay: 
-					print('Skip the auto dialog')
-					for event in self.dialog_events:
-						event.cancel()
-					clear_displayed_text(self,self.displaying_character_labels)
-					self.finish_auto = True
+			# elif press_key_id == 115:#s
+			# 	if self.start_autoplay: 
+			# 		print('Skip the auto dialog')
+			# 		for event in self.dialog_events:
+			# 			event.cancel()
+			# 		clear_displayed_text(self,self.displaying_character_labels)
+			# 		self.finish_auto = True
 			return True
 
 	def on_touch_down(self,touch):	
