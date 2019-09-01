@@ -62,12 +62,10 @@ global_h = 0
 dragging = 0
 item_cur_pos = []
 
-def get_screen_size():#TODO: 
+def get_screen_size(): 
 	if OS == "Darwin": #Macbook
 		w, h = pygame.display.get_surface().get_size()
-	elif OS == "Windows":#at home
-		
-		#TODO: study GetWindowRect
+	elif OS == "Windows":#Win10
 		hwin = win32gui.GetDesktopWindow()
 		#print('hwin:',hwin)
 		dt_l, dt_t, dt_r, dt_b = win32gui.GetWindowRect(hwin)

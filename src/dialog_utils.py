@@ -3,9 +3,13 @@
 # "screen" must be an intance og kivy screen      #
 ###################################################
 from game_manager import *
+from UI_utils import auto_prompt
 special_char_time = .27
 common_char_time = .115
 next_line_time = .45
+auto_s_time = .4
+auto_c_time = .15
+auto_n_time = 1.5
 special_char_list = ['？','，','！','。','、']
 #TODO: 自動撥放一鍵加速功能
 #Auto-dialog tools part:
@@ -17,11 +21,13 @@ def read_velocity_config():
 	c_time = float(r[1])
 	n_time = float(r[2])
 	return s_time,c_time,n_time
+
+auto_s_time,auto_c_time,auto_n_time = read_velocity_config()	
 def auto_play_dialog(screen,auto_dialog, *args):#Main entry function, a screen-bind function
 	print('[*] Start auto play dialog')
 	#if screen.display_pausing == 0:
 	screen.display_pausing = 1
-	s_time,c_time,n_time = read_velocity_config()
+	s_time,c_time,n_time = auto_s_time,auto_c_time,auto_n_time#read_velocity_config()
 	print('s_time,c_time,n_time:',s_time,c_time,n_time)
 
 	start_line_clock_time = auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time)#, auto_dialog 
@@ -125,8 +131,7 @@ def custom_multisplit(string,split_list):
 	return result_string
 
 
-def line_display_scheduler(screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,auto_line_id = 0,*args):#or chars_of_row = 15,rows = 3
-	#TODO:auto close_dialogframe function after the chars displayed
+def line_display_scheduler(screen,line,last_autoline,ts,tn,tc,name='',close_dialogframe=False,uncontinuous=False,auto_line_id = 0,*args):
 	screen.current_line = line 
 	screen.text_cleared = False
 	screen.current_speaker_name = name# #trigger auto_display_speaker
@@ -166,7 +171,7 @@ def line_display_scheduler(screen,line,last_autoline,ts,tn,tc,name='',close_dial
 	print('start generate line:',line)
 	screen.displaying_character_labels = line_to_labels(line,chars_of_row,rows) #bijection to line characters 
 
-	if last_autoline:# line_id == len(auto_dialog) - 1:
+	if last_autoline:
 		screen.finish_auto = True
 #testing	
 	return display_character_labels(screen,line,ts,tn,tc)
@@ -196,7 +201,6 @@ def clock_display_characters(screen,displaying_character_labels, char, char_id,*
 		try:
 			screen.add_widget(displaying_character_labels[char_id])
 			screen.current_char_id = char_id
-			#print('screen.current_char_id:',screen.current_char_id)
 		except:
 			print(f'[*] Exception: {char_id}-th displayed')
 	else:
@@ -218,19 +222,36 @@ def line_to_labels(line,chars_of_row,rows):
 	
 	font_size = int(round(96/rows))
 
-	#print('cx,cy:',cx,cy)
-	#print('chars_of_row,rows:',chars_of_row,rows)
 	for char in line:
 		if char != '\n':
 			col = page_char_count % chars_of_row#page_char_count % 10
 			row = rows - 1 - page_char_count // chars_of_row#1 - page_char_count // 10
-			#print(f'pos_hint:{.03+(cx+dx)*col}, {(cy+dy)*row}, col:{col}, row:{row}')
 			labels.append(Label(text=char,pos_hint={'x':.03+(cx+dx)*col,'y':(cy+dy)*row},color=(1,1,1,1),font_size=font_size,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
 			page_char_count += 1
 		else:#won't be displayed
 			labels.append(Label(text=char,pos_hint={'x':0,'y':0},color=(1,1,1,1),font_size=36,size_hint=char_size_hint,font_name= 'res/HuaKangTiFan-CuTi-1.otf'))
 			page_char_count = 0
 	return labels
+
+def auto_pause(screen, pre_info='讓我冷靜兩秒鐘...',post_info='再次面對人生',*args):
+	print('Pause the auto dialog')
+	cancel_events(screen)
+	#s = screen.current_line[:screen.current_char_id]#testing
+	auto_prompt(screen,'r',{'x':.2,'y':.3},instance=screen, prompt=True,pre_info=pre_info,post_info=post_info)
+	Clock.schedule_once(partial(pause,screen),1.2) 				
+
+#TODO: debug
+def auto_continue(screen):
+	print('Restart the auto dialog')
+	screen.remove_widget(screen.prompt_label)
+	s = screen.current_line[screen.current_char_id+1:]
+	#先跑完該句剩下的
+	s_time,c_time,n_time = auto_s_time,auto_c_time,auto_n_time#read_velocity_config()
+	res_time = display_character_labels(screen,s,s_time,n_time,c_time,restart_id=screen.current_char_id+1)
+	#再重新開始播放動畫
+	screen.auto_dialog = screen.auto_dialog[screen.auto_line_id+1:]
+	Clock.schedule_once(partial(auto_play_dialog,screen,screen.auto_dialog),res_time)#-> self.display_pausing = 1
+						
 
 def cancel_events(screen,*args):
 	for event in screen.dialog_events:
@@ -241,14 +262,12 @@ def pause(screen,*args):
 
 
 #Manual-dialog tools part:
-def semi_auto_play_dialog(screen,dialog):#TODO: finish the plot mode functions
+def semi_auto_play_dialog(screen,dialog):
 	print('[*] Start manual play dialog')	
 	first_line_node = semi_auto_dialog_preprocess(dialog,'flexable')
 
-
 	print('first_line_node.text_line:',first_line_node.text_line)
 	line_display_scheduler(screen,first_line_node.text_line,False,special_char_time,next_line_time,common_char_time,name=first_line_node.speaker)
-	#screen_auto_display_node(first_line_node)
 	return  first_line_node
 
 class DialogListnode(object):
@@ -258,8 +277,7 @@ class DialogListnode(object):
 		self.type = node_type#"inner","head","tail"
 		self.last = None
 		self.next = None
-		#self.switch_map = switch_map_path#需要支援返回對話時切換回上一張場景嗎
-		#TODO: 在對話撥放的同時切換map
+
 	def set_last(self,listnode):
 		self.last = listnode
 	def set_next(self,listnode):
@@ -286,10 +304,4 @@ def semi_auto_dialog_preprocess(dialog,format):
 	node = DialogListnode(new_auto_dialog[-1][0],new_auto_dialog[-1][1],'tail')
 	last_node.set_next(node)
 	node.set_last(last_node)
-	# #testing
-	# node = head_node
-
-	# while node.get_next() is not None:
-	# 	print(node.text_line)
-	# 	node = node.get_next()
 	return head_node

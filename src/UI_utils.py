@@ -4,7 +4,6 @@
 ###################################################
 from game_manager import *
 
-#TODO: 按鍵提示可以更加有擴充性以及彈性
 def auto_prompt(Screen,press_key,pos_hint,instance, prompt,size_hint=(.6,.5),pre_info='',post_info='繼續品味人生...'):#a Screen-bind function
 	if prompt:
 		print(f'[*] Auto prompt to press {press_key}!')
@@ -204,8 +203,8 @@ def build_CodedLock(screen,item):
 	screen.code_id = 0
 	code_pos_hint = [{'x':.35+i*.075,'y':.3} for i in range(4)] 	
 	screen.code_labels = [Label(color=(.7,.7,.7,.6),text = str(screen.cur_code[i]), size_hint = (.075,.1),pos_hint=code_pos_hint[i],font_size=144 ) for i in range(4)]   
-	screen.code_instructions = Label(color=(1,1,1,1),text = '用方向鍵控制彼此心靈的數字輪盤', size_hint = (.3,.1),pos_hint={'x':.35,'y':.2},font_size=50,font_name='res/HuaKangTiFan-CuTi-1.otf' )
-	screen.add_widget(screen.code_instructions)
+	# screen.code_instructions = Label(color=(1,1,1,1),text = '用方向鍵控制彼此心靈的數字輪盤', size_hint = (.3,.1),pos_hint={'x':.35,'y':.2},font_size=50,font_name='res/HuaKangTiFan-CuTi-1.otf' )
+	# screen.add_widget(screen.code_instructions)
 	for i in range(4):
 		screen.add_widget(screen.code_labels[i])
 	select_code_block_canvas(screen, 0)
@@ -234,7 +233,7 @@ def clear_CodedLock(screen):
 	try:
 		for i in range(4):
 			screen.remove_widget(screen.code_labels[i])
-		screen.remove_widget(screen.code_instructions)
+		#screen.remove_widget(screen.code_instructions)
 		screen.canvas.remove_group('block')
 	except:
 		print('No opened Coded Lock')	
@@ -285,9 +284,8 @@ def synthesis_canvas(screen,item,stage,*args):
 		#magic card
 		screen.canvas.add(Rectangle(source='res/images/testing/synthesis.png',pos=(2*space_x+bx+operator_x/2-.125*global_w, base_y-.375*global_h) ,size=(.25*global_w,.45*global_h),group='synthesis1'))
 
-	elif stage == 2:#TODO: 正確的延遲顯示以及消除
+	elif stage == 2:
 		screen.canvas.add(Ellipse(source=args[0],pos=(5*space_x+2*bx+2*operator_x+block_x+item_x,base_y+block_y+item_y),size=(item_len,item_len),group='synthesis2'))
-		print('stage == 2 added')
 	else:
 		print(f'synthesis stage {stage} not supported')
 
@@ -347,9 +345,7 @@ class DraggableItem(Image):#Deprecated
 		x = self.x_radius
 		y = self.y_radius
 		global item_cur_pos
-		#print("touch pos,x_radius,y_radius:",touch_pos,x,y)
 		for pos in  item_cur_pos[:self.draggable_item_id]+item_cur_pos[self.draggable_item_id+1:]:  #self.other_pos:
-			#print("other center:",pos[0]+x,pos[1]+y)
 			if (abs(touch_pos[0]-(pos[0]+x)) <= 2*x) and (abs(touch_pos[1]-(pos[1]+y)) <= 2*y):
 				#print("touch other's pos:",pos)
 				return True
