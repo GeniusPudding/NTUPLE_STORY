@@ -101,9 +101,6 @@ class ItemFrame(FloatLayout):
 		spent_time = line_display_scheduler(screen,text_line,False,.2,.5,.15)
 			
 	def switching_frame_focus(self,screen,press_key_id):#handle the cyclic animation
-		#self.switchable = False
-		
-
 		n = self.playing_anim_num = self.count #determined by the number of animations
 		screen.try_open_item_view()
 		#n = self.count
@@ -139,7 +136,6 @@ class ItemFrame(FloatLayout):
 
 			elif press_key_id==275:
 				print ("key action right")
-
 				#store last pos:	
 				final_pos = self.back_pos
 				init_pos = self.front_pos
@@ -160,12 +156,7 @@ class ItemFrame(FloatLayout):
 					self.focusing_frame_id = 0
 				else:
 					self.focusing_frame_id += 1				
-
-
 			print('self.cyclic:',self.cyclic,'self.playing_anim_num:',self.playing_anim_num)
-
-		#self.switchable = True
-
 
 	def curve_animation(self,screen,animatable_im,init_pos,final_pos):#TODO: 修改動畫逼近曲線
 		ix,iy = init_pos
@@ -1037,7 +1028,7 @@ class StoryScreen(Screen):
 				print('合成失敗!')
 				screen.clear_text_on_screen()
 				spent_time = line_display_scheduler(screen,'合成失敗...\n',False,special_char_time,next_line_time,common_char_time)
-				Clock.schedule_once(partial(screen.dragging_item.reset,screen,2),spent_time+1.5) 
+				Clock.schedule_once(partial(screen.dragging_item.reset,screen),spent_time+1.5) 
 				Clock.schedule_once(screen.set_judgable,spent_time+1.6) #testing		
 				self.canvas.remove_group('synthesis1')
 				self.hp_per_round -= 1
@@ -1053,7 +1044,7 @@ class StoryScreen(Screen):
 		elif not self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)) and self.dragging_item.free == 1 :
 
 			print('合成超出範圍，返回原位')		
-			self.dragging_item.reset(self,2)
+			self.dragging_item.reset(self)
 
 	def lock_handler(self, item):
 		lock_name = item['name']
@@ -1111,12 +1102,12 @@ class StoryScreen(Screen):
 				self.clear_text_on_screen()
 				self.try_open_dialog_view()
 				spent_time = line_display_scheduler(self,'開鎖失敗...\n',False,special_char_time,next_line_time,common_char_time)
-				Clock.schedule_once(partial(self.dragging_item.reset,self,2),spent_time+1) 	
+				Clock.schedule_once(partial(self.dragging_item.reset,self),spent_time+1) 	
 				Clock.schedule_once(self.set_judgable,spent_time+1.1)
 				self.hp_per_round -= 1
 		elif not self.mouse_in_range(judge_pos_hint, judge_size_hint) and self.dragging_item.free == 1:
 			print('開鎖超出範圍，返回原位')		
-			self.dragging_item.reset(self,2)
+			self.dragging_item.reset(self)
 
 	def mouse_in_range(self,pos_hint,size_hint):
 		xh = global_x/global_w

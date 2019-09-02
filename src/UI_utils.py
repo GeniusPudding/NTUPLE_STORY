@@ -151,13 +151,9 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 			screen = self.screen
 			screen.dragging = False
 			if screen.current_mode == 1:
-				self.reset(screen,1)
-			#elif screen.current_mode == 2 and not screen.in_judge_range: 
-			# 	#screen.hp_per_round -= 1#DEBUG
-				#print('不在判定範圍')
-				#screen.judgable = True
-				#self.reset(screen,2) #不在判定範圍時直接重置，判定範圍內時需要延遲
-	def reset(self,screen,mode,*args):
+				self.reset(screen)
+
+	def reset(self,screen,*args):
 		#print('reset dragging!')
 		self.stopped_pos = self.pos = self.origin_pos
 		screen.remove_widget(screen.dragging_item)	

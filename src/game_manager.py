@@ -152,9 +152,11 @@ class GameManagerScreen(Screen):#main control class of the whole game
 				c_dict = pickle.load(c_) 
 				print(f'Load {p}_{c}\'s c_dict:{c_dict}')
 				self.Chapters[p][c].chapter_maps = c_dict['chapter_maps']
+				self.Chapters[p][c].new_map_reallocation()
 				self.Chapters[p][c].started = c_dict['started']
 				self.Chapters[p][c].picked_item_info = c_dict['picked_ids'] 
 				for (m_id,i_id) in self.Chapters[p][c].picked_item_info:#TODO:改善效率
+					print('m_id,i_id:',m_id,i_id)
 					for mapobject in self.Chapters[p][c].chapter_objects_of_maps[m_id]:
 						if mapobject.object_id == i_id:
 							self.Chapters[p][c].chapter_objects_of_maps[m_id].remove(mapobject)
@@ -177,12 +179,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		load_mode = dict_main['current_mode'] 
 		if load_mode == 0:
 			main_screen.current_mode = -1
-			#main_screen.current_mode = load_mode
-		# elif load_mode == 1:	
-		# 	main_screen.current_mode = load_mode
-		# else:
-		# 	main_screen.current_mode = load_mode
-		#main_screen.current_map_id = dict_main['current_map_id']
 		main_screen.current_mode = load_mode
 		global turns
 		turns = dict_main['turns']
@@ -191,7 +187,7 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		#main_screen.current_map_id = -1
 		main_screen.current_map_id = dict_main['current_map_id']
 		#main_screen.reload_item_list = True
-		if load_mode == 3:#為何載入時先被關對話框??
+		if load_mode == 3:#mode3載入時會先被關對話框
 			Clock.schedule_once(main_screen.try_open_dialog_view,1) 
 		main_screen.loading = False
 
@@ -222,7 +218,6 @@ class GameManagerScreen(Screen):#main control class of the whole game
 		dict_main['current_mode'] = main_screen.current_mode
 		if main_screen.current_mode == 2:
 			dict_main['current_mode'] = 1
-		# dict_main['current_map_id'] = main_screen.current_map_id
 		# dict_main['hp_per_round'] = main_screen.hp_per_round	
 		dict_main['turns'] = turns
 		dict_main['current_map_id'] = main_screen.current_map_id
@@ -285,13 +280,17 @@ class Chapter(object):
 				shutil.copy(os.path.join('res/images/handpainting/',locked_img),self.unlocked_map_path)
 				self.chapter_maps.append(os.path.join(self.unlocked_map_path,locked_img))
 				break
-		
+		self.new_map_reallocation()
+
+	def new_map_reallocation(self):	
 		self.main_screen.chapter_maps = self.chapter_maps#reload main screen's info
 		self.main_screen.objects_allocation = self.chapter_objects_of_maps\
 		 = self.load_chapter_objects_of_maps()#load new objects info of unlocked map
 		self.main_screen.NPCs_allocation = self.chapter_NPCs_of_maps\
 		 = self.load_chapter_NPCs_of_maps()#load new objects info of unlocked map
-				
+	
+
+
 	def load_chapter_default_map(self,player_id, chapter_id):
 
 		default_maps = ['雙人宿舍夜','博雅','雙人宿舍日','雙人宿舍日','農場夜',\
