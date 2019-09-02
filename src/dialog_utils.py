@@ -234,6 +234,9 @@ def line_to_labels(line,chars_of_row,rows):
 	return labels
 
 def auto_accelerate(screen, prompt = False):
+	if len(screen.current_line.strip('\n').split('\n')) > 1:
+		print('對話太長，暫時不支援加速')#TODO
+		return 
 	cancel_events(screen)
 	Clock.schedule_once(partial(pause,screen),.3) 
 	while screen.current_char_id < len(screen.current_line) - 1:

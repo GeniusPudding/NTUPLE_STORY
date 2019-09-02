@@ -128,13 +128,14 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 
 	def on_touch_down(self, touch):
 		print(f"Free item on_touch_down touch.pos:{touch.pos}")
-		
 		if self.collide_point(*touch.pos):
 			self.free = 0
 			self.pos = (touch.pos[0]-self.size[0]/2,touch.pos[1]-self.size[1]/2)			
 			self.dragger = 1
-			if isinstance(self.screen,Screen): 
+			if isinstance(self.screen,Screen):
+				self.screen.dragging = True
 				self.screen.item_view = 0 #here make focusing_frame_id = -1
+
 	def on_touch_move(self, touch):
 
 		if (not self.if_over_boundary(touch.pos)) and self.dragger == 1:		
@@ -148,6 +149,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 		self.stopped_pos = touch.pos
 		if isinstance(self.screen,Screen) and self.magnet:
 			screen = self.screen
+			screen.dragging = False
 			if screen.current_mode == 1:
 				self.reset(screen,1)
 			#elif screen.current_mode == 2 and not screen.in_judge_range: 
@@ -158,7 +160,7 @@ class FreeDraggableItem(Widget):#for testing allocating mapobjects, and for drag
 	def reset(self,screen,mode,*args):
 		#print('reset dragging!')
 		self.stopped_pos = self.pos = self.origin_pos
-		screen.remove_widget(screen.dragging)	
+		screen.remove_widget(screen.dragging_item)	
 		#if mode == 1:
 		screen.try_open_item_view()# item_view = 1 #dragging re-added (display_itemframe->auto_focus->auto_focus_item),here make focusing_frame_id = cyclic[0]
 

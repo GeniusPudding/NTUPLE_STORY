@@ -188,8 +188,8 @@ class ItemFrame(FloatLayout):
 			
 			if touch is not None:
 				print("拖曳普通道具!")
-				screen.add_widget(screen.dragging)
-				screen.dragging.on_touch_down(touch)
+				screen.add_widget(screen.dragging_item)
+				screen.dragging_item.on_touch_down(touch)
 			else:
 				print("普通道具，無法單獨使用!")
 				screen.clear_text_on_screen()
@@ -207,8 +207,8 @@ class ItemFrame(FloatLayout):
 			elif screen.current_mode == 2:
 				if touch is not None:
 					print("拖曳道具!")
-					screen.add_widget(screen.dragging)
-					screen.dragging.on_touch_down(touch)
+					screen.add_widget(screen.dragging_item)
+					screen.dragging_item.on_touch_down(touch)
 
 	def on_touch_down(self, touch):
 		print('itemframe touch.profile:',touch.profile,'touch.id:',touch.id,'touch.pos:',touch.pos)
@@ -253,7 +253,8 @@ class StoryScreen(Screen):
 	dialog_events = ListProperty([])
 	reload_item_list = BooleanProperty(False)
 	focusing_object_id = NumericProperty(-1)
-	dragging = ObjectProperty(FreeDraggableItem(source=''))
+	dragging_item = ObjectProperty(FreeDraggableItem(source=''))
+	dragging = BooleanProperty(False) 
 	puzzling = BooleanProperty(False)
 	answer_code = ListProperty([])
 	current_scene = StringProperty('')
@@ -551,7 +552,7 @@ class StoryScreen(Screen):
 			#dynamic draggable generate:
 			source = GM.object_table[str(focusing_object_id)]['source']
 			d_len = min(.15*global_w,.2*global_h)#FreeDraggableItem#,
-			self.dragging = FreeDraggableItem(screen=self,source=source,magnet=True,size=(d_len,d_len),pos=(.75*global_w,.4*global_h),size_hint=(None,None))
+			self.dragging_item = FreeDraggableItem(screen=self,source=source,magnet=True,size=(d_len,d_len),pos=(.75*global_w,.4*global_h),size_hint=(None,None))
 
 		else:
 			for item in self.itemframe.item_images:
@@ -656,7 +657,7 @@ class StoryScreen(Screen):
 
 			elif press_key_id == 105:#i
 				if self.current_mode == 1 and self.NPC_view == 0:
-					if self.item_view == 0 and self.text_cleared and not self.probing:
+					if self.item_view == 0 and self.text_cleared and not self.probing and not self.dragging:
 						self.item_view = 1
 					elif self.item_view == 1 and self.itemframe.switchable:
 						self.item_view = 0
@@ -797,12 +798,9 @@ class StoryScreen(Screen):
 		GM.players[self.current_player_id].get_item(GM.name_to_id_table[item_name])
 		print('Get item from NPC:',GM.players[self.current_player_id].item_list)
 
-
 	def exploring_maps(self, press_key_id):
-		
 		print('[*] exploring maps')
 		num = len(self.chapter_maps)
-
 		if press_key_id==276:
 			print ("key action left")
 			if self.current_map_id <= 0:
@@ -815,11 +813,10 @@ class StoryScreen(Screen):
 				self.current_map_id = 0
 			else:
 				self.current_map_id += 1
-
 		if self.chapter_maps[self.current_map_id].split('/')[-1].split('.')[0] in self.banned_map_list:
 			print('繼續輪轉!')
+			self.exploring_maps(press_key_id)	
 
-			self.exploring_maps(press_key_id)		
 	def generate_item_tag(self):
 		print("Enter function: generate_item_tag")
 		self.item_tag = Image(pos_hint={'x':.94,'y':.70},size_hint=(.06,.15),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)#ImageButton(pos_hint={'x':.97,'y':.77},size_hint=(.03,.08),source='res/images/itemtag.png',callback=self.display_itemframe,allow_stretch=True,keep_ratio=False)
@@ -837,16 +834,14 @@ class StoryScreen(Screen):
 		self.try_open_dialog_view()	
 		self.item_box_canvas_controller('show')
 		self.item_tag = Image(pos_hint={'x':.74,'y':.70},size_hint=(.06,.15),source='res/images/itemtag.png',allow_stretch=True,keep_ratio=False)
-
 		self.add_widget(self.item_tag)	
+
 	def hide_itemframe(self,*args):
 		print('Enter function: hide_itemframe')
-		
 		self.dialog_view = 0
 		self.item_box_canvas_controller('hide')		
 		self.remove_widget(self.itemframe)
 		self.remove_widget(self.item_tag)
-		
 		self.generate_item_tag()
 		print('self.itemframe:',self.itemframe,'self.item_tag:',self.item_tag)
 
@@ -854,7 +849,6 @@ class StoryScreen(Screen):
 		if action == 'show':
 			print('item_box_canvas_controller show')
 			self.canvas.remove_group('cap')
-
 			self.canvas_under_item_images()
 
 			#dynamic canvas
@@ -876,8 +870,7 @@ class StoryScreen(Screen):
 			self.canvas_on_item_images()
 			#select button
 
-		elif action == 'hide':
-			
+		elif action == 'hide':	
 			self.canvas.remove_group('cap')
 			self.itemframe.focusing_frame_id = -1 #-> focusing_object_id = -1 (remove_widget of itemframe.item_images)
 			self.canvas.remove_group('itemicon') 
@@ -1044,7 +1037,7 @@ class StoryScreen(Screen):
 				print('合成失敗!')
 				screen.clear_text_on_screen()
 				spent_time = line_display_scheduler(screen,'合成失敗...\n',False,special_char_time,next_line_time,common_char_time)
-				Clock.schedule_once(partial(screen.dragging.reset,screen,2),spent_time+1.5) 
+				Clock.schedule_once(partial(screen.dragging_item.reset,screen,2),spent_time+1.5) 
 				Clock.schedule_once(screen.set_judgable,spent_time+1.6) #testing		
 				self.canvas.remove_group('synthesis1')
 				self.hp_per_round -= 1
@@ -1052,15 +1045,15 @@ class StoryScreen(Screen):
 
 		expected_input = synthesis_content['input']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
-		if E2_distance(self.dragging.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)):
+		if E2_distance(self.dragging_item.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)):
 			print('嘗試合成')
-			self.remove_widget(self.dragging)
-			Clock.schedule_once(partial(synthesis_canvas,self,item,1,self.dragging.source),.1)
+			self.remove_widget(self.dragging_item)
+			Clock.schedule_once(partial(synthesis_canvas,self,item,1,self.dragging_item.source),.1)
 			Clock.schedule_once(partial(try_synthesis,self,item,expected_input,dragging_object_id),1.1)
-		elif not self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)) and self.dragging.free == 1 :
+		elif not self.mouse_in_range({'x':.34,'y':.6} ,(.12,.2)) and self.dragging_item.free == 1 :
 
 			print('合成超出範圍，返回原位')		
-			self.dragging.reset(self,2)
+			self.dragging_item.reset(self,2)
 
 	def lock_handler(self, item):
 		lock_name = item['name']
@@ -1081,7 +1074,7 @@ class StoryScreen(Screen):
 	def key_item_judge(self, lock_content, judge_pos_hint, judge_size_hint, *args):
 		expected_input = lock_content['input_item']
 		dragging_object_id = self.itemframe.item_list[self.itemframe.cyclic[0]] 
-		if E2_distance(self.dragging.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range(judge_pos_hint, judge_size_hint):
+		if E2_distance(self.dragging_item.stopped_pos,(global_x,global_y))< 10 and self.mouse_in_range(judge_pos_hint, judge_size_hint):
 			if GM.object_table[str(dragging_object_id)]['name'] == expected_input and self.judgable:#passed the lock
 				self.judgable = False
 				self.lock_event.cancel()
@@ -1118,12 +1111,12 @@ class StoryScreen(Screen):
 				self.clear_text_on_screen()
 				self.try_open_dialog_view()
 				spent_time = line_display_scheduler(self,'開鎖失敗...\n',False,special_char_time,next_line_time,common_char_time)
-				Clock.schedule_once(partial(self.dragging.reset,self,2),spent_time+1) 	
+				Clock.schedule_once(partial(self.dragging_item.reset,self,2),spent_time+1) 	
 				Clock.schedule_once(self.set_judgable,spent_time+1.1)
 				self.hp_per_round -= 1
-		elif not self.mouse_in_range(judge_pos_hint, judge_size_hint) and self.dragging.free == 1:
+		elif not self.mouse_in_range(judge_pos_hint, judge_size_hint) and self.dragging_item.free == 1:
 			print('開鎖超出範圍，返回原位')		
-			self.dragging.reset(self,2)
+			self.dragging_item.reset(self,2)
 
 	def mouse_in_range(self,pos_hint,size_hint):
 		xh = global_x/global_w
@@ -1168,7 +1161,7 @@ class StoryScreen(Screen):
 		self.clear_text_on_screen()
 		spent_time = line_display_scheduler(self,text,False,special_char_time,next_line_time,common_char_time)
 		Clock.schedule_once(self.set_judgable,spent_time)
-		self.remove_widget(self.dragging)
+		self.remove_widget(self.dragging_item)
 
 		print('puzzle mode turn to:',turn_mode)
 		if turn_mode == 1:
