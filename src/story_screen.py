@@ -691,6 +691,7 @@ class StoryScreen(Screen):
 			elif press_key_id == 113:#q		
 				if self.current_mode == 2 or (self.current_mode == 1 and self.cheat_chapter_id == len(self.cheat_chapter_password)):	
 					self.remove_widget(self.prompt_label)
+					self.cheat_chapter_id = 0
 					self.current_mode = 3
 
 			elif press_key_id == 100:#d 
@@ -714,31 +715,12 @@ class StoryScreen(Screen):
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
 					if self.display_pausing == 1: #and '\'r\'' not in self.prompt_label.text:
 						auto_pause(self)
-						# cancel_events(self)
-						# # s = '' 
-						# # for l in self.displaying_character_labels[:self.current_char_id+1]:
-						# # 	s += l.text
-						# s = self.current_line[:self.current_char_id]#testing
-						# print('pausing s:',s)
-						# auto_prompt(self,'r',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='讓我冷靜兩秒鐘...',post_info='再次面對人生')
-						# Clock.schedule_once(partial(pause,self),1.2) 				
 
-					#elif self.display_pausing == 2:
 			elif press_key_id == 114:#r
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
 					if self.display_pausing == 2:  #and '\'r\'' in self.prompt_label.text:
 						auto_continue(self)
-						# print('Restart the auto dialog')
-						# self.remove_widget(self.prompt_label)
-						# s = self.current_line[self.current_char_id+1:]
-						# #先跑完該句剩下的
-						# s_time,c_time,n_time = read_velocity_config()
-						# res_time = display_character_labels(self,s,s_time,n_time,c_time,restart_id=self.current_char_id+1)
-						# #再重新開始播放動畫
-						# self.auto_dialog = self.auto_dialog[self.auto_line_id+1:]
-						# Clock.schedule_once(partial(auto_play_dialog,self,self.auto_dialog),res_time)#self.display_pausing = 1
-						
-						#self.display_pausing = 1
+
 			#for testing
 				if self.current_mode == 1:	
 					self.current_mode = 3
@@ -751,6 +733,7 @@ class StoryScreen(Screen):
 				self.dialog_view ^= 1
 
 			elif press_key_id == 115:#s
+				#print(f'self.current_mode:{self.current_mode},self.seal_on:{self.seal_on},self.finish_auto:{self.finish_auto}')
 				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
 					self.clear_text_on_screen()
 					self.finish_auto = True

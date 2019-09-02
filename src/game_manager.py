@@ -345,8 +345,6 @@ class Chapter(object):
 					if obj['pos_hint'] is not None and obj['size_hint'] is not None:
 						on_map = 0
 						for map_id,map_path in enumerate(maps):
-							#print('obj[\'on_map_name\']:',obj['on_map_name'])
-							print('map_path...:',map_path.split('/')[-1].split('.')[0])
 							if obj['on_map_name'] == map_path.split('/')[-1].split('.')[0]:
 								objname = obj['name']
 								print(f'map id:{map_id}, name:{objname}  allocate object id:{str_id}')
@@ -376,7 +374,6 @@ class Chapter(object):
 		count = 0
 		with open(os.path.join(self.npc_path,'npc_info.json'),'r') as f:
 			table = json.load(f)
-			print('npc_info:',table)
 			for map_id,map_path in enumerate(self.chapter_maps):
 				for i in table.keys():
 					if table[i]['map_name'] == map_path.split('/')[-1].split('.')[0]:#

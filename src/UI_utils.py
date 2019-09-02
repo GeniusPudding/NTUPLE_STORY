@@ -7,7 +7,7 @@ from game_manager import *
 def auto_prompt(Screen,press_key,pos_hint,instance, prompt,size_hint=(.6,.5),pre_info='',post_info='繼續品味人生...'):#a Screen-bind function
 	if prompt:
 		print(f'[*] Auto prompt to press {press_key}!')
-		Screen.remove_widget(Screen.prompt_label)
+		Screen.remove_widget(Screen.prompt_label)#for exceptions
 		Screen.prompt_label = Label(text=pre_info+f'\n請按\'{press_key}\'鍵\n'+post_info,color=(191/255, 201/255, 202/255, 1),pos_hint=pos_hint,size_hint=size_hint,halign='center',valign='center',font_size=78,font_name='res/HuaKangTiFan-CuTi-1.otf')
 		Screen.add_widget(Screen.prompt_label)			
 		#MUST set remove_widget in Screen's key_action function
@@ -54,7 +54,6 @@ class CircleImage(Widget):#Image
 
 	def start_switching_animate(self,pos,offset,direction,duration=.35):#offset and duration also can be a list, and must have same length 
 		(px,py) = pos
-		#print(f'Before anim... pos:{pos},offset:{offset},direction:{direction}')
 		if not isinstance(offset, list):#only a tuple
 			(ox,oy) = offset
 			
@@ -89,8 +88,6 @@ class CircleImage(Widget):#Image
 		#print('on_complete')
 		if isinstance(self.parent,Screen):
 			self.parent.itemframe.playing_anim_num -= 1
-
-
 
 class ImageButton(ButtonBehavior, Image): #Behavior
 	def __init__(self, **kargs):#callback,
