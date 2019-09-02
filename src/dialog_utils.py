@@ -82,8 +82,7 @@ def auto_dialog_preprocess(auto_dialog,s_time,c_time,n_time):
 		time = cal_line_time_accu(line,s_time,c_time,n_time)#new_auto_dialog,line,i,start_line_clock_time)#start_line_clock_time = 
 		print('\\n in line:',('\n' in line))
 		start_line_clock_time.append(time)	
-	#print('after preprocessing, new_auto_dialog:',new_auto_dialog,'start_line_clock_time:',start_line_clock_time)	
-	return start_line_clock_time #,new_auto_dialog
+	return start_line_clock_time
 def dialog_segmentation(dialog,max_count):
 	new_dialog = []
 	for name,line in dialog:
@@ -95,11 +94,9 @@ def dialog_segmentation(dialog,max_count):
 				new_line[1] += p
 			else:
 				new_line[1] += '\n'
-				#print('add new_line:',new_line)
 				new_dialog.append(new_line)
 				new_line = [name,p]	
-		new_line[1] += '\n'
-		#print('add new_line:',new_line)	
+		new_line[1] += '\n'	
 		new_dialog.append(new_line)
 
 	return new_dialog
@@ -127,7 +124,6 @@ def custom_multisplit(string,split_list):
 			head_id = i+1
 		elif i == len(string)-1:
 			result_string.append(string[head_id:i+1])
-	#print("custom_multisplit:",result_string)
 	return result_string
 
 
@@ -252,7 +248,6 @@ def auto_accelerate(screen, prompt = False):
 def auto_pause(screen, pre_info='讓我冷靜兩秒鐘...',post_info='再次面對人生',*args):
 	print('Pause the auto dialog')
 	cancel_events(screen)
-	#s = screen.current_line[:screen.current_char_id]#testing
 	auto_prompt(screen,'r',{'x':.2,'y':.3},instance=screen, prompt=True,pre_info=pre_info,post_info=post_info)
 	Clock.schedule_once(partial(pause,screen),1.2) 				
 
@@ -277,7 +272,8 @@ def pause(screen,*args):
 
 #Manual-dialog tools part:
 def semi_auto_play_dialog(screen,dialog):
-	print('[*] Start manual play dialog')	
+	print('[*] Start manual play dialog')
+	screen.clear_text_on_screen()
 	first_line_node = semi_auto_dialog_preprocess(dialog,'flexable')
 
 	print('first_line_node.text_line:',first_line_node.text_line)

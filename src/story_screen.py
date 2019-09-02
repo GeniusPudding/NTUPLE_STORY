@@ -18,7 +18,6 @@ class ItemFrame(FloatLayout):
 	def __init__(self,screen,**kwargs):
 		super(ItemFrame, self).__init__(**kwargs)
 		print(f"init itemframe global_w:{global_w},global_h:{global_h},self.size:{self.size},self.parent={self.parent}:")
-
 		self.parent_w = global_w
 		self.parent_h = global_h
 		self.infoFrame = Widget()
@@ -53,14 +52,13 @@ class ItemFrame(FloatLayout):
 			self.offset = (.1/(self.count-1)*global_w,.05/(self.count-1)*global_h)
 		item_cur_pos = []
 		for i in range(self.count):
-			#print('test append pos:',(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1]))
 			item_cur_pos.append([(.75*global_w + i*self.offset[0]),(.4*global_h+i*self.offset[1])])
 		d_len = min(.15*global_w,.2*global_h)
 	
 		for ci in self.item_images :
 			self.screen.remove_widget(ci)
 		self.item_images = [CircleImage(pos=item_cur_pos[i],size_hint=(None,None),size=(d_len,d_len) ,source=GM.object_table[str(object_id)]['source']) for i,object_id in enumerate(item_list)] 	
-		#item_images與item_list共用focusing_frame_id, 另開一個循環id用來展示選取動畫
+		#item_images與item_list共用focusing_frame_id
 		#when item_images modified, manually modified the item_list
 		
 		for i in range(self.count):
@@ -84,8 +82,6 @@ class ItemFrame(FloatLayout):
 				self.display_item_name(object_id,screen)
 			screen.focusing_object_id = object_id
 		else:
-			print('when close itemframe, screen:',screen)
-			#screen.remove_widget(self.item_name)
 			screen.focusing_object_id = -1
 
 	def display_item_name(self,object_id,screen):
@@ -103,18 +99,14 @@ class ItemFrame(FloatLayout):
 	def switching_frame_focus(self,screen,press_key_id):#handle the cyclic animation
 		n = self.playing_anim_num = self.count #determined by the number of animations
 		screen.try_open_item_view()
-		#n = self.count
 		if n > 1:
 			d_len = min(.15*global_w,.2*global_h)
 
 			if press_key_id==276:
 				print ("key action left")
-		
-
 				#store last pos:	
 				final_pos = self.front_pos
 				init_pos = self.back_pos
-				#print('final_pos:',final_pos,'init_pos:',init_pos)
 				self.curve_animation(screen,self.item_images[self.cyclic[n-1]],init_pos,final_pos)
 				for i in range(n-1):
 					im = self.item_images[self.cyclic[i]]
@@ -208,11 +200,7 @@ class ItemFrame(FloatLayout):
 			screen = self.parent
 			self.use_item(screen,object_id,touch)
 
-
-
-
 class StoryScreen(Screen):
-
 	current_player_id = NumericProperty()
 	current_chapter = NumericProperty(-1)
 	current_player_chapter = ReferenceListProperty(current_player_id, current_chapter)
@@ -308,20 +296,15 @@ class StoryScreen(Screen):
 		self.NPCs_allocation = [[]]
 		self.prompt_label = Label()
 		self.unread_label = Label()
-		#self.nametag = Label()#(Image(),Label())
 		sub_size = max(self.w*self.button_width*.6,self.h*self.button_height*.8)
-		#self.subgame_button = ImageButton(callback=self.to_game_screen,source='res/images/testing/subgame_icon.png',pos_hint={'x':self.dialogframe_width+self.button_width-sub_size/self.w,'y':self.dialogframe_height},size_hint=(sub_size/self.w,sub_size/self.h))
 		self.banned_map_list = ['女主書桌','A女書桌','女主書桌抽屜','女主家裡房間保險箱']#skip when switching maps 
 		self.NPC_tag = Image(pos_hint={'x':.94,'y':.55},size_hint=(.06,.15),source='res/images/NPC_tag.png',allow_stretch=True,keep_ratio=False)
 
 		self.bg_widget = BG_widget(parent =self)
 		self.add_widget(self.bg_widget) 
 
-		# self.canvas.add(Color(rgba=(1,1,1,1),group='switch_map'))
-		# self.canvas.add(Rectangle(source='res/images/switch_map.png',pos=(.4*global_w,0),size=(.2*global_w,.2*global_h),group='switch_map'))
-
 		self.next_round()
-		#self.load_game() #testing auto load/save this game, or set a button
+		#self.load_game()
 
 	#the entry of main function in each round 	
 	def next_round(self,*args):
@@ -331,8 +314,6 @@ class StoryScreen(Screen):
 		self.end_round = False#TODO: if true, 出現輪下一位玩家的按鈕或按鍵提示
 		self.complete_chapter = False
 		self.switch_id = 0
-		#for testing
-		#self.remove_widget(self.subgame_button)
 
 		#<modify game info>: 配置回合切換所需 
 		self.current_player_id, self.current_chapter = GM.change_turn()#Then call auto_reload_chapter_info, and then bind auto_load_chapter_info_contents
@@ -479,7 +460,6 @@ class StoryScreen(Screen):
 			self.map_NPCs_allocator('deallocate')
 			self.map_objects_allocator('allocate')
 
-
 	# def auto_hp_canvas(self,instance, hp):#if hp = 0, end this round
 	# 	print('[*]hp:', hp)
 	# 	for hp in self.hp_widgets:
@@ -597,8 +577,8 @@ class StoryScreen(Screen):
 			if press_key_id in [276,275]:#<-,->
 				print('press_key_id in [276,275] self.current_mode:',self.current_mode)
 
-				if self.current_mode == 1:	
-					if self.item_view == 0 and self.NPC_view == 0 :
+				if self.current_mode == 1:	#synthesis
+					if self.item_view == 0 and self.NPC_view == 0:
 						if self.displaying_character_labels == [] and self.dialog_events == [] and \
 							not self.chapter_maps[self.current_map_id].split('/')[-1].split('.')[0] in self.banned_map_list:
 							self.exploring_maps(press_key_id)
@@ -637,7 +617,7 @@ class StoryScreen(Screen):
 					return True
 
 				if self.current_mode == 1 and self.item_view == 0:
-					if self.NPC_view == 0:
+					if self.NPC_view == 0 and not self.dragging:
 						self.remove_widget(self.NPC_tag)
 						self.NPC_view = 1
 
@@ -684,7 +664,8 @@ class StoryScreen(Screen):
 				if self.current_mode == 2 or (self.current_mode == 1 and self.cheat_chapter_id == len(self.cheat_chapter_password)):	
 					self.remove_widget(self.prompt_label)
 					self.cheat_chapter_id = 0
-					self.current_mode = 3
+					Clock.schedule_once(partial(self.turn_mode,3),.5)
+					#self.current_mode = 3
 
 			elif press_key_id == 100:#d 
 				if self.text_cleared and self.current_mode == 1:
@@ -714,34 +695,34 @@ class StoryScreen(Screen):
 						auto_continue(self)
 
 			#for testing
-				if self.current_mode == 1:	
-					self.current_mode = 3
+			# 	if self.current_mode == 1:	
+			# 		self.current_mode = 3
 
-			elif press_key_id == 101:#e: 
-				if self.current_mode == 1:
-					GM.ready_to_ending()
+			# elif press_key_id == 101:#e: 
+			# 	if self.current_mode == 1:
+			# 		GM.ready_to_ending()
 
-			elif press_key_id == 100:#d: 
-				self.dialog_view ^= 1
+			# elif press_key_id == 100:#d: 
+			# 	self.dialog_view ^= 1
 
-			elif press_key_id == 115:#s
-				#print(f'self.current_mode:{self.current_mode},self.seal_on:{self.seal_on},self.finish_auto:{self.finish_auto}')
-				if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
-					self.clear_text_on_screen()
-					self.finish_auto = True
+			# elif press_key_id == 115:#s
+			# 	#print(f'self.current_mode:{self.current_mode},self.seal_on:{self.seal_on},self.finish_auto:{self.finish_auto}')
+			# 	if self.current_mode == 0 and not self.seal_on and not self.finish_auto:
+			# 		self.clear_text_on_screen()
+			# 		self.finish_auto = True
 
-			elif  press_key_id == 114:#r:
-				if self.current_mode == 1:	
-					if self.item_view == 1: 
-						self.reload_item_list = True
+			# elif  press_key_id == 114:#r:
+			# 	if self.current_mode == 1:	
+			# 		if self.item_view == 1: 
+			# 			self.reload_item_list = True
 
-			elif  press_key_id == 109:#m:
-				if self.current_mode == 1:
-					self.complete_chapter = True
-			elif  press_key_id == 110:#n:
-				if self.current_mode == 1:
-					if self.item_view == 0: 
-						self.next_round()
+			# elif  press_key_id == 109:#m:
+			# 	if self.current_mode == 1:
+			# 		self.complete_chapter = True
+			# elif  press_key_id == 110:#n:
+			# 	if self.current_mode == 1:
+			# 		if self.item_view == 0: 
+			# 			self.next_round()
 
 			# elif press_key_id in [274,273]:
 			# 	# if self.cur_unsafed:
@@ -1031,7 +1012,7 @@ class StoryScreen(Screen):
 				Clock.schedule_once(partial(screen.dragging_item.reset,screen),spent_time+1.5) 
 				Clock.schedule_once(screen.set_judgable,spent_time+1.6) #testing		
 				self.canvas.remove_group('synthesis1')
-				self.hp_per_round -= 1
+				#self.hp_per_round -= 1
 				#screen.hp_per_round -= 1
 
 		expected_input = synthesis_content['input']
@@ -1104,7 +1085,7 @@ class StoryScreen(Screen):
 				spent_time = line_display_scheduler(self,'開鎖失敗...\n',False,special_char_time,next_line_time,common_char_time)
 				Clock.schedule_once(partial(self.dragging_item.reset,self),spent_time+1) 	
 				Clock.schedule_once(self.set_judgable,spent_time+1.1)
-				self.hp_per_round -= 1
+				#self.hp_per_round -= 1
 		elif not self.mouse_in_range(judge_pos_hint, judge_size_hint) and self.dragging_item.free == 1:
 			print('開鎖超出範圍，返回原位')		
 			self.dragging_item.reset(self)
@@ -1158,38 +1139,29 @@ class StoryScreen(Screen):
 		if turn_mode == 1:
 			if self.item_view == 1:
 				Clock.schedule_once(self.try_close_item_view,spent_time+.1)
-
-			self.current_mode = turn_mode 
+			Clock.schedule_once(partial(self.turn_mode,1),spent_time+.2)	
+			#self.current_mode = turn_mode 
 
 		elif turn_mode == 3:
 			print('self.current_mode:',self.current_mode )	
 			auto_prompt(self,'q',{'x':.2,'y':.3},instance=self, prompt=True,pre_info='於是，我也墮入了回憶...\n',post_info='不再回頭')
 
-	def on_press_item(self, btn):
+	def turn_mode(self,mode,*args):
+		self.current_mode = mode 
 
+	def on_press_item(self, btn):
 		self.hp_per_round -= 1
 		self.pickup_chapter_objects(btn)
-
 		self.dialog_view = 1
 		spent_time = line_display_scheduler(self,'好像撿到有用的道具了呦\n',False,special_char_time,next_line_time,common_char_time)
 		self.delay_hide_dialogframe(spent_time)
 
 	def pickup_chapter_objects(self,btn,action='to_bag'):
-		# picked_item = None
-		# for MapObject in self.objects_allocation[self.current_map_id]:
-		# 	if MapObject.object_id == object_id:
-		# 		picked_item = MapObject
-		# 		print('picked_item:',picked_item.object_id)
-		# 		break
-
 		print('self.objects_allocation[self.current_map_id]:',self.objects_allocation[self.current_map_id])
-		#self.objects_allocation[self.current_map_id].remove(picked_item)
-		#self.chapter_info.chapter_objects_of_maps[self.current_map_id].remove(picked_item)
 		self.chapter_info.remove_objects_on_map(self.current_map_id,btn)
 		print('after self.objects_allocation[self.current_map_id]:',self.objects_allocation[self.current_map_id])
 		if action == 'to_bag':
 			GM.players[self.current_player_id].get_item(btn.object_id)
-		#self.remove_widget(btn) 
 
 	def on_press_puzzle(self, btn):
 		self.enter_puzzle_mode(btn.object_id, 'puzzle')	
@@ -1353,7 +1325,7 @@ class StoryScreen(Screen):
 	# 	print('testing objects:',self.testing_objects)		
 	# 	self.cur_unsafed = False	
 
-	# #for testing: drag objects to map location and save
+	# drag objects to map location and save
 	# def testing_set_objects_pos(self):
 	# 	if self.testing_objects_id > len(self.testing_objects)-2:
 	# 		return 
@@ -1365,7 +1337,7 @@ class StoryScreen(Screen):
 	# 	self.add_widget(self.cur_testing_dragitem)
 	# 	self.cur_unsafed = True
 
-	# #for testing: drag objects to map location and save	
+	# drag objects to map location and save	
 	# def testing_save_object_pos(self):
 	# 	data = {}
 	# 	if os.path.isfile('res/allocate_all_objects_table.json'):
@@ -1390,7 +1362,6 @@ class StoryScreen(Screen):
 	# 	#f.close()
 	# 	self.cur_unsafed = False
 
-	# #for testing: 
 	# def testing_modify_object_size(self, press_key_id):
 	# 	if press_key_id == 274:
 	# 		self.cur_testing_dragitem.size[0] -= 10
@@ -1398,8 +1369,6 @@ class StoryScreen(Screen):
 	# 	elif press_key_id == 273:
 	# 		self.cur_testing_dragitem.size[0] += 10
 	# 		self.cur_testing_dragitem.size[1] += 10
-	
-	# #for testing: 
 	# def testing_embeded_object_marker(self):
 	# 	pass
 
